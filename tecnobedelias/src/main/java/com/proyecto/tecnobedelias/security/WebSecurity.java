@@ -35,6 +35,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
                 .antMatchers(HttpMethod.POST, "/users/rol").permitAll()
+                .antMatchers(HttpMethod.POST, "/role/crear").permitAll()
                 //.antMatchers(HttpMethod.GET, HOLA_URL).hasRole("ADMIN")
                 //.antMatchers(HttpMethod.GET, HOLA2_URL).hasAuthority("USER")
                 .antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/configuration/security", "/swagger-ui.html", "/webjars/**", "/swagger-resources/configuration/ui", "/swagge‌​r-ui.html", "/swagger-resources/configuration/security").permitAll()
