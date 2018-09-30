@@ -1,0 +1,60 @@
+PROYECTO 2018 TECNOBEDELIAS BACKEND
+
+-Luego de clonar el proyecto abrirlo en Eclipse y actualizar en Maven
+
+-Crear el archivo application.properties en el directorio tecnobedelias\src\main\resources\
+	el arcivo debe contener la base de datos, usuario y contraseña del postgres y demás configuraciones de JPA:
+
+	spring.datasource.validationQuery=SELECT 1
+	spring.datasource.url = jdbc:postgresql://localhost/testdb
+	spring.jmx.enabled=false\n
+	spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+	spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+	spring.datasource.username = postgres
+	spring.datasource.password = postgres
+	spring.jpa.hibernate.ddl-auto=update
+
+
+-Correr la aplicación ejecutando el archivo TecnobedeliasApplication -> Run As -> Java Application
+
+-Con la aplicación corriendo entrar al Postman para crear usuarios
+Post al http://localhost:8080/users/sign-up
+Body raw JSON(application/json)
+
+{
+	"username" : "admin"
+	"password" : "admin1234"
+}
+
+-Crear los Roles 
+Posr al http://localhost:8080/role/crear
+Body raw JSON(application/json)
+
+{
+	"name" : "ADMINISTRADOR"
+}
+
+-Asignar rol al usuario
+Post al http://localhost:8080/users/rol
+Body x-www-form-urlencoded
+Key 			Value
+rol 			ADMINISTRADOR
+usuarioId		[id del usuario creado]
+
+
+-Loguear
+Post al http://localhost:8080/login
+Body raw JSON(application/json)
+
+{
+	"username" : "admin",
+	"password" : "admin1234"
+}
+
+-Abrir el Swagger en el Navegador
+http://localhost:8080/swagger-ui.html
+
+-Autorizar
+Copiar el token recibido como respuesta al login en el postman(Bearer askdjfaksdjfaskdjfksadjfakslfdj...)
+y pegarlo en el swagger en el campo Bearer access_token
+
