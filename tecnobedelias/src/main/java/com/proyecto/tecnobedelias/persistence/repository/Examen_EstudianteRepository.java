@@ -1,5 +1,7 @@
 package com.proyecto.tecnobedelias.persistence.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +12,6 @@ import com.proyecto.tecnobedelias.persistence.model.Usuario;
 @Repository
 public interface Examen_EstudianteRepository extends JpaRepository<Examen_Estudiante, Long>{
 	
-	public Examen_Estudiante findByExamenAndEstudiante(Examen examen, Usuario estudiante);
+	public Optional<Examen_Estudiante> findByExamenAndEstudiante(Examen examen, Usuario estudiante);
 	
 }

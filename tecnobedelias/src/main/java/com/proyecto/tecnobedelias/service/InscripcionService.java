@@ -7,15 +7,15 @@ import com.proyecto.tecnobedelias.persistence.model.Usuario;
 
 public interface InscripcionService {
 	
-	public void inscripcionCarrera(Usuario usuario, Carrera carrera);
+	public boolean inscripcionCarrera(Usuario usuario, Carrera carrera);
 	
-	public void inscripcionCurso(Usuario usuario, Curso curso);
+	public boolean inscripcionCurso(Usuario usuario, Curso curso);
 
-	public void inscripcionExamen(Usuario usuario, Examen examen);
+	public boolean inscripcionExamen(Usuario usuario, Examen examen);
 	
-	public void desistirCurso(Usuario usuario, Curso curso);
+	public boolean desistirCurso(Usuario usuario, Curso curso);
 	
-	public void desistirExamen(Usuario usuario, Examen examen);
+	public boolean desistirExamen(Usuario usuario, Examen examen);
 	
 	
 }

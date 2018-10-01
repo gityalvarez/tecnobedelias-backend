@@ -1,5 +1,7 @@
 package com.proyecto.tecnobedelias.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,63 +17,94 @@ import com.proyecto.tecnobedelias.persistence.repository.Examen_EstudianteReposi
 import com.proyecto.tecnobedelias.service.InscripcionService;
 
 @Service
-public class InscripcionServiceImpl implements InscripcionService{
-	
+public class InscripcionServiceImpl implements InscripcionService {
+
 	@Autowired
 	CarreraRepository carreraRepository;
-	
+
 	@Autowired
 	Curso_EstudianteRepository cursoEstudianteRepository;
-	
+
 	@Autowired
 	Examen_EstudianteRepository examenEstudianteRepository;
 
 	@Override
-	public void inscripcionCarrera(Usuario usuario, Carrera carrera) {
-		carrera.getEstudiantes().add(usuario);
-		usuario.getCarreras().add(carrera);
-		carreraRepository.save(carrera);
-		
+	public boolean inscripcionCarrera(Usuario usuario, Carrera carrera) {
+		if (usuario.getCarreras().contains(carrera)) {
+			return false;
+		} else {
+
+			carrera.getEstudiantes().add(usuario);
+			usuario.getCarreras().add(carrera);
+			carreraRepository.save(carrera);
+			return true;
+		}
 	}
 
 	@Override
-	public void inscripcionCurso(Usuario usuario, Curso curso) {
-		Curso_Estudiante cursoEstudiante = new Curso_Estudiante();
-		cursoEstudiante.setCurso(curso);
-		cursoEstudiante.setEstudiante(usuario);
-		usuario.getCursoEstudiante().add(cursoEstudiante);
-		curso.getCursoEstudiante().add(cursoEstudiante);
-		cursoEstudianteRepository.save(cursoEstudiante);
-		
+	public boolean inscripcionCurso(Usuario usuario, Curso curso) {
+		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso,
+				usuario);
+
+		if (cursoEstudianteExistente.isPresent()) {
+			return false;
+		} else {
+
+			Curso_Estudiante cursoEstudiante = new Curso_Estudiante();
+			cursoEstudiante.setCurso(curso);
+			cursoEstudiante.setEstudiante(usuario);
+			usuario.getCursoEstudiante().add(cursoEstudiante);
+			curso.getCursoEstudiante().add(cursoEstudiante);
+			cursoEstudianteRepository.save(cursoEstudiante);
+			return true;
+		}
 	}
 
 	@Override
-	public void inscripcionExamen(Usuario usuario, Examen examen) {
-		Examen_Estudiante examenEstudiante = new Examen_Estudiante();
-		examenEstudiante.setEstudiante(usuario);
-		examenEstudiante.setExamen(examen);
-		examenEstudianteRepository.save(examenEstudiante);
-		
+	public boolean inscripcionExamen(Usuario usuario, Examen examen) {
+		Optional<Examen_Estudiante> examenEstudianteExistente = examenEstudianteRepository
+				.findByExamenAndEstudiante(examen, usuario);
+
+		if (examenEstudianteExistente.isPresent()) {
+			return false;
+		} else {
+			Examen_Estudiante examenEstudiante = new Examen_Estudiante();
+			examenEstudiante.setEstudiante(usuario);
+			examenEstudiante.setExamen(examen);
+			examenEstudianteRepository.save(examenEstudiante);
+			return true;
+		}
 	}
 
 	@Override
-	public void desistirCurso(Usuario usuario, Curso curso) {
-		Curso_Estudiante cursoEstudiante = cursoEstudianteRepository.findByCursoAndEstudiante(curso, usuario);
-		usuario.getCursoEstudiante().remove(cursoEstudiante);
-		curso.getCursoEstudiante().remove(cursoEstudiante);
-		cursoEstudianteRepository.delete(cursoEstudiante);
-		
+	public boolean desistirCurso(Usuario usuario, Curso curso) {
+		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso,
+				usuario);
+		if (cursoEstudianteExistente.isPresent()) {
+			usuario.getCursoEstudiante().remove(cursoEstudianteExistente.get());
+			curso.getCursoEstudiante().remove(cursoEstudianteExistente.get());
+			cursoEstudianteRepository.delete(cursoEstudianteExistente.get());
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
-	public void desistirExamen(Usuario usuario, Examen examen) {
-		Examen_Estudiante examenEstudiante = examenEstudianteRepository.findByExamenAndEstudiante(examen, usuario);
-		usuario.getExamenEstudiante().remove(examenEstudiante);
-		examen.getExamenEstudiante().remove(examenEstudiante);
-		examenEstudianteRepository.delete(examenEstudiante);
+	public boolean desistirExamen(Usuario usuario, Examen examen) {
 		
+		Optional<Examen_Estudiante> examenEstudianteExistente = examenEstudianteRepository.findByExamenAndEstudiante(examen,
+				usuario);
+		if (examenEstudianteExistente.isPresent()) {
+			usuario.getExamenEstudiante().remove(examenEstudianteExistente.get());
+			examen.getExamenEstudiante().remove(examenEstudianteExistente.get());
+			examenEstudianteRepository.delete(examenEstudianteExistente.get());
+			return true;
+		}else {
+			return false;
+		}
+		
+
 	}
-	
-	
 
 }

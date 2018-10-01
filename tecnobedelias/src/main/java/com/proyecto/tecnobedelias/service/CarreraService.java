@@ -13,9 +13,9 @@ public interface CarreraService {
 	
 	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera);
 	
-	public void agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
+	public boolean agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
 	
-	public void eliminarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
+	public boolean eliminarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
 	
 	public List<Asignatura> filtrarAsignatura();
 	

@@ -15,26 +15,24 @@ import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
 import com.proyecto.tecnobedelias.service.CarreraService;
 
 @Service
-public class CarreraServiceImpl implements CarreraService{
-	
+public class CarreraServiceImpl implements CarreraService {
+
 	@Autowired
 	AsignaturaRepository asignaturaRepository;
-	
+
 	@Autowired
 	CarreraRepository carreraRepository;
-	
+
 	@Autowired
 	Asignatura_CarreraRepository asignaturaCarreraRepository;
-	
-	
 
 	@Override
 	public boolean asignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera) {
-		Optional<Asignatura_Carrera> asignaturaCarreraExistente = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura, carrera);
+		Optional<Asignatura_Carrera> asignaturaCarreraExistente = asignaturaCarreraRepository
+				.findByAsignaturaAndCarrera(asignatura, carrera);
 		if (asignaturaCarreraExistente.isPresent()) {
 			return false;
-		}
-		else {
+		} else {
 			Asignatura_Carrera asignaturaCarrera = new Asignatura_Carrera();
 			System.out.println("Dentro del carrera service");
 			asignaturaCarrera.setAsignatura(asignatura);
@@ -48,33 +46,43 @@ public class CarreraServiceImpl implements CarreraService{
 
 	@Override
 	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera) {
-		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura, carrera);
+		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository
+				.findByAsignaturaAndCarrera(asignatura, carrera);
 		if (asignaturaCarrera.isPresent()) {
 			asignatura.getAsignaturaCarrera().remove(asignaturaCarrera.get());
 			carrera.getAsignaturaCarrera().remove(asignaturaCarrera.get());
 			asignaturaCarreraRepository.delete(asignaturaCarrera.get());
 			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	@Override
+	public boolean agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera asignaturaPrevia) {
+		if (asignatura.getCarrera() == asignaturaPrevia.getCarrera()) {
+			asignatura.getPrevias().add(asignaturaPrevia);
+			asignaturaPrevia.getPreviaDe().add(asignatura);
+			asignaturaCarreraRepository.save(asignatura);
+			return true;
 		}
 		else {
 			return false;
 		}
-		
-				
 	}
 
 	@Override
-	public void agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera asignaturaPrevia) {
-		
-		asignatura.getPrevias().add(asignaturaPrevia);
-		asignaturaPrevia.getPreviaDe().add(asignatura);
-		asignaturaCarreraRepository.save(asignatura);
-	}
-
-	@Override
-	public void eliminarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera asignaturaPrevia) {
-		asignatura.getPrevias().remove(asignaturaPrevia);
-		asignaturaPrevia.getPreviaDe().remove(asignatura);
-		asignaturaCarreraRepository.save(asignatura);
+	public boolean eliminarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera asignaturaPrevia) {
+		if(asignatura.getPrevias().contains(asignaturaPrevia)) {
+			asignatura.getPrevias().remove(asignaturaPrevia);
+			asignaturaPrevia.getPreviaDe().remove(asignatura);
+			asignaturaCarreraRepository.save(asignatura);
+			return true;
+		}else {
+			return false;
+		}
+			
 	}
 
 	@Override
@@ -84,17 +92,16 @@ public class CarreraServiceImpl implements CarreraService{
 	}
 
 	@Override
-	public List<Asignatura_Carrera> listarPrevias(Asignatura_Carrera asignaturaCarrera){
-		
+	public List<Asignatura_Carrera> listarPrevias(Asignatura_Carrera asignaturaCarrera) {
+
 		return asignaturaCarrera.getPrevias();
-		
+
 	}
 
 	@Override
 	public void generarGrafoPrevias() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	
 }
