@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Curso_Estudiante;
@@ -62,17 +63,27 @@ public class InscripcionServiceImpl implements InscripcionService {
 
 	@Override
 	public boolean inscripcionExamen(Usuario usuario, Examen examen) {
+		
 		Optional<Examen_Estudiante> examenEstudianteExistente = examenEstudianteRepository
 				.findByExamenAndEstudiante(examen, usuario);
-
+		//si ya esta inscripto al examen retorno false
 		if (examenEstudianteExistente.isPresent()) {
 			return false;
-		} else {
-			Examen_Estudiante examenEstudiante = new Examen_Estudiante();
-			examenEstudiante.setEstudiante(usuario);
-			examenEstudiante.setExamen(examen);
-			examenEstudianteRepository.save(examenEstudiante);
-			return true;
+		}else {
+			//corroboro que se haya inscripto al curso de esa asignatura y que llegue a la nota de examen 
+			Long asignaturaId = examen.getAsignatura().getId();
+			for(Curso_Estudiante cursoEstudiante: usuario.getCursoEstudiante()) {
+				if(cursoEstudiante.getCurso().getAsignatura().getId() == asignaturaId) {
+					if(cursoEstudiante.getEstado() == "EXAMEN") {
+						Examen_Estudiante examenEstudiante = new Examen_Estudiante();
+						examenEstudiante.setEstudiante(usuario);
+						examenEstudiante.setExamen(examen);
+						examenEstudianteRepository.save(examenEstudiante);
+						return true;						
+					}
+				}
+			}		
+			return false;
 		}
 	}
 
