@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
+import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Asignatura_CarreraRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
@@ -43,13 +45,20 @@ public class CarreraController{
 	@GetMapping
 	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
 	public List<Carrera> listarCarreras() {
-		return carreraRepository.findAll();
+		return carreraService.listarCarreras();
 	}
+	
+    @PostMapping("/verificar")
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    public boolean verificarCarrera(HttpServletRequest request,
+			@RequestParam(name = "nombre", required = true) String carreraNombre) {
+    	return carreraService.existeCarrera(carreraNombre);
+    }
 
     @PostMapping("/crear")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public void crearCarrera(@RequestBody Carrera carrera){
-    	carreraRepository.save(carrera);
+    	carreraService.altaCarrera(carrera);
     }
     
     @PostMapping("/borrar")

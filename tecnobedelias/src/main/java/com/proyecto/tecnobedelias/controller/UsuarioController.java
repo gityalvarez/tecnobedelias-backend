@@ -43,17 +43,25 @@ public class UsuarioController {
     
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-	public List<Usuario> getUsuarios() {
-		return usuarioRepository.findAll();
+	public List<Usuario> obtenerUsuarios() {
+		return usuarioService.listarUsuarios();
 	}
+    
+    
     
     
     
     @PostMapping("/sign-up")
     //@PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-    public void signUp(@RequestBody Usuario usuario) {
-        usuario.setPassword(bCryptPasswordEncoder.encode(usuario.getPassword()));
-        usuarioRepository.save(usuario);
+    public boolean signUp(@RequestBody Usuario usuario) {
+    	
+    	if (usuarioService.existeUsuario(usuario)) return false;
+    	else {
+    		
+    		usuario.setPassword(bCryptPasswordEncoder.encode(usuario.getPassword()));
+    		usuarioService.altaUsuario(usuario);
+    		return true;
+    	}
     }
     
     //@PreAuthorize("hasRole(ROLE_ADMIN)")
@@ -77,6 +85,12 @@ public class UsuarioController {
     	usuarioService.asignarRolUsuario(rol, usuario);
     	//usuario.getRoles().add(role);
     	//usuarioRepository.save(usuario);
+    }
+    
+    @PostMapping("/borrar")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+    public void borrarUsuario(Usuario usuario) {
+    	usuarioService.bajaUsuario(usuario);
     }
     
     

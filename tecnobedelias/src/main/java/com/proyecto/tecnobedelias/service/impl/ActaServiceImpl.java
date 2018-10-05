@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Curso_Estudiante;
@@ -12,9 +14,12 @@ import com.proyecto.tecnobedelias.persistence.model.Examen;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.CursoRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Curso_EstudianteRepository;
+import com.proyecto.tecnobedelias.persistence.repository.ExamenRepository;
+import com.proyecto.tecnobedelias.persistence.repository.Examen_EstudianteRepository;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.ActaService;
 
+@Service
 public class ActaServiceImpl implements ActaService{
 
 	@Autowired
@@ -26,15 +31,20 @@ public class ActaServiceImpl implements ActaService{
 	@Autowired
 	Curso_EstudianteRepository cursoEstudianteRepository;
 	
+	@Autowired
+	ExamenRepository examenRepository;
+	
+	@Autowired
+	Examen_EstudianteRepository examenEstudianteRepository;
+	
+	
+	
+	
 	@Override
 	public boolean cargarCalificacionesCurso(Map<Long, Integer> calificaciones, Curso curso) {
 		if(cursoRepository.findAll().contains(curso)) {
-			/*List<Usuario> estudiantes = new ArrayList();
-			for(Curso_Estudiante cursoEstudiante: curso.getCursoEstudiante()) {
-				estudiantes.add(cursoEstudiante.getEstudiante());
-			}*/
-			calificaciones.forEach((k,v)->{
-				cursoEstudianteRepository.findByCursoAndEstudiante(curso,usuarioRepository.findById(k).get()).get().setNota(v);
+			calificaciones.forEach((key,value)->{
+				cursoEstudianteRepository.findByCursoAndEstudiante(curso,usuarioRepository.findById(key).get()).get().setNota(value);
 				
 			});
 			return true;
@@ -43,8 +53,12 @@ public class ActaServiceImpl implements ActaService{
 
 	@Override
 	public boolean cargarCalificacionesExamen(Map<Long, Integer> calificaciones, Examen examen) {
-		// TODO Auto-generated method stub
-		return false;
+		if(examenRepository.findAll().contains(examen)) {
+			calificaciones.forEach((key,value)->{
+				examenEstudianteRepository.findByExamenAndEstudiante(examen, usuarioRepository.findById(key).get()).get().setNota(value);;
+			});
+			return true;
+		}else return false;
 	}
 
 	@Override
@@ -65,6 +79,10 @@ public class ActaServiceImpl implements ActaService{
 		
 	}
 	
+	public ModelAndView downloadPdf() {
+		System.out.println("entre al actaService");
+		return new ModelAndView("PdfView", "usuarios", usuarioRepository.findAll());
+	}
 	
 
 }

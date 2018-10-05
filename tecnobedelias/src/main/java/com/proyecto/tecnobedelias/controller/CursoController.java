@@ -18,6 +18,7 @@ import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CursoRepository;
+import com.proyecto.tecnobedelias.service.CursoService;
 
 @RestController
 @RequestMapping("/curso")
@@ -29,6 +30,9 @@ public class CursoController {
 
 	@Autowired
 	AsignaturaRepository asignaturaRepository;
+	
+	@Autowired
+	CursoService cursoService;
 
 	@GetMapping
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
@@ -39,14 +43,15 @@ public class CursoController {
 	@PostMapping("/crear")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public void crearCurso(@RequestBody Curso curso) {
-		cursoRepository.save(curso);
+		cursoService.altaCurso(curso);
 	}
+	
+	
 
 	@PostMapping("/borrar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public void borrarCurso(HttpServletRequest request,
-			@RequestParam(name = "cursoId", required = true) Long cursoId) {
-		cursoRepository.deleteById(cursoId);
+	public void borrarCurso(Curso curso) {
+		cursoService.bajaCurso(curso);
 	}
 
 	@PostMapping("/asignarAsignatura")

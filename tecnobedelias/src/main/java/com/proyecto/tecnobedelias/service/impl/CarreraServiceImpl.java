@@ -25,6 +25,20 @@ public class CarreraServiceImpl implements CarreraService {
 
 	@Autowired
 	Asignatura_CarreraRepository asignaturaCarreraRepository;
+	
+	public List<Carrera> listarCarreras(){
+		return carreraRepository.findAll();
+	}
+	
+	public boolean existeCarrera(String nombre) {
+		Optional<Carrera> carreraExistente = carreraRepository.findByNombre(nombre);
+		if (carreraExistente.isPresent()) return true;
+		else return false;
+	}
+	
+	public void altaCarrera(Carrera carrera) {
+		carreraRepository.save(carrera);
+	}
 
 	@Override
 	public boolean asignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera) {
@@ -62,14 +76,31 @@ public class CarreraServiceImpl implements CarreraService {
 	@Override
 	public boolean agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera asignaturaPrevia) {
 		if (asignatura.getCarrera() == asignaturaPrevia.getCarrera()) {
-			asignatura.getPrevias().add(asignaturaPrevia);
-			asignaturaPrevia.getPreviaDe().add(asignatura);
-			asignaturaCarreraRepository.save(asignatura);
-			return true;
+			//se evita la referencia circular
+			if (!esPrevia(asignaturaPrevia,asignatura)) {				
+				asignatura.getPrevias().add(asignaturaPrevia);
+				asignaturaPrevia.getPreviaDe().add(asignatura);
+				asignaturaCarreraRepository.save(asignatura);
+				return true;
+			}else return false;
 		}
 		else {
 			return false;
 		}
+	}	
+	
+	private boolean esPrevia(Asignatura_Carrera asignatura, Asignatura_Carrera previaABuscar) {		
+		List<Asignatura_Carrera> previas = asignatura.getPrevias();
+		for(Asignatura_Carrera previa : previas) {
+			if (previa.equals(previaABuscar)) {
+				return true;
+			}else {
+				if(esPrevia(previa,previaABuscar)) {
+					return true;
+				}
+			}		
+		}
+		return false;		
 	}
 
 	@Override

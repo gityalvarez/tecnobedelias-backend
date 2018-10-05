@@ -77,6 +77,18 @@ public class Usuario {
 	
 	private String app_token;
 	
+	private String resetToken;
+	
+	public String getResetToken() {
+		return resetToken;
+	}
+
+	public void setResetToken(String resetToken) {
+		this.resetToken = resetToken;
+	}
+
+
+
 	@JsonIgnore
 	@JoinTable(
 	        name = "Usuario_Roles",

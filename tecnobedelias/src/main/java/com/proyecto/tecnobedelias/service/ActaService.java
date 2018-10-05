@@ -2,6 +2,8 @@ package com.proyecto.tecnobedelias.service;
 
 import java.util.Map;
 
+import org.springframework.web.servlet.ModelAndView;
+
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
@@ -17,6 +19,8 @@ public interface ActaService {
 	public void imprimirActaExamen(Examen examen);
 	
 	public void imprimirEscolaridad(Usuario estudiante);
+	
+	public ModelAndView downloadPdf();
 	
 	
 }

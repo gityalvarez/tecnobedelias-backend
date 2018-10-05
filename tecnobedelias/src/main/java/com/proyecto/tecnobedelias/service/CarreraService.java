@@ -9,6 +9,12 @@ import com.proyecto.tecnobedelias.persistence.model.Carrera;
 
 public interface CarreraService {
 	
+	public List<Carrera> listarCarreras();
+	
+	public boolean existeCarrera(String nombre);
+	
+	public void altaCarrera(Carrera carrera);
+	
 	public boolean asignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera);
 	
 	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera);
