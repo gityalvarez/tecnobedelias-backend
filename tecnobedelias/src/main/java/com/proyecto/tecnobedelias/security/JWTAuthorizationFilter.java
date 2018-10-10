@@ -34,8 +34,12 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
+		System.out.println("entre al filtro Authorization");
+		
 		String header = req.getHeader(HEADER_STRING);
+		System.out.println(header);
 		if (header == null || !header.startsWith(TOKEN_PREFIX)) {
+			System.out.println("header null o no empieza con Bearer");
 			chain.doFilter(req, res);
 			return;
 		}
@@ -47,7 +51,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
 		String token = request.getHeader(HEADER_STRING);
 		if (token != null) {
-
+			System.out.println("entre al getAuthentication con el token "+token);
 			Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
 					.getBody();
 

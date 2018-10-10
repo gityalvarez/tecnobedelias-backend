@@ -39,7 +39,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req,
                                                 HttpServletResponse res) throws AuthenticationException {
-        try {
+        
+    	System.out.println("entre al attemptAuthentication");
+    	try {
             Usuario creds = new ObjectMapper()
                     .readValue(req.getInputStream(), Usuario.class);
             return authenticationManager.authenticate(
@@ -57,13 +59,21 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             HttpServletResponse res,
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
-
+    	System.out.println("entre al succesfulAuthentication");
+    	
         String token = Jwts.builder()
                 .setSubject(((User) auth.getPrincipal()).getUsername())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .claim("roles",((User) auth.getPrincipal()).getAuthorities())
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
+        
+        System.out.println("devuelvo el string : "+TOKEN_PREFIX + token);
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+        
+        
+        
+        //res.addHeader("Access-Control-Allow-Origin", "*");
+       
     }
 }

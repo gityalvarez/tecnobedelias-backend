@@ -13,5 +13,6 @@ import com.proyecto.tecnobedelias.persistence.model.Carrera;
 public interface Asignatura_CarreraRepository extends JpaRepository<Asignatura_Carrera,Long>{
 	
 	public Optional<Asignatura_Carrera> findByAsignaturaAndCarrera(Asignatura asignatura,Carrera carrera);
+	//public Optional<Asignatura_Carrera> findByAsignaturaNotAndCarrera(Asignatura asignatura,Carrera carrera);
 
 }

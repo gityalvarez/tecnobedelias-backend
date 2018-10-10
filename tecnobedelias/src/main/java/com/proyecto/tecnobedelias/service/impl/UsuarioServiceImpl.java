@@ -67,6 +67,14 @@ public class UsuarioServiceImpl implements UsuarioService{
 	public Optional findUsuarioByResetToken(String resetToken) {
 		return usuarioRepository.findByResetToken(resetToken);
 	}
+
+
+	@Override
+	public Optional<Usuario> findUsuarioByUsername(String username) {
+		return usuarioRepository.findByUsername(username);
+	}
+	
+	
 	
 
 }

@@ -24,4 +24,6 @@ public interface UsuarioService {
 	public void bajaUsuario(Usuario usuario);
 	
 	public Optional<Usuario> findUsuarioByResetToken(String resetToken);
+	
+	public Optional<Usuario> findUsuarioByUsername(String username);
 }
