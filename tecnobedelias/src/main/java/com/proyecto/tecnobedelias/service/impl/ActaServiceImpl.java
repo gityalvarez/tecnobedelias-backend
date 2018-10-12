@@ -15,7 +15,7 @@ import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.CursoRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Curso_EstudianteRepository;
 import com.proyecto.tecnobedelias.persistence.repository.ExamenRepository;
-import com.proyecto.tecnobedelias.persistence.repository.Examen_EstudianteRepository;
+import com.proyecto.tecnobedelias.persistence.repository.Estudiante_ExamenRepository;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.ActaService;
 
@@ -35,7 +35,7 @@ public class ActaServiceImpl implements ActaService{
 	ExamenRepository examenRepository;
 	
 	@Autowired
-	Examen_EstudianteRepository examenEstudianteRepository;
+	Estudiante_ExamenRepository examenEstudianteRepository;
 	
 	
 	

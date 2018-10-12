@@ -22,7 +22,6 @@ import com.proyecto.tecnobedelias.service.CursoService;
 
 @RestController
 @RequestMapping("/curso")
-@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 public class CursoController {
 
 	@Autowired
@@ -34,7 +33,7 @@ public class CursoController {
 	@Autowired
 	CursoService cursoService;
 
-	@GetMapping
+	@GetMapping("/listar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public List<Curso> listarCursos() {
 		return cursoRepository.findAll();

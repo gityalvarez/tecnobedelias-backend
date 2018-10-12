@@ -5,16 +5,15 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Curso_Estudiante;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
-import com.proyecto.tecnobedelias.persistence.model.Examen_Estudiante;
+import com.proyecto.tecnobedelias.persistence.model.Estudiante_Examen;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Curso_EstudianteRepository;
-import com.proyecto.tecnobedelias.persistence.repository.Examen_EstudianteRepository;
+import com.proyecto.tecnobedelias.persistence.repository.Estudiante_ExamenRepository;
 import com.proyecto.tecnobedelias.service.InscripcionService;
 
 @Service
@@ -27,7 +26,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 	Curso_EstudianteRepository cursoEstudianteRepository;
 
 	@Autowired
-	Examen_EstudianteRepository examenEstudianteRepository;
+	Estudiante_ExamenRepository examenEstudianteRepository;
 
 	@Override
 	public boolean inscripcionCarrera(Usuario usuario, Carrera carrera) {
@@ -64,7 +63,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 	@Override
 	public boolean inscripcionExamen(Usuario usuario, Examen examen) {
 		
-		Optional<Examen_Estudiante> examenEstudianteExistente = examenEstudianteRepository
+		Optional<Estudiante_Examen> examenEstudianteExistente = examenEstudianteRepository
 				.findByExamenAndEstudiante(examen, usuario);
 		//si ya esta inscripto al examen retorno false
 		if (examenEstudianteExistente.isPresent()) {
@@ -75,7 +74,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 			for(Curso_Estudiante cursoEstudiante: usuario.getCursoEstudiante()) {
 				if(cursoEstudiante.getCurso().getAsignatura().getId() == asignaturaId) {
 					if(cursoEstudiante.getEstado() == "EXAMEN") {
-						Examen_Estudiante examenEstudiante = new Examen_Estudiante();
+						Estudiante_Examen examenEstudiante = new Estudiante_Examen();
 						examenEstudiante.setEstudiante(usuario);
 						examenEstudiante.setExamen(examen);
 						examenEstudianteRepository.save(examenEstudiante);
@@ -104,7 +103,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 	@Override
 	public boolean desistirExamen(Usuario usuario, Examen examen) {
 		
-		Optional<Examen_Estudiante> examenEstudianteExistente = examenEstudianteRepository.findByExamenAndEstudiante(examen,
+		Optional<Estudiante_Examen> examenEstudianteExistente = examenEstudianteRepository.findByExamenAndEstudiante(examen,
 				usuario);
 		if (examenEstudianteExistente.isPresent()) {
 			usuario.getExamenEstudiante().remove(examenEstudianteExistente.get());

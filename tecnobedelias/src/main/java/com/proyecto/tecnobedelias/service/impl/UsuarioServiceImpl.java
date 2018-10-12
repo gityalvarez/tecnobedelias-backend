@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proyecto.tecnobedelias.persistence.model.Role;
+import com.proyecto.tecnobedelias.persistence.model.Rol;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
-import com.proyecto.tecnobedelias.persistence.repository.RoleRepository;
+import com.proyecto.tecnobedelias.persistence.repository.RolRepository;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.UsuarioService;
 
@@ -21,7 +21,7 @@ public class UsuarioServiceImpl implements UsuarioService{
 	UsuarioRepository usuarioRepository;
 	
 	@Autowired
-	RoleRepository roleRepository;
+	RolRepository rolRepository;
 	
 	public List<Usuario> listarUsuarios(){
 		return usuarioRepository.findAll();
@@ -39,15 +39,15 @@ public class UsuarioServiceImpl implements UsuarioService{
 		usuarioRepository.save(usuario);
 	}
 	
-	public List<Role> listarRoles(){
-		return roleRepository.findAll();
+	public List<Rol> listarRoles(){
+		return rolRepository.findAll();
 	}
 	
 	public void asignarRolUsuario(String rolName, Usuario usuario) {
 		System.out.println("entre al usuario service");
 		System.out.println("este es el rolName "+rolName);
-		Role rol = roleRepository.findByName(rolName);
-		System.out.println("este es el rol "+rol.getName());
+		Rol rol = rolRepository.findByNombre(rolName);
+		System.out.println("este es el rol "+rol.getNombre());
 		usuario.getRoles().add(rol);
 		usuarioRepository.save(usuario);
 		
@@ -55,7 +55,7 @@ public class UsuarioServiceImpl implements UsuarioService{
 	
 	
 	public List<Usuario> filtrarEstudiantes() {
-		return usuarioRepository.findAll().stream().filter(u -> u.getRoles().iterator().next().getName().equals("ESTUDIANTE")).collect(Collectors.toList());
+		return usuarioRepository.findAll().stream().filter(u -> u.getRoles().iterator().next().getNombre().equals("ESTUDIANTE")).collect(Collectors.toList());
 	}
 	
 	

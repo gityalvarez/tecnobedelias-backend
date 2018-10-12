@@ -25,7 +25,7 @@ public class AsignaturaController{
 		this.asignaturaRepository = asignaturaRepository;
 	}
 	
-	@GetMapping
+	@GetMapping("/listar")
 	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
 	public List<Asignatura> listarAsignaturas(){
 		return asignaturaRepository.findAll();

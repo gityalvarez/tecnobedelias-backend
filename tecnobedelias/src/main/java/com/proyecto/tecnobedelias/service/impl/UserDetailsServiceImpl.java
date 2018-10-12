@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
-import com.proyecto.tecnobedelias.persistence.model.Role;
+import com.proyecto.tecnobedelias.persistence.model.Rol;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 
 
@@ -34,9 +34,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		}
 		else {
 			Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-			for (Role role : usuario.getRoles()) {
-				grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName()));
-				System.out.println("estos son los roles: "+role.getName());
+			for (Rol role : usuario.getRoles()) {
+				grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_"+role.getNombre()));
+				System.out.println("estos son los roles: "+role.getNombre());
 				System.out.println("estos son los roles por el repository: "+usuario.getRoles());
 			}
 			System.out.println(grantedAuthorities.iterator().next().getAuthority());

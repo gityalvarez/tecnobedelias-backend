@@ -42,7 +42,7 @@ public class CarreraController{
 		this.asignaturaCarreraRepository = asignaturaCarreraRepository;
 	}
 	
-	@GetMapping
+	@GetMapping("/listar")
 	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
 	public List<Carrera> listarCarreras() {
 		return carreraService.listarCarreras();
@@ -69,7 +69,7 @@ public class CarreraController{
     }
     
     
-    @PostMapping("/asignar")
+    @PostMapping("/asignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public void asignarAsignaturaCarrera(HttpServletRequest request,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
@@ -87,7 +87,7 @@ public class CarreraController{
     
     
     
-    @PostMapping("/desasignar")
+    @PostMapping("/desasignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public void desasignarAsignaturaCarrera(HttpServletRequest request,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
@@ -116,7 +116,7 @@ public class CarreraController{
     	
     }
     
-    @PostMapping("/listar")
+    @PostMapping("/listarpreviaturas")
 	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
 	public List<Asignatura_Carrera> listarPrevia(HttpServletRequest request,
 			@RequestParam(name = "asignaturaCarreraId", required = true) Long asignaturaCarreraId) {
@@ -125,7 +125,7 @@ public class CarreraController{
 	}
     
     
-    @PostMapping("/eliminarprevia")
+    @PostMapping("/desasignarprevia")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public void eliminarPrevia(HttpServletRequest request,
 			@RequestParam(name = "asignaturaCarreraId", required = true) Long asignaturaCarreraId,

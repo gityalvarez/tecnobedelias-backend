@@ -3,7 +3,7 @@ package com.proyecto.tecnobedelias.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.proyecto.tecnobedelias.persistence.model.Role;
+import com.proyecto.tecnobedelias.persistence.model.Rol;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 
 public interface UsuarioService {
@@ -15,7 +15,7 @@ public interface UsuarioService {
 	
 	public void altaUsuario(Usuario usuario);
 	
-	public List<Role> listarRoles();
+	public List<Rol> listarRoles();
 	
 	public void asignarRolUsuario(String rolName, Usuario usuario);
 	

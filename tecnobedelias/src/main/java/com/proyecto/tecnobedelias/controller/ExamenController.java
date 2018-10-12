@@ -21,7 +21,6 @@ import com.proyecto.tecnobedelias.persistence.repository.ExamenRepository;
 
 @RestController
 @RequestMapping("/examen")
-@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 public class ExamenController {
 
 	@Autowired
@@ -30,7 +29,7 @@ public class ExamenController {
 	@Autowired
 	ExamenRepository examenRepository;
 	
-	@GetMapping
+	@GetMapping("/listar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public List<Examen> listarExamenes() {
 		return examenRepository.findAll();
@@ -62,7 +61,7 @@ public class ExamenController {
     	System.out.println("obtuve la asignatura "+asignaturaOpt.get().getNombre());
     	
     	Asignatura asignatura = asignaturaOpt.get();
-    	asignatura.getExamanes().add(examen.get());
+    	asignatura.getExamenes().add(examen.get());
     	asignaturaRepository.save(asignatura);
     }
 	
@@ -79,7 +78,7 @@ public class ExamenController {
 		System.out.println("obtuve la asignatura " + asignaturaOpt.get().getNombre());
 
 		Asignatura asignatura = asignaturaOpt.get();
-		asignatura.getExamanes().remove(examen.get());
+		asignatura.getExamenes().remove(examen.get());
 		asignaturaRepository.save(asignatura);
 	}
 	

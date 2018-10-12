@@ -17,14 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.proyecto.tecnobedelias.persistence.model.Role;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
-import com.proyecto.tecnobedelias.persistence.repository.RoleRepository;
+import com.proyecto.tecnobedelias.persistence.repository.RolRepository;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.UsuarioService;
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/usuario")
 public class UsuarioController {
 	
 	@Autowired
@@ -33,26 +32,23 @@ public class UsuarioController {
 	
     private UsuarioRepository usuarioRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private RoleRepository roleRepository;
+    private RolRepository rolRepository;
     public UsuarioController(UsuarioRepository usuarioRepository,
                           BCryptPasswordEncoder bCryptPasswordEncoder,
-                          RoleRepository roleRepository) {
+                          RolRepository rolRepository) {
         this.usuarioRepository = usuarioRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.roleRepository = roleRepository;
+        this.rolRepository = rolRepository;
     }
     
-    @GetMapping
-    //@PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+    @GetMapping("/listar")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
 	public List<Usuario> obtenerUsuarios() {
 		return usuarioService.listarUsuarios();
-	}
+	}    
     
-
-    
-    
-    @PostMapping("/sign-up")
-    //@PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+    @PostMapping("/crear")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
     public boolean signUp(@RequestBody Usuario usuario) {
     	
     	if (usuarioService.existeUsuario(usuario)) return false;
@@ -64,7 +60,6 @@ public class UsuarioController {
     	}
     }
     
-    //@PreAuthorize("hasRole(ROLE_ADMIN)")
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
     public Optional<Usuario> getOne(@PathVariable(value = "id") Long id){
@@ -72,6 +67,7 @@ public class UsuarioController {
     }
     
     @PostMapping("/rol")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
     public void asignarRol(HttpServletRequest request,
 			@RequestParam(name = "usuarioId", required = true) Long usuarioId,
 			@RequestParam(name = "rol", required = true) String rol) {

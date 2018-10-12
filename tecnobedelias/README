@@ -13,6 +13,10 @@ PROYECTO 2018 TECNOBEDELIAS BACKEND
 	spring.datasource.username = postgres
 	spring.datasource.password = postgres
 	spring.jpa.hibernate.ddl-auto=update
+	spring.mail.host=smtp.gmail.com
+	spring.mail.port=587
+	gmail.username=proyecto.tecnobelelias@gmail.com
+	gmail.password=HYFLM2018
 
 
 -Correr la aplicación ejecutando el archivo TecnobedeliasApplication -> Run As -> Java Application
@@ -22,12 +26,16 @@ Post al http://localhost:8080/users/sign-up
 Body raw JSON(application/json)
 
 {
+	"cedula": "11111111",
+	"nombre": "Juan",
+	"apellido" : "Perez",
+	"email" : "administrador@adinet.com.uy",
 	"username" : "admin"
 	"password" : "admin1234"
 }
 
 -Crear los Roles 
-Posr al http://localhost:8080/role/crear
+Post al http://localhost:8080/role/crear
 Body raw JSON(application/json)
 
 {

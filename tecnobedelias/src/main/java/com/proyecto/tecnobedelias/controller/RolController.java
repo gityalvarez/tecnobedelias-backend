@@ -9,24 +9,27 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.proyecto.tecnobedelias.persistence.model.Role;
-import com.proyecto.tecnobedelias.persistence.repository.RoleRepository;
+
+import com.proyecto.tecnobedelias.persistence.model.Rol;
+import com.proyecto.tecnobedelias.persistence.repository.RolRepository;
 
 @RestController
-@RequestMapping("/role")
-public class RoleController {
+@RequestMapping("/rol")
+public class RolController {
 	
 	@Autowired
-	RoleRepository roleRepository;
+	RolRepository rolRepository;
 	
-	@GetMapping
-	public List<Role> listarRoles() {
-		return roleRepository.findAll();
+	@GetMapping("/listar")
+	@PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+	public List<Rol> listarRoles() {
+		return rolRepository.findAll();
 	}
 	
 	@PostMapping("/crear")
-	public void crearRole(@RequestBody Role role) {
-		roleRepository.save(role);
+	@PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+	public void crearRol(@RequestBody Rol rol) {
+		rolRepository.save(rol);
 	}
 
 }

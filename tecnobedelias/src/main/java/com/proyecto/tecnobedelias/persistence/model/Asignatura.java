@@ -1,37 +1,42 @@
 package com.proyecto.tecnobedelias.persistence.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-public class Asignatura {
-
+@Table(name="asignaturas", uniqueConstraints=@UniqueConstraint(name="codigo_asignatura_ukey", columnNames={"codigo"}), indexes = {@Index(name="nombre_asignatura_index", columnList="nombre")})
+public class Asignatura implements Serializable {
+	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	@Column(name="id")
+	private long id;
 
-	private Long cod;
+	@Column(name="codigo", nullable=false)
+	private String codigo;
 	
+	@Column(name="nombre", nullable=false)
 	private String nombre;
 	
-	private boolean electiva;
-	@OneToMany(mappedBy="asignatura",fetch = FetchType.LAZY, cascade = CascadeType.ALL)	
-	private List<Asignatura_Carrera> asignaturaCarrera;
+	@Column(name="descripcion", nullable=true)
+	private String descripcion;
 	
+	@OneToMany(mappedBy="asignatura", fetch=FetchType.LAZY, cascade=CascadeType.ALL)	
+	private List<Asignatura_Carrera> asignaturaCarrera;	
 	
-	@JoinTable(
+	/*@JoinTable(
 	        name = "Asignatura_Curso",
 	        joinColumns = @JoinColumn(
 	                name = "asignaturaId",
@@ -41,68 +46,59 @@ public class Asignatura {
 	                name = "cursoId",
 	                referencedColumnName = "id"
 	        )
-	)	
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	)*/	
+	@OneToMany(mappedBy="asignatura", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	private List<Curso> cursos;	
 	
-	@JoinTable(
+	/*@JoinTable(
 	        name = "Asignatura_Examen",
 	        joinColumns = @JoinColumn(
-	                name = "asignaturaId",
+	                name = "idAsignatura",
 	                referencedColumnName = "id"
 	        ),
 	        inverseJoinColumns = @JoinColumn(
-	                name = "examenId",
+	                name = "idExamen",
 	                referencedColumnName = "id"
 	        )
-	)	
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<Examen> examanes;
+	)*/	
+	@OneToMany(mappedBy="asignatura", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<Examen> examenes;
 	
+	@Column(name="activa", nullable=true)
 	private boolean activa;
 	
-	public boolean isActiva() {
-		return activa;
+	public Asignatura() {
 	}
-
-	public void setActiva(boolean activa) {
-		this.activa = activa;
-	}
-
 	
+	public Asignatura(String codigo, String nombre, String descripcion) {
+		this.codigo = codigo;
+		this.nombre = nombre;
+		this.descripcion = descripcion;
+		this.activa = true;
+	}
 	
-	
-	
-	public List<Examen> getExamanes() {
-		return examanes;
-	}
-
-	public void setExamanes(List<Examen> examanes) {
-		this.examanes = examanes;
-	}
-
-	public List<Curso> getCursos() {
-		return cursos;
-	}
-
-	public void setCursos(List<Curso> cursos) {
-		this.cursos = cursos;
-	}
-
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(long id) {
 		this.id = id;
+	}	
+	
+	public String getCodigo() {
+		return codigo;
 	}
 
-	public Long getCod() {
-		return cod;
+	public void setCodigo(String codigo) {
+		this.codigo = codigo;
 	}
 
-	public void setCod(Long cod) {
-		this.cod = cod;
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
 	}
 
 	public String getNombre() {
@@ -113,23 +109,37 @@ public class Asignatura {
 		this.nombre = nombre;
 	}
 
-	public boolean isElectiva() {
-		return electiva;
+	public boolean isActiva() {
+		return activa;
 	}
 
-	public void setElectiva(boolean electiva) {
-		this.electiva = electiva;
+	public void setActiva(boolean activa) {
+		this.activa = activa;
+	}	
+	
+	public List<Examen> getExamenes() {
+		return examenes;
 	}
 
+	public void setExamenes(List<Examen> examenes) {
+		this.examenes = examenes;
+	}
 
+	public List<Curso> getCursos() {
+		return cursos;
+	}
+
+	public void setCursos(List<Curso> cursos) {
+		this.cursos = cursos;
+	}
+	
 	public List<Asignatura_Carrera> getAsignaturaCarrera() {
 		return asignaturaCarrera;
 	}
 
 	public void setAsignaturaCarrera(List<Asignatura_Carrera> asignaturaCarrera) {
 		this.asignaturaCarrera = asignaturaCarrera;
-	}
-	
-	
+	}	
 
 }
+

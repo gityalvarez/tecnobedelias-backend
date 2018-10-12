@@ -1,38 +1,95 @@
 package com.proyecto.tecnobedelias.persistence.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Entity
-public class Usuario {
-	
+@Table(name="usuarios", 
+	uniqueConstraints = { @UniqueConstraint(name = "cedula_usuario_ukey", columnNames= { "cedula" }), @UniqueConstraint(name = "email_usuario_ukey", columnNames= { "email" }), @UniqueConstraint(name = "username_usuario_ukey", columnNames= { "username" } ) },
+	indexes = {@Index(name="nombre_usuario_index", columnList="nombre"), @Index(name="apellido_usuario_index", columnList="apellido")})
+public class Usuario implements Serializable {
+	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	@Column(name="id")
+	private long id;
 	
-	private String username;
+	@Column(name="cedula", nullable=false)
+	private String cedula;
 	
-	
-	private String password;
-	
+	@Column(name="nombre", nullable=false)	
 	private String nombre;
 	
+	@Column(name="apellido", nullable=false)	
 	private String apellido;
+	
+	@Column(name="fechaNacimiento", nullable=true)	
+	private Date fechaNacimiento;
+	
+	@Column(name="email", nullable=false)	
+	private String email;
+	
+	@Column(name="username", nullable=false)	
+	private String username;
+	
+	@Column(name="password", nullable=false)	
+	private String password;
+	
+	@Column(name="app_token", nullable=true)	
+	private String app_token;
+	
+	@Column(name="resetToken", nullable=true)	
+	private String resetToken;	
+	
+	@Column(name="activa", nullable=true)	
+	private boolean activa;
+	
+	public Usuario() {		
+	}
+	
+	public Usuario(String username, String password) {
+		this.username = username;
+		this.password = password;
+	}
+	
+	public Usuario(String cedula, String nombre, String apellido, String email, String username, String password) {
+		this.cedula = cedula;
+		this.nombre = nombre;
+		this.apellido = apellido;
+		this.email = email;
+		this.username = username;
+		this.password = password;
+		this.activa = true;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}	
 	
 	public String getCedula() {
 		return cedula;
@@ -40,6 +97,22 @@ public class Usuario {
 
 	public void setCedula(String cedula) {
 		this.cedula = cedula;
+	}
+	
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+	
+	public String getApellido() {
+		return apellido;
+	}
+
+	public void setApellido(String apellido) {
+		this.apellido = apellido;
 	}
 
 	public Date getFechaNacimiento() {
@@ -56,137 +129,7 @@ public class Usuario {
 
 	public void setEmail(String email) {
 		this.email = email;
-	}
-
-	
-
-	public String getApp_token() {
-		return app_token;
-	}
-
-	public void setApp_token(String app_token) {
-		this.app_token = app_token;
-	}
-
-
-
-	private String cedula;
-	
-	private Date fechaNacimiento;
-	
-	private String email;
-	
-	private String app_token;
-	
-	private String resetToken;
-	
-	public String getResetToken() {
-		return resetToken;
-	}
-
-	public void setResetToken(String resetToken) {
-		this.resetToken = resetToken;
-	}
-
-
-
-	@JsonIgnore
-	@JoinTable(
-	        name = "Usuario_Roles",
-	        joinColumns = @JoinColumn(
-	                name = "usuarioId",
-	                referencedColumnName = "id"
-	        ),
-	        inverseJoinColumns = @JoinColumn(
-	                name = "roleId",
-	                referencedColumnName = "id"
-	        )
-	)	
-	@ManyToMany(fetch = FetchType.EAGER)
-	    private Set<Role> roles;
-
-	
-	 @OneToMany(mappedBy="estudiante",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	 private List<Curso_Estudiante> cursoEstudiante;
-	 
-	
-	 @OneToMany(mappedBy="estudiante",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	 private List<Examen_Estudiante> examenEstudiante;
-
-	 @ManyToMany(mappedBy="estudiantes")
-	 private List<Carrera> carreras;
-	 
-	 
-		private boolean activa;
-		
-		public boolean isActiva() {
-			return activa;
-		}
-
-		public void setActiva(boolean activa) {
-			this.activa = activa;
-		}
-
-	 
-	 
-	 
-	 public List<Carrera> getCarreras() {
-		return carreras;
-	}
-
-	public void setCarreras(List<Carrera> carreras) {
-		this.carreras = carreras;
-	}
-
-	public List<Curso_Estudiante> getCursoEstudiante() {
-		return cursoEstudiante;
-	}
-
-	public void setCursoEstudiante(List<Curso_Estudiante> cursoEstudiante) {
-		this.cursoEstudiante = cursoEstudiante;
-	}
-
-	public List<Examen_Estudiante> getExamenEstudiante() {
-		return examenEstudiante;
-	}
-
-	public void setExamenEstudiante(List<Examen_Estudiante> examenEstudiante) {
-		this.examenEstudiante = examenEstudiante;
-	}
-
-	 
-	 
-	 
-	public Set<Role> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
-
-	public Usuario() {};
-	
-	public Usuario(String username, String password) {
-
-		this.username = username;
-		this.password = password;
-	}
-	
-	public Usuario(String username, String password, String nombre, String apellido) {
-		this.username = username;
-		this.password = password;
-		this.nombre = nombre;
-		this.apellido = apellido;		
-	}
-	
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
+	}		
 
 	public String getUsername() {
 		return username;
@@ -204,19 +147,89 @@ public class Usuario {
 		this.password = password;
 	}
 
-	public String getNombre() {
-		return nombre;
+	public String getApp_token() {
+		return app_token;
 	}
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setApp_token(String app_token) {
+		this.app_token = app_token;
+	}	
+	
+	public String getResetToken() {
+		return resetToken;
 	}
 
-	public String getApellido() {
-		return apellido;
+	public void setResetToken(String resetToken) {
+		this.resetToken = resetToken;
+	}
+	
+	public boolean isActiva() {
+		return activa;
 	}
 
-	public void setApellido(String apellido) {
-		this.apellido = apellido;
+	public void setActiva(boolean activa) {
+		this.activa = activa;
+	}	
+
+	@JsonIgnore
+	@JoinTable(
+	        name = "rol_usuario",
+	        joinColumns = @JoinColumn(
+	                name = "id_usuario",
+	                referencedColumnName = "id",
+	                foreignKey = @ForeignKey(name = "rol_usuario_usuario_fkey")
+	        ),
+	        inverseJoinColumns = @JoinColumn(
+	                name = "id_rol",
+	                referencedColumnName = "id",
+	                foreignKey = @ForeignKey(name = "rol_usuario_rol_fkey")
+	        ),
+	        indexes = {@Index(name = "rol_rol_usuario_index", columnList = "id_rol"), @Index(name = "usuario_rol_usuario_index", columnList = "id_usuario")}
+	)	
+	@ManyToMany(fetch = FetchType.EAGER)
+	private Set<Rol> roles;
+
+	
+	@OneToMany(mappedBy="estudiante",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<Curso_Estudiante> cursoEstudiante;
+	 
+	
+	@OneToMany(mappedBy="estudiante",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<Estudiante_Examen> examenEstudiante;
+
+	@ManyToMany(mappedBy="estudiantes")
+	private List<Carrera> carreras;
+	 
+	public List<Carrera> getCarreras() {
+		return carreras;
 	}
+
+	public void setCarreras(List<Carrera> carreras) {
+		this.carreras = carreras;
+	}
+
+	public List<Curso_Estudiante> getCursoEstudiante() {
+		return cursoEstudiante;
+	}
+
+	public void setCursoEstudiante(List<Curso_Estudiante> cursoEstudiante) {
+		this.cursoEstudiante = cursoEstudiante;
+	}
+
+	public List<Estudiante_Examen> getExamenEstudiante() {
+		return examenEstudiante;
+	}
+
+	public void setExamenEstudiante(List<Estudiante_Examen> examenEstudiante) {
+		this.examenEstudiante = examenEstudiante;
+	}	 
+	 
+	public Set<Rol> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<Rol> roles) {
+		this.roles = roles;
+	}	
+	
 }
