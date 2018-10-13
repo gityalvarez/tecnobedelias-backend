@@ -11,7 +11,7 @@ public interface UsuarioService {
 	//Usuario loadUsuarioByUsername(String username);
 	public List<Usuario> listarUsuarios();
 	
-	public boolean existeUsuario(Usuario usuario);
+	public boolean existeUsuario(String username);
 	
 	public void altaUsuario(Usuario usuario);
 	

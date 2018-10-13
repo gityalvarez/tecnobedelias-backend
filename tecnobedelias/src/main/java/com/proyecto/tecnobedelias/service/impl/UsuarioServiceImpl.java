@@ -28,8 +28,8 @@ public class UsuarioServiceImpl implements UsuarioService{
 	}
 	
 	
-	public boolean existeUsuario(Usuario usuario) {
-		Optional<Usuario> usuarioExistente = usuarioRepository.findByUsername(usuario.getUsername());
+	public boolean existeUsuario(String username) {
+		Optional<Usuario> usuarioExistente = usuarioRepository.findByUsername(username);
 		if(usuarioExistente.isPresent()) return true;
 		else return false;
 		
@@ -48,7 +48,13 @@ public class UsuarioServiceImpl implements UsuarioService{
 		System.out.println("este es el rolName "+rolName);
 		Rol rol = rolRepository.findByNombre(rolName);
 		System.out.println("este es el rol "+rol.getNombre());
+		//Optional<Usuario> usuarioOpt = usuarioRepository.
 		usuario.getRoles().add(rol);
+		
+		/*if (usuario.getRoles() != null) {
+			usuario.getRoles().add(rol);			
+		}else usuario.setRol(rol);
+		*/
 		usuarioRepository.save(usuario);
 		
 	}

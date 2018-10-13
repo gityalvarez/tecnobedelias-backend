@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,17 +48,21 @@ public class UsuarioController {
 		return usuarioService.listarUsuarios();
 	}    
     
-    @PostMapping("/crear")
-    @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-    public boolean signUp(@RequestBody Usuario usuario) {
-    	
-    	if (usuarioService.existeUsuario(usuario)) return false;
+    @PostMapping("/crear/{rol}")
+   // @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+    public boolean signUp(@RequestBody Usuario usuario,@PathVariable(value = "rol") String rol ) {
+    	System.out.println("entre al crear con el usuario "+usuario.getUsername()+" y el rol "+rol);
+    	if (usuarioService.existeUsuario(usuario.getUsername())) return false;
     	else {
     		
     		usuario.setPassword(bCryptPasswordEncoder.encode(usuario.getPassword()));
     		usuarioService.altaUsuario(usuario);
-    		return true;
-    	}
+    		Optional<Usuario>usuarioOpt = usuarioRepository.findByUsername(usuario.getUsername());
+    		if (usuarioOpt.isPresent()) {
+    			usuarioService.asignarRolUsuario(rol, usuarioOpt.get());
+    			return true;
+    		}
+    	}return false;
     }
     
     @GetMapping("/{id}")
@@ -67,7 +72,7 @@ public class UsuarioController {
     }
     
     @PostMapping("/rol")
-    @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+    //@PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
     public void asignarRol(HttpServletRequest request,
 			@RequestParam(name = "usuarioId", required = true) Long usuarioId,
 			@RequestParam(name = "rol", required = true) String rol) {
@@ -85,7 +90,8 @@ public class UsuarioController {
     
     @PostMapping("/borrar")
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-    public void borrarUsuario(Usuario usuario) {
+    public void borrarUsuario(@RequestBody Usuario usuario) {
+    	System.out.println("entre al borrar usuario con el usuario "+usuario.getUsername()+" y el apellido "+usuario.getApellido());
     	usuarioService.bajaUsuario(usuario);
     }
     

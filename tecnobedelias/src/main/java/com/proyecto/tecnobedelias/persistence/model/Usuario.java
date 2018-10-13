@@ -1,7 +1,9 @@
 package com.proyecto.tecnobedelias.persistence.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -66,6 +68,7 @@ public class Usuario implements Serializable {
 	private boolean activa;
 	
 	public Usuario() {		
+		this.roles = new HashSet<Rol>();
 	}
 	
 	public Usuario(String username, String password) {
@@ -81,6 +84,8 @@ public class Usuario implements Serializable {
 		this.username = username;
 		this.password = password;
 		this.activa = true;
+		
+
 	}
 
 	public long getId() {
@@ -231,5 +236,19 @@ public class Usuario implements Serializable {
 	public void setRoles(Set<Rol> roles) {
 		this.roles = roles;
 	}	
+
+
+	/*public void setRol(Rol rol) {
+		if (this.roles == null) {
+			System.out.println("el set de roles es vacio");
+			this.roles = new HashSet<Rol>();
+			System.out.println("pude crear el Hashset");
+			System.out.println("voy a agregar el rol "+rol.getNombre());
+			this.roles.add(rol);		
+			System.out.println("pude agregar el rol");
+			
+		}
+	}
+	*/
 	
 }

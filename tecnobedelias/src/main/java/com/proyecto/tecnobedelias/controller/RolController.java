@@ -27,7 +27,7 @@ public class RolController {
 	}
 	
 	@PostMapping("/crear")
-	@PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+	//@PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
 	public void crearRol(@RequestBody Rol rol) {
 		rolRepository.save(rol);
 	}
