@@ -23,6 +23,8 @@ public interface CarreraService {
 	
 	public boolean eliminarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
 	
+	public List<Asignatura> listarAsignaturasFaltantes(String carrera);
+	
 	public List<Asignatura> filtrarAsignatura();
 	
 	public List<Asignatura_Carrera> listarPrevias(Asignatura_Carrera asignaturaCarrera);

@@ -15,6 +15,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="asignaturas", uniqueConstraints=@UniqueConstraint(name="codigo_asignatura_ukey", columnNames={"codigo"}), indexes = {@Index(name="nombre_asignatura_index", columnList="nombre")})
 public class Asignatura implements Serializable {
@@ -33,6 +35,7 @@ public class Asignatura implements Serializable {
 	@Column(name="descripcion", nullable=true)
 	private String descripcion;
 	
+	@JsonIgnore
 	@OneToMany(mappedBy="asignatura", fetch=FetchType.LAZY, cascade=CascadeType.ALL)	
 	private List<Asignatura_Carrera> asignaturaCarrera;	
 	

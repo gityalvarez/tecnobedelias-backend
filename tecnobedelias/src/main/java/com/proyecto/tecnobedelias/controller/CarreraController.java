@@ -69,7 +69,7 @@ public class CarreraController{
     }
     
     
-    @PostMapping("/asignarasignatura")
+    @GetMapping("/asignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public void asignarAsignaturaCarrera(HttpServletRequest request,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
@@ -87,7 +87,7 @@ public class CarreraController{
     
     
     
-    @PostMapping("/desasignarasignatura")
+    @GetMapping("/desasignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public void desasignarAsignaturaCarrera(HttpServletRequest request,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
@@ -102,6 +102,14 @@ public class CarreraController{
     	
     	carreraService.desasignarAsignaturaCarrera(asignatura.get(), carrera.get());
     }
+    
+	@GetMapping("/listarFaltantes/{nombre}")
+	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
+	public List<Asignatura> listarAsignaturasFaltantes(@PathVariable(value = "nombre") String nombre){
+		System.out.println("entre al listaFaltantes con la carrera "+nombre);
+		return carreraService.listarAsignaturasFaltantes(nombre);
+		
+	}
     
     
     @PostMapping("/asignarprevia")

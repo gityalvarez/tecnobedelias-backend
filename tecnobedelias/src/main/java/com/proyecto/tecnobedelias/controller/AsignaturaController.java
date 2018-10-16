@@ -1,11 +1,13 @@
 package com.proyecto.tecnobedelias.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
+import com.proyecto.tecnobedelias.service.CarreraService;
 
 @RestController
 
@@ -30,6 +33,8 @@ public class AsignaturaController{
 	public List<Asignatura> listarAsignaturas(){
 		return asignaturaRepository.findAll();
 	}
+	
+
 
     @PostMapping("/crear")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")

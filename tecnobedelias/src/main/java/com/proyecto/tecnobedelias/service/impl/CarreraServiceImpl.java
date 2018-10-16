@@ -1,5 +1,6 @@
 package com.proyecto.tecnobedelias.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,8 @@ import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Asignatura_CarreraRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
 import com.proyecto.tecnobedelias.service.CarreraService;
+
+import ch.qos.logback.core.net.SyslogOutputStream;
 
 @Service
 public class CarreraServiceImpl implements CarreraService {
@@ -133,6 +136,23 @@ public class CarreraServiceImpl implements CarreraService {
 	public void generarGrafoPrevias() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public List<Asignatura> listarAsignaturasFaltantes(String carrera) {
+		System.out.println("entre al listarAsignaturasFaltantes en el service");
+		Optional<Carrera> carreraOpt = carreraRepository.findByNombre(carrera);
+		List<Asignatura> listaAsignaturas = new ArrayList<>();
+
+		if (carreraOpt.isPresent()) {
+			listaAsignaturas = asignaturaRepository.findAll();			
+			for(Asignatura_Carrera asignaturaCarrera : carreraOpt.get().getAsignaturaCarrera()) {
+				listaAsignaturas.removeIf(asignatura -> (asignatura == asignaturaCarrera.getAsignatura()));
+				System.out.println("removi la asignatura "+asignaturaCarrera.getAsignatura().getNombre());
+			}
+							
+		}
+		return listaAsignaturas;
 	}
 
 }
