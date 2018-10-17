@@ -1,9 +1,12 @@
 PROYECTO 2018 TECNOBEDELIAS BACKEND
 
 -Luego de clonar el proyecto abrirlo en Eclipse y actualizar en Maven
-
+-Crear una base en postgres que se llame testdb
+-Crear el datasource con esta direccion: "jdbc:postgresql://localhost/testdb", y probarlo haciendo ping(desde eclipse)
+-El maven puede pedir en el build path una carpeta test, yo la volé.
+-Crear la carpeta tecnobedelias\src\main\resources\
 -Crear el archivo application.properties en el directorio tecnobedelias\src\main\resources\
-	el arcivo debe contener la base de datos, usuario y contraseña del postgres y demás configuraciones de JPA:
+	el archivo debe contener la base de datos, usuario y contraseña del postgres y demás configuraciones de JPA:
 
 	spring.datasource.validationQuery=SELECT 1
 	spring.datasource.url = jdbc:postgresql://localhost/testdb
@@ -21,8 +24,13 @@ PROYECTO 2018 TECNOBEDELIAS BACKEND
 
 -Correr la aplicación ejecutando el archivo TecnobedeliasApplication -> Run As -> Java Application
 
+-Entrar denuevo al pgadmin ejecutar esta sentencia sql:
+
+INSERT INTO public.roles (id,activa, descripcion, nombre)
+VALUES (1,true, 'el que administra', 'ADMINISTRADOR'); 
+
 -Con la aplicación corriendo entrar al Postman para crear usuarios
-Post al http://localhost:8080/users/sign-up
+Post al http://localhost:8080/usuario/crear/ADMINISTRADOR
 Body raw JSON(application/json)
 
 {
@@ -33,6 +41,7 @@ Body raw JSON(application/json)
 	"username" : "admin"
 	"password" : "admin1234"
 }
+
 
 -Crear los Roles 
 Post al http://localhost:8080/role/crear

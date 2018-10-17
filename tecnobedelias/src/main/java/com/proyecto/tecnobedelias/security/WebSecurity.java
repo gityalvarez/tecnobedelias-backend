@@ -49,7 +49,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
     	http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
-                .antMatchers(HttpMethod.POST, "/usuario/rol").permitAll()
+                .antMatchers(HttpMethod.POST, "/usuario/crear/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/usuario/generate-token").permitAll()
                 .antMatchers(HttpMethod.POST, "/rol/crear").permitAll()   
                 .antMatchers(HttpMethod.GET, "/acta/**").permitAll() 
