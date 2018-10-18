@@ -43,7 +43,7 @@ public class CarreraController{
 	}
 	
 	@GetMapping("/listar")
-	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
+	@PreAuthorize("hasRole('DIRECTOR') or hasRole('ESTUDIANTE')")
 	public List<Carrera> listarCarreras() {
 		return carreraService.listarCarreras();
 	}
@@ -64,11 +64,16 @@ public class CarreraController{
     	}else return false;
     }
     
-    @PostMapping("/borrar")
+    @GetMapping("/borrar")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public void borrarCarrera(HttpServletRequest request,
-			@RequestParam(name = "carreraId", required = true) Long carreraId) {
-    	carreraRepository.deleteById(carreraId);
+    public boolean borrarCarrera(HttpServletRequest request,
+			@RequestParam(name = "carrera", required = true) String carrera) {
+    	Optional<Carrera> carreraOpt = carreraRepository.findByNombre(carrera);
+    	if (carreraOpt.isPresent()) {
+    		carreraRepository.delete(carreraOpt.get());
+    		return true;    		
+    	}
+    	return false;
     }
     
     
@@ -92,7 +97,7 @@ public class CarreraController{
     
     @GetMapping("/desasignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public void desasignarAsignaturaCarrera(HttpServletRequest request,
+    public boolean desasignarAsignaturaCarrera(HttpServletRequest request,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre){
     	System.out.println("asi entro el parametro carreraNombre "+carreraNombre);
@@ -102,12 +107,13 @@ public class CarreraController{
     	Optional<Asignatura> asignatura = asignaturaRepository.findByNombre(asignaturaNombre);
     	System.out.println("obtuve la asignatura "+asignatura.get().getNombre());
     	System.out.println("entro al carreraService");
-    	
-    	carreraService.desasignarAsignaturaCarrera(asignatura.get(), carrera.get());
+    	if (carreraService.desasignarAsignaturaCarrera(asignatura.get(), carrera.get())) {
+    		return true;
+    	}else return false;
     }
     
     @GetMapping("/listarasignaturas/{nombre}")
-	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    @PreAuthorize("hasRole('DIRECTOR') or hasRole('ESTUDIANTE')")
 	public List<Asignatura> listarAsignaturas(@PathVariable(value = "nombre") String nombre){
 		System.out.println("entre al listarAsignaturas con la carrera "+nombre);
 		return carreraService.listarAsingaturas(nombre);

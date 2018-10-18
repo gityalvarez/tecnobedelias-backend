@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
+import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.service.CarreraService;
 
@@ -29,7 +30,7 @@ public class AsignaturaController{
 	}
 	
 	@GetMapping("/listar")
-	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
+	@PreAuthorize("hasRole('DIRECTOR') or hasRole('ESTUDIANTE')")
 	public List<Asignatura> listarAsignaturas(){
 		return asignaturaRepository.findAll();
 	}
@@ -42,11 +43,16 @@ public class AsignaturaController{
     	asignaturaRepository.save(asignatura);
     }
     
-    @PostMapping("/borrar")
+    @GetMapping("/borrar")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public void borrarAsignatura(HttpServletRequest request,
-			@RequestParam(name = "asignaturaId", required = true) Long asignaturaId) {
-    	asignaturaRepository.deleteById(asignaturaId);
+    public boolean borrarAsignatura(HttpServletRequest request,
+			@RequestParam(name = "asignatura", required = true) String asignatura) {
+    	Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByNombre(asignatura);
+    	if (asignaturaOpt.isPresent()) {
+    		asignaturaRepository.delete(asignaturaOpt.get());
+    		return true;    		
+    	}
+    	return false;
     }
     
 

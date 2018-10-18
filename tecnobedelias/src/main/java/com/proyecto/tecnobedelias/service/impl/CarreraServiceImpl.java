@@ -65,7 +65,7 @@ public class CarreraServiceImpl implements CarreraService {
 	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera) {
 		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository
 				.findByAsignaturaAndCarrera(asignatura, carrera);
-		if (asignaturaCarrera.isPresent()) {
+		if (asignaturaCarrera.isPresent() && asignaturaCarrera.get().getPreviaDe().isEmpty()) {
 			asignatura.getAsignaturaCarrera().remove(asignaturaCarrera.get());
 			carrera.getAsignaturaCarrera().remove(asignaturaCarrera.get());
 			asignaturaCarreraRepository.delete(asignaturaCarrera.get());
