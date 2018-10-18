@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.RolRepository;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
+import com.proyecto.tecnobedelias.service.EmailService;
 import com.proyecto.tecnobedelias.service.UsuarioService;
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 @RestController
@@ -29,6 +30,9 @@ public class UsuarioController {
 	
 	@Autowired
 	UsuarioService usuarioService;
+	
+	@Autowired
+	EmailService emailService;
 	
 	
     private UsuarioRepository usuarioRepository;
@@ -65,6 +69,29 @@ public class UsuarioController {
     	}return false;
     }
     
+    @PostMapping("/crearbien/{rol}")
+    // @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+     public boolean crear(@RequestBody Usuario usuario,@PathVariable(value = "rol") String rol ) {
+     	System.out.println("entre al crear con el usuario "+usuario.getUsername()+" y el rol "+rol);
+     	if (usuarioService.existeUsuario(usuario.getUsername())) return false;
+     	else {
+     		
+     		usuario.setPassword(bCryptPasswordEncoder.encode(usuario.getPassword()));
+     		usuarioService.altaBienUsuario(usuario);
+     		Optional<Usuario>usuarioOpt = usuarioRepository.findByUsername(usuario.getUsername());
+     		if (usuarioOpt.isPresent()) {
+     			usuarioService.asignarRolUsuario(rol, usuarioOpt.get());
+     			System.out.println("asigné el rol");
+     			if(rol.equals("ESTUDIANTE")) {
+     				System.out.println("voy a mandar el mail");
+     				emailService.sendEmailToken(usuarioOpt.get().getResetToken());
+     			}
+         		return true;
+     		}
+     	
+     	}return false;
+     }
+    
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
     public Optional<Usuario> getOne(@PathVariable(value = "id") Long id){
@@ -93,6 +120,18 @@ public class UsuarioController {
     public void borrarUsuario(@RequestBody Usuario usuario) {
     	System.out.println("entre al borrar usuario con el usuario "+usuario.getUsername()+" y el apellido "+usuario.getApellido());
     	usuarioService.bajaUsuario(usuario);
+    }
+    
+    @GetMapping("/reset")
+    public void cambiarPassword(HttpServletRequest request,
+    		@RequestParam(name = "resetToken", required = true) String token,
+			@RequestParam(name = "password", required = true) String password) {
+    	Optional<Usuario> usuarioOpt= usuarioService.findUsuarioByResetToken(token);
+    	if (usuarioOpt.isPresent()) {
+    		Usuario usuario = usuarioOpt.get();
+    		usuario.setPassword(bCryptPasswordEncoder.encode(password));
+    		usuarioRepository.save(usuario);
+    	}
     }
     
     

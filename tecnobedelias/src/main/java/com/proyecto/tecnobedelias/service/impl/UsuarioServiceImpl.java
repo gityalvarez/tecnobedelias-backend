@@ -3,6 +3,7 @@ package com.proyecto.tecnobedelias.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +79,17 @@ public class UsuarioServiceImpl implements UsuarioService{
 	@Override
 	public Optional<Usuario> findUsuarioByUsername(String username) {
 		return usuarioRepository.findByUsername(username);
+	}
+
+
+	@Override
+	public void altaBienUsuario(Usuario usuario) {
+		usuario.setResetToken(UUID.randomUUID().toString());
+		usuarioRepository.save(usuario);
+		
+		
+		
+		
 	}
 	
 	

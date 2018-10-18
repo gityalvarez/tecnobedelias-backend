@@ -80,7 +80,7 @@ public class CarreraServiceImpl implements CarreraService {
 	public boolean agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera asignaturaPrevia) {
 		if (asignatura.getCarrera() == asignaturaPrevia.getCarrera()) {
 			//se evita la referencia circular
-			if (!esPrevia(asignaturaPrevia,asignatura)) {				
+			if (!esPrevia(asignaturaPrevia,asignatura) && !esPrevia(asignatura,asignaturaPrevia) ) {				
 				asignatura.getPrevias().add(asignaturaPrevia);
 				asignaturaPrevia.getPreviaDe().add(asignatura);
 				asignaturaCarreraRepository.save(asignatura);
@@ -126,9 +126,12 @@ public class CarreraServiceImpl implements CarreraService {
 	}
 
 	@Override
-	public List<Asignatura_Carrera> listarPrevias(Asignatura_Carrera asignaturaCarrera) {
-
-		return asignaturaCarrera.getPrevias();
+	public List<Asignatura> listarPrevias(Asignatura_Carrera asignaturaCarrera) {
+		List<Asignatura> asignaturasPrevias = new ArrayList<>();
+		for (Asignatura_Carrera previa : asignaturaCarrera.getPrevias()) {
+			asignaturasPrevias.add(previa.getAsignatura());
+		}
+		return asignaturasPrevias;
 
 	}
 
@@ -153,6 +156,30 @@ public class CarreraServiceImpl implements CarreraService {
 							
 		}
 		return listaAsignaturas;
+	}
+
+	@Override
+	public List<Asignatura> listarAsingaturas(String carrera) {
+		Optional<Carrera> carreraOpt = carreraRepository.findByNombre(carrera);
+		List<Asignatura> asignaturas = new ArrayList<>();
+		if (carreraOpt.isPresent()) {
+			
+			for(Asignatura_Carrera asignaturaCarrera : carreraOpt.get().getAsignaturaCarrera()) {
+				asignaturas.add(asignaturaCarrera.getAsignatura());
+			}	
+		}
+		return asignaturas;
+	}
+
+	@Override
+	public List<Asignatura> listarPreviasPosibles(Asignatura_Carrera asignaturaCarrera) {
+		List<Asignatura> asignaturasPreviasPosibles = new ArrayList<>();
+		asignaturasPreviasPosibles = this.listarAsingaturas(asignaturaCarrera.getCarrera().getNombre());
+		for (Asignatura_Carrera previa : asignaturaCarrera.getPrevias()) {
+			asignaturasPreviasPosibles.remove(previa.getAsignatura());
+		}
+		asignaturasPreviasPosibles.remove(asignaturaCarrera.getAsignatura());
+		return asignaturasPreviasPosibles;
 	}
 
 }

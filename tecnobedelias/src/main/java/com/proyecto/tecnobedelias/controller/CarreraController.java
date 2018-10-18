@@ -57,8 +57,11 @@ public class CarreraController{
 
     @PostMapping("/crear")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public void crearCarrera(@RequestBody Carrera carrera){
-    	carreraService.altaCarrera(carrera);
+    public boolean crearCarrera(@RequestBody Carrera carrera){
+    	if (!carreraService.existeCarrera(carrera.getNombre())) {
+    		carreraService.altaCarrera(carrera);
+    		return true;
+    	}else return false;
     }
     
     @PostMapping("/borrar")
@@ -103,7 +106,15 @@ public class CarreraController{
     	carreraService.desasignarAsignaturaCarrera(asignatura.get(), carrera.get());
     }
     
-	@GetMapping("/listarFaltantes/{nombre}")
+    @GetMapping("/listarasignaturas/{nombre}")
+	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
+	public List<Asignatura> listarAsignaturas(@PathVariable(value = "nombre") String nombre){
+		System.out.println("entre al listarAsignaturas con la carrera "+nombre);
+		return carreraService.listarAsingaturas(nombre);
+		
+	}
+    
+	@GetMapping("/listarasignaturasfaltantes/{nombre}")
 	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
 	public List<Asignatura> listarAsignaturasFaltantes(@PathVariable(value = "nombre") String nombre){
 		System.out.println("entre al listaFaltantes con la carrera "+nombre);
@@ -112,38 +123,77 @@ public class CarreraController{
 	}
     
     
-    @PostMapping("/asignarprevia")
+    @GetMapping("/asignarprevia")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public void asignarPrevia(HttpServletRequest request,
-			@RequestParam(name = "asignaturaCarreraId", required = true) Long asignaturaCarreraId,
-			@RequestParam(name = "asignaturaCarreraPreviaId", required = true) Long asignaturaCarreraPreviaId) {
-    	
-    	Optional<Asignatura_Carrera> asignatura = asignaturaCarreraRepository.findById(asignaturaCarreraId);
-    	Optional<Asignatura_Carrera> asignaturaPrevia = asignaturaCarreraRepository.findById(asignaturaCarreraPreviaId);
-    	carreraService.agregarPreviaAsignatura(asignatura.get(), asignaturaPrevia.get());
-    	
+    public boolean asignarPrevia(HttpServletRequest request,
+    		@RequestParam(name = "carrera", required = true) String carrera,
+			@RequestParam(name = "asignatura", required = true) String asignatura,
+			@RequestParam(name = "asignaturaPrevia", required = true) String asignaturaPrevia) {
+    	Optional<Carrera> carreraOpt = carreraRepository.findByNombre(carrera);
+    	Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByNombre(asignatura);
+    	Optional<Asignatura> asignaturaPreviaOpt = asignaturaRepository.findByNombre(asignaturaPrevia);
+    	if (carreraOpt.isPresent() && asignaturaOpt.isPresent()) {
+        	Optional<Asignatura_Carrera> asignaturaCarreraOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaOpt.get(), carreraOpt.get());
+        	Optional<Asignatura_Carrera> asignaturaCarreraPreviaOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaPreviaOpt.get(), carreraOpt.get());
+        	if (asignaturaCarreraOpt.isPresent() && asignaturaCarreraPreviaOpt.isPresent()) {
+        		if(carreraService.agregarPreviaAsignatura(asignaturaCarreraOpt.get(), asignaturaCarreraPreviaOpt.get())) {
+        			return true;
+        		};
+        	}
+
+    	}
+    	return false;
     }
     
-    @PostMapping("/listarpreviaturas")
+    @GetMapping("/desasignarprevia")
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    public boolean eliminarPrevia(HttpServletRequest request,
+    		@RequestParam(name = "carrera", required = true) String carrera,
+			@RequestParam(name = "asignatura", required = true) String asignatura,
+			@RequestParam(name = "asignaturaPrevia", required = true) String asignaturaPrevia) {
+    	
+    	Optional<Carrera> carreraOpt = carreraRepository.findByNombre(carrera);
+    	Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByNombre(asignatura);
+    	Optional<Asignatura> asignaturaPreviaOpt = asignaturaRepository.findByNombre(asignaturaPrevia);
+    	if (carreraOpt.isPresent() && asignaturaOpt.isPresent()) {
+        	Optional<Asignatura_Carrera> asignaturaCarreraOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaOpt.get(), carreraOpt.get());
+        	Optional<Asignatura_Carrera> asignaturaCarreraPreviaOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaPreviaOpt.get(), carreraOpt.get());
+        	if (asignaturaCarreraOpt.isPresent() && asignaturaCarreraPreviaOpt.isPresent()) {
+        		if (carreraService.eliminarPreviaAsignatura(asignaturaCarreraOpt.get(), asignaturaCarreraPreviaOpt.get())) {
+        			return true;
+        		}
+        	}
+    	}
+    	return false;
+    }
+    
+    @GetMapping("/listarpreviaturas")
 	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
-	public List<Asignatura_Carrera> listarPrevia(HttpServletRequest request,
-			@RequestParam(name = "asignaturaCarreraId", required = true) Long asignaturaCarreraId) {
-		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository.findById(asignaturaCarreraId);
+	public List<Asignatura> listarPrevia(HttpServletRequest request,
+			@RequestParam(name = "asignatura", required = true) String asignaturaNombre,
+			@RequestParam(name = "carrera", required = true) String carreraNombre) {
+		System.out.println("entre al listarPrevia con "+asignaturaNombre+" y "+carreraNombre);
+		Optional<Asignatura>asignatura = asignaturaRepository.findByNombre(asignaturaNombre);
+		Optional<Carrera>carrera = carreraRepository.findByNombre(carreraNombre);
+		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura.get(), carrera.get());
+		System.out.println("obtuve la asignaturaCarrera "+asignaturaCarrera.get().getId());
 		return carreraService.listarPrevias(asignaturaCarrera.get());
+	}
+	
+	@GetMapping("/listarpreviaturasposibles")
+	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
+	public List<Asignatura> listarPreviasPosibles(HttpServletRequest request,
+			@RequestParam(name = "asignatura", required = true) String asignaturaNombre,
+			@RequestParam(name = "carrera", required = true) String carreraNombre) {
+		System.out.println("entre al listarPreviaPosibles con "+asignaturaNombre+" y "+carreraNombre);
+		Optional<Asignatura>asignatura = asignaturaRepository.findByNombre(asignaturaNombre);
+		Optional<Carrera>carrera = carreraRepository.findByNombre(carreraNombre);
+		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura.get(), carrera.get());
+		System.out.println("obtuve la asignaturaCarrera "+asignaturaCarrera.get().getId());
+		return carreraService.listarPreviasPosibles(asignaturaCarrera.get());
 	}
     
     
-    @PostMapping("/desasignarprevia")
-    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public void eliminarPrevia(HttpServletRequest request,
-			@RequestParam(name = "asignaturaCarreraId", required = true) Long asignaturaCarreraId,
-			@RequestParam(name = "asignaturaCarreraPreviaId", required = true) Long asignaturaCarreraPreviaId) {
-    	
-    	Optional<Asignatura_Carrera> asignatura = asignaturaCarreraRepository.findById(asignaturaCarreraId);
-    	Optional<Asignatura_Carrera> asignaturaPrevia = asignaturaCarreraRepository.findById(asignaturaCarreraPreviaId);
-    	carreraService.eliminarPreviaAsignatura(asignatura.get(), asignaturaPrevia.get());
-    	
-    }
     
 
 }

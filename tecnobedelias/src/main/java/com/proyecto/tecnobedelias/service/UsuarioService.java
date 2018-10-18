@@ -15,6 +15,8 @@ public interface UsuarioService {
 	
 	public void altaUsuario(Usuario usuario);
 	
+	public void altaBienUsuario(Usuario usuario);
+	
 	public List<Rol> listarRoles();
 	
 	public void asignarRolUsuario(String rolName, Usuario usuario);
