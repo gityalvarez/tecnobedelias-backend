@@ -32,10 +32,11 @@ public class CursoServiceImpl implements CursoService {
 	
 	@Override
 	public boolean altaCurso(Curso curso/*, List<Horario> horarios*/) {	
-		
-		if (!existeCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio())) {
-			/*List<Horario> horarios = new ArrayList<Horario>();*/			
-			/*for (Horario h : curso.getHorarios()) {
+		cursoRepository.save(curso);
+		return true;
+		/*if (!existeCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio())) {
+			//List<Horario> horarios = new ArrayList<Horario>();		
+			for (Horario h : curso.getHorarios()) {
 				System.out.println("dia: " + h.getDia());
 				//horarioService.altaHorario(h);
 				curso.getHorarios().remove(o)
@@ -56,9 +57,9 @@ public class CursoServiceImpl implements CursoService {
 			for (Horario h : horarios) {
 				System.out.println("id: " + h.getId());
 				System.out.println("dia: " + h.getDia());			
-			}*/
+			}
 			//curso.setHorarios(null);
-			cursoRepository.save(curso);
+			cursoRepository.save(curso);*/
 			/*Optional<Curso> cursoOpt = cursoRepository.findByAsignaturaAndSemestreAndAnio(curso.getAsignatura(), curso.getSemestre(), curso.getAnio());
 			//cursoOpt.get().setHorarios(horarios);
 			System.out.println("antes del tercer for");
@@ -73,11 +74,11 @@ public class CursoServiceImpl implements CursoService {
 				System.out.println("paso signarHorario");
 			}	
 			cursoRepository.save(cursoOpt.get());
-			System.out.println("salgo del tercer for");*/
-		//curso.setHorarios(horariosaux);		
+			System.out.println("salgo del tercer for");
+		    //curso.setHorarios(horariosaux);		
 			return true;
 		}
-		else return false;
+		else return false;*/
 	}
 	
 	

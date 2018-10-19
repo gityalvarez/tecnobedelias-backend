@@ -28,6 +28,12 @@ public class Curso_Estudiante implements Serializable {
 		private int nota;
 		
 		@Column(name="estado", nullable=true)
+		/*
+		MATRICULADO - si el estudiante ya esta matriculado en el curso 
+		SALVADO - si el estudiante ya tiene salvada la asignatura correspondiente al curso 
+		EXAMEN - si el estudiante ya tiene aprobado el curso
+		RECURSA - si el estudiante perdio el curso y debe recursar
+		 */
 		private String estado;
 		
 		/*@Column(name="activa", nullable=true)

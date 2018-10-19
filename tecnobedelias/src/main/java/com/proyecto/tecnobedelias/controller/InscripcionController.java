@@ -67,20 +67,24 @@ public class InscripcionController {
 	@PostMapping("/curso")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public void inscribirCurso(HttpServletRequest request,
-			@RequestParam(name = "curso", required = true) Long cursoId,
-			@RequestParam(name = "usuario", required = true) Long usuarioId) {
+			@RequestParam(name = "curso", required = true) String cursoIdStr/*,
+			@RequestParam(name = "usuario", required = true) Long usuarioId*/) {
+		long cursoId = Long.parseLong(cursoIdStr);
 		Optional<Curso> curso = cursoRepository.findById(cursoId);
-		Optional<Usuario> usuario = usuarioRepository.findById(usuarioId);
+		String username = token.getUsername(request);
+		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
 		inscripcionService.inscripcionCurso(usuario.get(), curso.get());
 	}
 	
 	@PostMapping("/examen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public void inscribirExamen(HttpServletRequest request,
-			@RequestParam(name = "examen", required = true) Long examenId,
-			@RequestParam(name = "usuario", required = true) Long usuarioId) {
+			@RequestParam(name = "examen", required = true) String examenIdStr/*,
+			@RequestParam(name = "usuario", required = true) Long usuarioId*/) {
+		long examenId = Long.parseLong(examenIdStr);
 		Optional<Examen> examen = examenRepository.findById(examenId);
-		Optional<Usuario> usuario = usuarioRepository.findById(usuarioId);
+		String username = token.getUsername(request);
+		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
 		inscripcionService.inscripcionExamen(usuario.get(), examen.get());
 	}
 	

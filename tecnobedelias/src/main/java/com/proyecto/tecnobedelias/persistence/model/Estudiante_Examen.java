@@ -28,6 +28,12 @@ public class Estudiante_Examen implements Serializable {
 	private int nota;
 	
 	@Column(name="estado", nullable=true)
+	/*
+	ANOTADO - si el estudiante ya esta anotado para rendir el examen 
+	APROBADO - si el estudiante ya tiene salvada la asignatura correspondiente al examen 
+	REPROBADO - si el estudiante perdio el examen
+	RENDIDO - si el estudiante ya dio el examen
+	 */
 	private String estado;
 	
 	@JsonIgnore
