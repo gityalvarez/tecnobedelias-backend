@@ -194,14 +194,14 @@ public class Usuario implements Serializable {
 	@ManyToMany(fetch = FetchType.EAGER)
 	private Set<Rol> roles;
 
-	
+	@JsonIgnore
 	@OneToMany(mappedBy="estudiante",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Curso_Estudiante> cursoEstudiante;
 	 
 	
 	@OneToMany(mappedBy="estudiante",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Estudiante_Examen> examenEstudiante;
-
+	
 	@ManyToMany(mappedBy="estudiantes")
 	private List<Carrera> carreras;
 	 

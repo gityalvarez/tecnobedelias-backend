@@ -34,7 +34,7 @@ public class CursoController {
 	CursoService cursoService;
 
 	@GetMapping("/listar")
-	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
+	@PreAuthorize("hasRole('ROLE_FUNCIONARIO') or hasRole('ROLE_ESTUDIANTE')")
 	public List<Curso> listarCursos() {
 		return cursoRepository.findAll();
 	}
@@ -67,7 +67,9 @@ public class CursoController {
 
 		Asignatura asignatura = asignaturaOpt.get();
 		asignatura.getCursos().add(curso.get());
+		curso.get().setAsignatura(asignatura);
 		asignaturaRepository.save(asignatura);
+		cursoRepository.save(curso.get());
 	}
 	
 	@PostMapping("/desasignarAsignatura")

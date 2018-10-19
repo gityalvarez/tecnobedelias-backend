@@ -14,6 +14,7 @@ import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Curso_EstudianteRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Estudiante_ExamenRepository;
+import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.InscripcionService;
 
 @Service
@@ -33,7 +34,6 @@ public class InscripcionServiceImpl implements InscripcionService {
 		if (usuario.getCarreras().contains(carrera)) {
 			return false;
 		} else {
-
 			carrera.getEstudiantes().add(usuario);
 			usuario.getCarreras().add(carrera);
 			carreraRepository.save(carrera);
@@ -115,6 +115,17 @@ public class InscripcionServiceImpl implements InscripcionService {
 		}
 		
 
+	}
+
+	@Override
+	public boolean desistirCarrera(Usuario usuario, Carrera carrera) {
+		if (usuario.getCarreras().contains(carrera)) {
+			usuario.getCarreras().remove(carrera);
+			carrera.getEstudiantes().remove(usuario);
+			carreraRepository.save(carrera);
+			return true;
+		}
+		return false;
 	}
 
 }

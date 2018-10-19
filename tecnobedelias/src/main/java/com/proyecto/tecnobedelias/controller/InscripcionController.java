@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +21,9 @@ import com.proyecto.tecnobedelias.persistence.repository.CursoRepository;
 import com.proyecto.tecnobedelias.persistence.repository.ExamenRepository;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.InscripcionService;
+
+
+import  com.proyecto.tecnobedelias.Util.TokenUtil;
 
 @RestController
 
@@ -41,15 +45,23 @@ public class InscripcionController {
 	@Autowired
 	ExamenRepository examenRepository;
 	
+	@Autowired
+	TokenUtil token;
 	
-	@PostMapping("/carrera")
+	
+	@GetMapping("/carrera")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public void inscribirCarrera(HttpServletRequest request,
-			@RequestParam(name = "carrera", required = true) String carreraNombre,
-			@RequestParam(name = "usuario", required = true) Long usuarioId) {
+	public boolean inscribirCarrera(HttpServletRequest request,
+			@RequestParam(name = "carrera", required = true) String carreraNombre/*,
+			@RequestParam(name = "usuario", required = true) String username*/) {
+		System.out.println("entre al inscripcion carrera");
 		Optional<Carrera> carrera = carreraRepository.findByNombre(carreraNombre);
-		Optional<Usuario> usuario = usuarioRepository.findById(usuarioId);
-		inscripcionService.inscripcionCarrera(usuario.get(), carrera.get());
+		String username = token.getUsername(request);
+		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
+		if (inscripcionService.inscripcionCarrera(usuario.get(), carrera.get())) {
+			return true;
+		}
+		return false;
 	}
 	
 	@PostMapping("/curso")
@@ -70,6 +82,22 @@ public class InscripcionController {
 		Optional<Examen> examen = examenRepository.findById(examenId);
 		Optional<Usuario> usuario = usuarioRepository.findById(usuarioId);
 		inscripcionService.inscripcionExamen(usuario.get(), examen.get());
+	}
+	
+	@GetMapping("/desistircarrera")
+	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
+	public boolean desistirCarrera(HttpServletRequest request,
+			@RequestParam(name = "carrera", required = true) String carreraNombre/*,
+			@RequestParam(name = "usuario", required = true) String username*/) {
+		System.out.println("entre al inscripcion desistircarrera");
+		Optional<Carrera> carrera = carreraRepository.findByNombre(carreraNombre);
+		String username = token.getUsername(request);
+		
+		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
+		if (inscripcionService.desistirCarrera(usuario.get(), carrera.get())) {
+			return true;
+		}
+		return false;
 	}
 	
 	

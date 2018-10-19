@@ -17,5 +17,7 @@ public interface InscripcionService {
 	
 	public boolean desistirExamen(Usuario usuario, Examen examen);
 	
+	public boolean desistirCarrera(Usuario usuario, Carrera carrera);
+	
 	
 }

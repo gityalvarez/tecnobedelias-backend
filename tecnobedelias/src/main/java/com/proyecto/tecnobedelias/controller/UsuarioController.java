@@ -1,5 +1,9 @@
 package com.proyecto.tecnobedelias.controller;
 
+import static com.proyecto.tecnobedelias.security.SecurityConstants.HEADER_STRING;
+import static com.proyecto.tecnobedelias.security.SecurityConstants.SECRET;
+import static com.proyecto.tecnobedelias.security.SecurityConstants.TOKEN_PREFIX;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +27,9 @@ import com.proyecto.tecnobedelias.persistence.repository.RolRepository;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.EmailService;
 import com.proyecto.tecnobedelias.service.UsuarioService;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 @RestController
 @RequestMapping("/usuario")
@@ -50,7 +57,20 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
 	public List<Usuario> obtenerUsuarios() {
 		return usuarioService.listarUsuarios();
-	}    
+	} 
+    
+    @GetMapping("/estudiante")
+    @PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
+    public Optional<Usuario> obtenerEstudiante(HttpServletRequest request) {
+    	String token = request.getHeader(HEADER_STRING);
+		Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+				.getBody();
+
+		String username = claims.getSubject();
+		System.out.println(("obtuve al estudiante "+username));
+		return usuarioRepository.findByUsername(username);
+		
+    }
     
     @PostMapping("/crear/{rol}")
    // @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
