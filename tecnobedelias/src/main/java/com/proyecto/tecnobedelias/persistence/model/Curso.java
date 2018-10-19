@@ -3,6 +3,7 @@ package com.proyecto.tecnobedelias.persistence.model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,9 +15,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="cursos", indexes = {@Index(name="asignatura_curso_index", columnList="id_asignatura")})
@@ -49,6 +54,17 @@ public class Curso implements Serializable {
 	@OneToMany(mappedBy="curso", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	private List<Curso_Estudiante> cursoEstudiante;	
 	
+	/*@ManyToMany(mappedBy="cursos")
+	private List<Horario> horarios;
+	
+	public List<Horario> getHorarios() {
+		return horarios;
+		}
+
+public void setHorarios(List<Horario> horarios) {
+	this.horarios = horarios;
+}*/	
+	
 	public Curso() {
 	}
 
@@ -68,19 +84,19 @@ public class Curso implements Serializable {
 		this.id = id;
 	}
 
-	public Integer getAnio() {
+	public int getAnio() {
 		return anio;
 	}
 
-	public void setAnio(Integer anio) {
+	public void setAnio(int anio) {
 		this.anio = anio;
 	}
 
-	public Integer getSemestre() {
+	public int getSemestre() {
 		return semestre;
 	}
 
-	public void setSemestre(Integer semestre) {
+	public void setSemestre(int semestre) {
 		this.semestre = semestre;
 	}
 	
@@ -122,7 +138,35 @@ public class Curso implements Serializable {
 
 	public void setCursoEstudiante(List<Curso_Estudiante> cursoEstudiante) {
 		this.cursoEstudiante = cursoEstudiante;
+	}
+	
+	//@JsonIgnore
+	@JoinTable(
+	        name = "curso_horario",
+	        joinColumns = @JoinColumn(
+	                name = "id_curso",
+	                referencedColumnName = "id",
+	                foreignKey=@ForeignKey(name="curso_horario_curso_fkey")	                
+	        ),
+	        inverseJoinColumns = @JoinColumn(
+	        		foreignKey=@ForeignKey(name="curso_horario_horario_fkey"),
+	                name = "id_horario",
+	                referencedColumnName = "id"
+	        ),
+	        indexes = {@Index(name = "horario_curso_horario_index", columnList = "id_horario"), @Index(name = "curso_curso_horario_index", columnList = "id_curso")}
+	)	
+	@ManyToMany(fetch = FetchType.EAGER, cascade={CascadeType.ALL})
+	private List<Horario> horarios;	
+	
+	public List<Horario> getHorarios() {
+		return horarios;
+	}
+
+	public void setHorarios(List<Horario> horarios) {
+		this.horarios = horarios;
 	}	
+	
+		
 	
 }
 
