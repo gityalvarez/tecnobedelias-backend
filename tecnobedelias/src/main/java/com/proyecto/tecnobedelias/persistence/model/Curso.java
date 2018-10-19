@@ -44,6 +44,7 @@ public class Curso implements Serializable {
 	@Column(name="fechaFin", nullable=false)
 	private Date fechaFin;
 	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="id_asignatura", foreignKey = @ForeignKey(name="curso_asignatura_fkey"))
 	private Asignatura asignatura;
