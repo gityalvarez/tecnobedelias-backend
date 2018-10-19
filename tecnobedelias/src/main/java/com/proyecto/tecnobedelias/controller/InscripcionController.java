@@ -64,7 +64,7 @@ public class InscripcionController {
 		return false;
 	}
 	
-	@PostMapping("/curso")
+	@GetMapping("/curso")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public void inscribirCurso(HttpServletRequest request,
 			@RequestParam(name = "curso", required = true) String cursoIdStr/*,
@@ -76,7 +76,7 @@ public class InscripcionController {
 		inscripcionService.inscripcionCurso(usuario.get(), curso.get());
 	}
 	
-	@PostMapping("/examen")
+	@GetMapping("/examen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public void inscribirExamen(HttpServletRequest request,
 			@RequestParam(name = "examen", required = true) String examenIdStr/*,
@@ -105,7 +105,7 @@ public class InscripcionController {
 	}
 	
 	
-	@PostMapping("/desistircurso")
+	@GetMapping("/desistircurso")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public void desistirCurso(HttpServletRequest request,
 			@RequestParam(name = "curso", required = true) Long cursoId,
@@ -115,7 +115,7 @@ public class InscripcionController {
 		inscripcionService.desistirCurso(usuario.get(), curso.get());
 	}
 	
-	@PostMapping("/desistirexamen")
+	@GetMapping("/desistirexamen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public void desistirExamen(HttpServletRequest request,
 			@RequestParam(name = "examen", required = true) Long examenId,
