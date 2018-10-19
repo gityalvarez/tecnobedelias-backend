@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
+import com.proyecto.tecnobedelias.persistence.model.Horario;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CursoRepository;
 import com.proyecto.tecnobedelias.service.CursoService;
@@ -41,8 +42,16 @@ public class CursoController {
 
 	@PostMapping("/crear")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public void crearCurso(@RequestBody Curso curso) {
-		cursoService.altaCurso(curso);
+	public boolean crearCurso(HttpServletRequest request, @RequestBody Curso curso/*, @RequestBody List<Horario> horarios*/, @RequestParam(name = "codigo", required = true) String codigoAsignatura) {
+		System.out.println("entre a crearCurso");
+		Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByCodigo(codigoAsignatura);
+		curso.setAsignatura(asignaturaOpt.get());
+		//curso.setHorarios(horarios);
+		System.out.println("asignatura " + curso.getAsignatura().getNombre());
+		if (!cursoService.existeCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio())) {
+			return cursoService.altaCurso(curso/*, horarios*/);
+		}
+		else return false;
 	}
 	
 	

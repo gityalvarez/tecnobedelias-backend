@@ -2,7 +2,9 @@ package com.proyecto.tecnobedelias.persistence.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,6 +16,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+
+
+
 import javax.persistence.ForeignKey;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,6 +44,17 @@ public class Horario implements Serializable {
 	
 	@Column(name="activa", nullable=true)	
 	private boolean activa;
+	
+	@ManyToMany(mappedBy="horarios", cascade={CascadeType.ALL})
+    private List<Curso> cursos;
+	
+	public List<Curso> getCursos() {
+		return cursos;
+	}
+
+	public void setCursos(List<Curso> cursos) {
+		this.cursos = cursos;
+	}
 	
 	public Horario() {		
 	};	
@@ -90,7 +106,7 @@ public class Horario implements Serializable {
 		this.activa = activa;
 	}	 
 
-	@JsonIgnore
+	/*@JsonIgnore
 	@JoinTable(
 	        name = "curso_horario",
 	        joinColumns = @JoinColumn(
@@ -106,15 +122,15 @@ public class Horario implements Serializable {
 	        indexes = {@Index(name = "horario_curso_horario_index", columnList = "id_horario"), @Index(name = "curso_curso_horario_index", columnList = "id_curso")}
 	)	
 	@ManyToMany(fetch = FetchType.EAGER)
-	private List<Curso> cursos;	 
+	private Set<Curso> cursos;	 
 	
-	public List<Curso> getCursos() {
+	public Set<Curso> getCursos() {
 		return cursos;
 	}
 
-	public void setCursos(List<Curso> cursos) {
+	public void setCursos(Set<Curso> cursos) {
 		this.cursos = cursos;
-	}
+	}*/
 	
 }
 

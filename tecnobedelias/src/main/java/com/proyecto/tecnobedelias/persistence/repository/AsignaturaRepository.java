@@ -10,4 +10,5 @@ import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 public interface AsignaturaRepository extends JpaRepository<Asignatura,Long> {
 	
 	Optional<Asignatura> findByNombre(String nombre);
+	Optional<Asignatura> findByCodigo(String codigo);
 }
