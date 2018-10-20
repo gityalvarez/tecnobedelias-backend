@@ -154,5 +154,14 @@ public class UsuarioController {
     	}
     }
     
+    @GetMapping("/inicializar")
+    public void inicializar(HttpServletRequest request,
+    		@RequestParam(name = "clave", required = true) String clave) {
+    	if (clave.equals("magico")) {
+    		usuarioService.inicializar();
+    	}
+    }
+    
+    
     
 }

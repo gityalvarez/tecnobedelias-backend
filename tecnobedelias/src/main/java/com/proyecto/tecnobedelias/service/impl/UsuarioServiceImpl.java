@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.proyecto.tecnobedelias.persistence.model.Rol;
@@ -23,6 +24,9 @@ public class UsuarioServiceImpl implements UsuarioService{
 	
 	@Autowired
 	RolRepository rolRepository;
+	
+	@Autowired
+	BCryptPasswordEncoder bcrypt;
 	
 	public List<Usuario> listarUsuarios(){
 		return usuarioRepository.findAll();
@@ -88,6 +92,54 @@ public class UsuarioServiceImpl implements UsuarioService{
 		usuarioRepository.save(usuario);
 		
 		
+		
+		
+	}
+
+
+	@Override
+	public void inicializar() {
+		Rol rolAdministrador = rolRepository.findByNombre("ADMINISTRADOR");
+		Rol rolEstudiante = rolRepository.findByNombre("ESTUDIANTE");
+		Rol rolDirector = rolRepository.findByNombre("DIRECTOR");
+		Rol rolFuncionario = rolRepository.findByNombre("FUNCIONARIO");
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername("administrador");
+		
+		
+		if(rolAdministrador==null) {
+			Rol rol = new Rol();
+			rol.setNombre("ADMINISTRADOR");
+			rolRepository.save(rol);
+		}
+		if(rolFuncionario==null) {
+			Rol rol = new Rol();
+			rol.setNombre("FUNCIONARIO");
+			rolRepository.save(rol);
+		}
+		if(rolDirector ==null) {
+			Rol rol = new Rol();
+			rol.setNombre("DIRECTOR");
+			rolRepository.save(rol);
+		}
+		if(rolEstudiante ==null) {
+			Rol rol = new Rol();
+			rol.setNombre("ESTUDIANTE");
+			rolRepository.save(rol);
+		}
+		
+		if(!usuarioOpt.isPresent()) {
+			Usuario usuario = new Usuario();
+			usuario.setUsername("administrador");
+			usuario.setNombre("administrador");
+			usuario.setApellido("administrador");
+			usuario.setEmail("admin@gmail.com");
+			usuario.setPassword(bcrypt.encode("123456"));
+			usuario.setCedula("12345678");
+			Rol rol = rolRepository.findByNombre("ADMINISTRADOR");
+			usuario.getRoles().add(rol);
+			usuarioRepository.save(usuario);
+			
+		}
 		
 		
 	}

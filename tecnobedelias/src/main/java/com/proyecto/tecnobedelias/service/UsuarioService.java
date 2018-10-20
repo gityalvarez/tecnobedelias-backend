@@ -28,4 +28,6 @@ public interface UsuarioService {
 	public Optional<Usuario> findUsuarioByResetToken(String resetToken);
 	
 	public Optional<Usuario> findUsuarioByUsername(String username);
+	
+	public void inicializar();
 }

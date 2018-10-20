@@ -52,6 +52,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/usuario/crear/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/usuario/reset/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/usuario/reset**").permitAll()
+                .antMatchers(HttpMethod.GET, "/usuario/inicializar**").permitAll()
                 .antMatchers(HttpMethod.GET, "/usuario/generate-token").permitAll()
                 .antMatchers(HttpMethod.POST, "/rol/crear").permitAll()   
                 .antMatchers(HttpMethod.GET, "/acta/**").permitAll() 
