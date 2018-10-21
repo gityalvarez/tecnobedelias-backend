@@ -1,5 +1,11 @@
 package com.proyecto.tecnobedelias.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,14 +48,69 @@ public class CursoController {
 
 	@PostMapping("/crear")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean crearCurso(HttpServletRequest request, @RequestBody Curso curso/*, @RequestBody List<Horario> horarios*/, @RequestParam(name = "codigo", required = true) String codigoAsignatura) {
+	public boolean crearCurso(HttpServletRequest request, @RequestBody Curso curso/*, @RequestBody List<Horario> horarios*/, @RequestParam(name = "codigo", required = true) String codigoAsignatura) throws ParseException {
 		System.out.println("entre a crearCurso");
 		Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByCodigo(codigoAsignatura);
 		curso.setAsignatura(asignaturaOpt.get());
 		//curso.setHorarios(horarios);
-		System.out.println("asignatura " + curso.getAsignatura().getNombre());
 		if (!cursoService.existeCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio())) {
-			return cursoService.altaCurso(curso/*, horarios*/);
+			Date fechaActual = new Date();
+			String anioActualString = new SimpleDateFormat("yyyy").format(fechaActual);
+			int anioActual = Integer.parseInt(anioActualString);
+			System.out.println("anio actual: " + anioActual);	
+			if (curso.getAnio() >= anioActual) {
+				boolean fechasOk = true;
+				SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+			 	String fechaInicioString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaInicio());
+			 	Date fechaInicio = formateadorfecha.parse(fechaInicioString);
+			 	System.out.println("fecha actual: " + fechaActual);	
+			 	System.out.println("fecha inicio: " + fechaInicio);	
+			 	String fechaFinString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
+			 	Date fechaFin = formateadorfecha.parse(fechaFinString);	
+			 	System.out.println("fecha fin: " + fechaFin);	
+			 	if (fechaInicio.before(fechaActual)) {
+			 		fechasOk = false;
+			 		System.out.println("fecha inicio < fecha actual");				
+			 	}
+			 	if (fechaFin.before(fechaInicio)) {
+			 		fechasOk = false;
+			 		System.out.println("fecha fin < fecha inicio");				
+			 	}
+			 	if (fechasOk) {
+			 		boolean horariosOk = true;
+			 		Date horaInicioDate;
+			 		Date horaFinDate;
+			 		long horaInicio;
+			 		long horaFin;
+			 		SimpleDateFormat formateadorhora = new SimpleDateFormat("HH:mm");
+			 		Iterator<Horario> itHorarios = curso.getHorarios().iterator();
+			 		Horario horario;
+			 		while (itHorarios.hasNext() && horariosOk) {
+			 			horario = itHorarios.next();
+			 			horaInicioDate = formateadorhora.parse(horario.getHoraInicio());
+			 			System.out.println("horaInicioDate: "+ horaInicioDate);	
+			 			horaInicio = horaInicioDate.getTime();
+			 			horaFinDate = formateadorhora.parse(horario.getHoraFin());
+			 			System.out.println("horaFinDate: "+ horaFinDate);	
+			 			horaFin = horaFinDate.getTime();
+			 			if (horaFin <= horaInicio) {
+			 				horariosOk = false;
+			 				System.out.println("hora fin <= hora inicio");	
+			 			}
+			 		}
+			 		if (horariosOk) {
+			 			cursoService.altaCurso(curso/*, horarios*/);
+			 			Optional<Curso> cursoOpt = cursoService.obtenerCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio());
+			 			Asignatura asignatura = cursoOpt.get().getAsignatura();
+			 			asignatura.getCursos().add(cursoOpt.get());
+			 			asignaturaRepository.save(asignatura);
+			 			return true;
+			 		}
+			 		else return false;
+			 	}
+			 	else return false;
+			}
+			else return false;
 		}
 		else return false;
 	}
@@ -62,7 +123,7 @@ public class CursoController {
 		cursoService.bajaCurso(curso);
 	}
 
-	@PostMapping("/asignarAsignatura")
+	/*@PostMapping("/asignarAsignatura")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public void asignarAsignaturaCurso(HttpServletRequest request,
 			@RequestParam(name = "curso", required = true) Long cursoId,
@@ -79,9 +140,9 @@ public class CursoController {
 		curso.get().setAsignatura(asignatura);
 		asignaturaRepository.save(asignatura);
 		cursoRepository.save(curso.get());
-	}
+	}*/
 	
-	@PostMapping("/desasignarAsignatura")
+	/*@PostMapping("/desasignarAsignatura")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public void desasignarAsignaturaCurso(HttpServletRequest request,
 			@RequestParam(name = "curso", required = true) Long cursoId,
@@ -96,6 +157,6 @@ public class CursoController {
 		Asignatura asignatura = asignaturaOpt.get();
 		asignatura.getCursos().remove(curso.get());
 		asignaturaRepository.save(asignatura);
-	}
+	}*/
 
 }

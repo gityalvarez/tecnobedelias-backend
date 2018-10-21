@@ -31,61 +31,17 @@ public class CursoServiceImpl implements CursoService {
 	HorarioService horarioService;
 	
 	@Override
-	public boolean altaCurso(Curso curso/*, List<Horario> horarios*/) {	
-		cursoRepository.save(curso);
-		return true;
-		/*if (!existeCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio())) {
-			//List<Horario> horarios = new ArrayList<Horario>();		
-			for (Horario h : curso.getHorarios()) {
-				System.out.println("dia: " + h.getDia());
-				//horarioService.altaHorario(h);
-				curso.getHorarios().remove(o)
-				Optional<Horario> horarioOpt = horarioRepository.findByDiaAndHoraInicioAndHoraFin(h.getDia(), h.getHoraInicio(), h.getHoraFin());
-				if (!horarioOpt.isPresent()) {
-					horarioRepository.save(horarioOpt.get());
-				}
-				
-			}				
-				System.out.println("id Horario: "+horarioOpt.get().getId());
-				//asignarHorarioCurso(horarioOpt.get(), cursoOpt.get());
-				horarios.add(horarioOpt.get());
-				//curso.getHorarios().remove(h);
-				//curso.getHorarios().add(horarioOpt.get());
-				System.out.println("paso addHorario");
-			}
-			System.out.println("salgo del segundo for");
-			for (Horario h : horarios) {
-				System.out.println("id: " + h.getId());
-				System.out.println("dia: " + h.getDia());			
-			}
-			//curso.setHorarios(null);
-			cursoRepository.save(curso);*/
-			/*Optional<Curso> cursoOpt = cursoRepository.findByAsignaturaAndSemestreAndAnio(curso.getAsignatura(), curso.getSemestre(), curso.getAnio());
-			//cursoOpt.get().setHorarios(horarios);
-			System.out.println("antes del tercer for");
-			for (Horario horario : horarios) {
-				System.out.println("id: " + horario.getId());
-				System.out.println("dia: " + horario.getDia());
-				//cursoOpt.get().getHorarios().add(horario);
-			//horariosaux.add(horario.get());
-			//curso.getHorarios().remove(h);
-			//curso.setId(cursoOpt.get().getId());
-			//curso.getHorarios().add(horario);
-				System.out.println("paso signarHorario");
-			}	
-			cursoRepository.save(cursoOpt.get());
-			System.out.println("salgo del tercer for");
-		    //curso.setHorarios(horariosaux);		
-			return true;
-		}
-		else return false;*/
+	public boolean altaCurso(Curso curso/*, List<Horario> horarios*/) {		
+		System.out.println("Entro a altaCurso");
+		cursoRepository.save(curso);		
+		return true;		
 	}
 	
 	
-	public void asignarHorarioCurso(Horario horario, Curso curso) {
+	/*public void asignarHorarioCurso(Horario horario, Curso curso) {
 		curso.getHorarios().add(horario);
 		cursoRepository.save(curso);
-	}
+	}*/
 	
 
 	@Override
@@ -104,6 +60,11 @@ public class CursoServiceImpl implements CursoService {
 		if (cursoExistente.isPresent())
 			return true;
 		else return false;		
+	}
+	
+	@Override
+	public Optional<Curso> obtenerCurso(Asignatura asignatura, int semestre, int anio) {		
+		return cursoRepository.findByAsignaturaAndSemestreAndAnio(asignatura, semestre, anio);				
 	}
 
 	@Override
