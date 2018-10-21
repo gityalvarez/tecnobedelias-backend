@@ -12,9 +12,11 @@ public interface CursoService {
 	
 	public List<Curso> listarCursos();
 	
-	public boolean existeCurso(Curso curso);
+	public boolean existeCurso(long cursoId);
 	
 	public Optional<Curso> obtenerCurso(Asignatura asignatura, int semestre, int anio);
+	
+	public Optional<Curso> obtenerCurso(long id);
 	
 	public void bajaCurso(Curso curso);
 

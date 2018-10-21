@@ -13,9 +13,11 @@ public interface ExamenService {
 	
 	public List<Examen> listarExamenes();
 	
-	public boolean existeExamen(Examen examen);
+	public boolean existeExamen(long examenId);
 	
 	public Optional<Examen> obtenerExamen(Asignatura asignatura, Date fecha);
+	
+	public Optional<Examen> obtenerExamen(long id);
 	
 	public void bajaExamen(Examen examen);
 

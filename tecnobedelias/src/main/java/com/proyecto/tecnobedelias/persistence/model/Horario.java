@@ -45,6 +45,7 @@ public class Horario implements Serializable {
 	@Column(name="activa", nullable=true)	
 	private boolean activa;
 	
+	@JsonIgnore
 	@ManyToMany(mappedBy="horarios", cascade={CascadeType.ALL})
     private List<Curso> cursos;
 	

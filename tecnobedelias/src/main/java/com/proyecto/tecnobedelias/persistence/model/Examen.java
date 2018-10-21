@@ -90,14 +90,14 @@ public class Examen implements Serializable {
 	}
 
 	@OneToMany(mappedBy="examen",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	 private List<Estudiante_Examen> examenEstudiante;
+	 private List<Estudiante_Examen> estudianteExamen;
 
-	public List<Estudiante_Examen> getExamenEstudiante() {
-		return examenEstudiante;
+	public List<Estudiante_Examen> getEstudianteExamen() {
+		return estudianteExamen;
 	}
 
-	public void setExamenEstudiante(List<Estudiante_Examen> examenEstudiante) {
-		this.examenEstudiante = examenEstudiante;
+	public void setEstudianteExamen(List<Estudiante_Examen> estudianteExamen) {
+		this.estudianteExamen = estudianteExamen;
 	}
 	
 }

@@ -50,8 +50,8 @@ public class CursoServiceImpl implements CursoService {
 	}
 
 	@Override
-	public boolean existeCurso(Curso curso) {
-		return cursoRepository.existsById(curso.getId());
+	public boolean existeCurso(long cursoId) {
+		return cursoRepository.existsById(cursoId);
 	}
 	
 	@Override
@@ -65,6 +65,11 @@ public class CursoServiceImpl implements CursoService {
 	@Override
 	public Optional<Curso> obtenerCurso(Asignatura asignatura, int semestre, int anio) {		
 		return cursoRepository.findByAsignaturaAndSemestreAndAnio(asignatura, semestre, anio);				
+	}
+	
+	@Override
+	public Optional<Curso> obtenerCurso(long id) {		
+		return cursoRepository.findById(id);				
 	}
 
 	@Override

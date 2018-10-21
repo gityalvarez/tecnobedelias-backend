@@ -138,8 +138,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 
 	@Override
 	public boolean desistirCurso(Usuario usuario, Curso curso) {
-		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso,
-				usuario);
+		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso,	usuario);
 		if (cursoEstudianteExistente.isPresent()) {
 			usuario.getCursoEstudiante().remove(cursoEstudianteExistente.get());
 			curso.getCursoEstudiante().remove(cursoEstudianteExistente.get());
@@ -153,11 +152,10 @@ public class InscripcionServiceImpl implements InscripcionService {
 	@Override
 	public boolean desistirExamen(Usuario usuario, Examen examen) {
 		
-		Optional<Estudiante_Examen> estudianteExamenExistente = estudianteExamenRepository.findByExamenAndEstudiante(examen,
-				usuario);
+		Optional<Estudiante_Examen> estudianteExamenExistente = estudianteExamenRepository.findByExamenAndEstudiante(examen, usuario);
 		if (estudianteExamenExistente.isPresent()) {
-			usuario.getExamenEstudiante().remove(estudianteExamenExistente.get());
-			examen.getExamenEstudiante().remove(estudianteExamenExistente.get());
+			usuario.getEstudianteExamen().remove(estudianteExamenExistente.get());
+			examen.getEstudianteExamen().remove(estudianteExamenExistente.get());
 			estudianteExamenRepository.delete(estudianteExamenExistente.get());
 			return true;
 		}else {

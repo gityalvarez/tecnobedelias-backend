@@ -23,29 +23,39 @@ public class ExamenServiceImpl implements ExamenService {
 	@Autowired
 	AsignaturaRepository asignaturaRepository;	
 	
-	
+	@Override
 	public boolean altaExamen(Examen examen) {
 		System.out.println("Entro a altaExamen");
 		examenRepository.save(examen);		
 		return true;
 	}
 	
+	@Override
 	public List<Examen> listarExamenes(){
 		return examenRepository.findAll();
 	}
 	
-	public boolean existeExamen(Examen examen) {
-		return examenRepository.existsById(examen.getId());
+	@Override
+	public boolean existeExamen(long examenId) {
+		return examenRepository.existsById(examenId);
 	}
 	
+	@Override
 	public Optional<Examen> obtenerExamen(Asignatura asignatura, Date fecha) {
 		return examenRepository.findByAsignaturaAndFecha(asignatura, fecha);
 	}
 	
+	@Override
+	public Optional<Examen> obtenerExamen(long id) {
+		return examenRepository.findById(id);
+	}
+	
+	@Override
 	public void bajaExamen(Examen examen) {
-		
+		examenRepository.delete(examen);
 	}
 
+	@Override
 	public boolean existeExamen(Asignatura asignatura, Date fecha) {
 		Optional<Examen> examenExistente = examenRepository.findByAsignaturaAndFecha(asignatura, fecha);
 		if (examenExistente.isPresent())

@@ -2,9 +2,7 @@ package com.proyecto.tecnobedelias.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -119,8 +117,16 @@ public class CursoController {
 
 	@PostMapping("/borrar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public void borrarCurso(Curso curso) {
-		cursoService.bajaCurso(curso);
+	public boolean borrarCurso(HttpServletRequest request,@RequestParam(name = "cursoId", required = true) Long cursoId) {
+		if (cursoService.existeCurso(cursoId)) {
+			Curso curso = cursoService.obtenerCurso(cursoId).get();
+			if (curso.getCursoEstudiante().isEmpty()) {
+				cursoService.bajaCurso(curso);
+				return true;
+			}
+			else return false;
+		}
+		else return false;
 	}
 
 	/*@PostMapping("/asignarAsignatura")

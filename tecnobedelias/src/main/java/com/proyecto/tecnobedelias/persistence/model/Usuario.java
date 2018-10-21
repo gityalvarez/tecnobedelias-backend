@@ -200,7 +200,7 @@ public class Usuario implements Serializable {
 	 
 	
 	@OneToMany(mappedBy="estudiante",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<Estudiante_Examen> examenEstudiante;
+	private List<Estudiante_Examen> estudianteExamen;
 	
 	@ManyToMany(mappedBy="estudiantes")
 	private List<Carrera> carreras;
@@ -221,12 +221,12 @@ public class Usuario implements Serializable {
 		this.cursoEstudiante = cursoEstudiante;
 	}
 
-	public List<Estudiante_Examen> getExamenEstudiante() {
-		return examenEstudiante;
+	public List<Estudiante_Examen> getEstudianteExamen() {
+		return estudianteExamen;
 	}
 
-	public void setExamenEstudiante(List<Estudiante_Examen> examenEstudiante) {
-		this.examenEstudiante = examenEstudiante;
+	public void setEstudianteExamen(List<Estudiante_Examen> estudianteExamen) {
+		this.estudianteExamen = estudianteExamen;
 	}	 
 	 
 	public Set<Rol> getRoles() {

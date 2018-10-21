@@ -50,7 +50,7 @@ public class Asignatura implements Serializable {
 	                referencedColumnName = "id"
 	        )
 	)*/	
-	
+	@JsonIgnore
 	@OneToMany(mappedBy="asignatura", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	private List<Curso> cursos;	
 	
@@ -65,6 +65,7 @@ public class Asignatura implements Serializable {
 	                referencedColumnName = "id"
 	        )
 	)*/	
+	@JsonIgnore
 	@OneToMany(mappedBy="asignatura", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Examen> examenes;
 	
