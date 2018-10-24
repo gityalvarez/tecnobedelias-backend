@@ -27,8 +27,8 @@ public class Rol implements Serializable {
 	@Column(name="descripcion", nullable=true)
     private String descripcion;
 	
-	@Column(name="activa", nullable=true)
-	private boolean activa;
+	/*@Column(name="activa", nullable=true)
+	private boolean activa; */
     
     @ManyToMany(mappedBy="roles")
     private List<Usuario> usuarios;
@@ -39,7 +39,7 @@ public class Rol implements Serializable {
     public Rol(String nombre, String descripcion) {
 		this.nombre = nombre;
 		this.descripcion = descripcion;
-		this.activa = true;
+		//this.activa = true;
 	}
 
 	public long getId() {
@@ -66,13 +66,13 @@ public class Rol implements Serializable {
 		this.descripcion = descripcion;
 	}
 
-	public boolean isActiva() {
+	/*public boolean isActiva() {
 		return activa;
 	}
 
 	public void setActiva(boolean activa) {
 		this.activa = activa;
-	}
+	}*/
 
 	public List<Usuario> getUsuarios() {
 		return usuarios;

@@ -44,11 +44,11 @@ Body raw JSON(application/json)
 
 
 -Crear los Roles 
-Post al http://localhost:8080/role/crear
+Post al http://localhost:8080/rol/crear
 Body raw JSON(application/json)
 
 {
-	"name" : "ADMINISTRADOR"
+	"nombre" : "ADMINISTRADOR"
 }
 
 -Asignar rol al usuario

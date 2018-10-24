@@ -18,6 +18,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="examenes", indexes = {@Index(name="asignatura_examen_index", columnList="id_asignatura")})
 public class Examen implements Serializable {
@@ -33,12 +35,13 @@ public class Examen implements Serializable {
 	@Column(name="hora", nullable=true)	
 	private String hora;
 	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "id_asignatura", foreignKey = @ForeignKey(name="examen_asignatura_fkey"))
 	private Asignatura asignatura;
 	
-	@Column(name="activa", nullable=true)	
-	private boolean activa;
+	/*@Column(name="activa", nullable=true)	
+	private boolean activa;*/
 	
 	public Examen() {
 	}
@@ -46,7 +49,7 @@ public class Examen implements Serializable {
 	public Examen(Date fecha, String hora) {
 		this.fecha = fecha;
 		this.hora = hora;
-		this.activa = true;
+		//this.activa = true;
 	}
 	
 	public long getId() {
@@ -73,13 +76,13 @@ public class Examen implements Serializable {
 		this.hora = hora;
 	}
 
-	public boolean isActiva() {
+	/*public boolean isActiva() {
 		return activa;
 	}
 
 	public void setActiva(boolean activa) {
 		this.activa = activa;
-	}	
+	}	*/
 	
 	public Asignatura getAsignatura() {
 		return asignatura;

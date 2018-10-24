@@ -42,8 +42,8 @@ public class Asignatura_Carrera implements Serializable {
 	@Column(name="creditos")
 	private int creditos;
 	
-	@Column(name="electiva", nullable=true)
-	private boolean electiva;
+	//@Column(name="electiva", nullable=true)
+	//private boolean electiva;
 	
 	/*@Column(name="activa", nullable=true)
 	private boolean activa;*/
@@ -57,7 +57,7 @@ public class Asignatura_Carrera implements Serializable {
 		this.notaMinimaExonera = notaMinimaExonera;
 		this.notaMaxima = notaMaxima;
 		this.creditos = creditos;
-		this.electiva = electiva;
+		//this.electiva = electiva;
 		//this.activa = true;
 	}
 	
@@ -109,13 +109,13 @@ public class Asignatura_Carrera implements Serializable {
 		this.creditos = creditos;
 	}
 
-	public boolean isElectiva() {
+	/*public boolean isElectiva() {
 		return electiva;
 	}
 
 	public void setElectiva(boolean electiva) {
 		this.electiva = electiva;
-	}
+	}*/
 	
 	/*public boolean isActiva() {
 		return activa;
@@ -131,7 +131,7 @@ public class Asignatura_Carrera implements Serializable {
 	private Carrera carrera;
 	
 	@ManyToOne
-	//@JsonIgnore
+	@JsonIgnore
 	@JoinColumn(name="id_asignatura", foreignKey = @ForeignKey(name="asignatura_carrera_asignatura_fkey"))
 	private Asignatura asignatura;
 	

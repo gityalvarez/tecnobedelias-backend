@@ -35,7 +35,10 @@ public class Asignatura implements Serializable {
 	@Column(name="descripcion", nullable=true)
 	private String descripcion;
 	
-	@JsonIgnore
+	@Column(name="taller", nullable=true)
+	private boolean taller;
+	
+	//@JsonIgnore
 	@OneToMany(mappedBy="asignatura", fetch=FetchType.LAZY, cascade=CascadeType.ALL)	
 	private List<Asignatura_Carrera> asignaturaCarrera;	
 	
@@ -49,8 +52,9 @@ public class Asignatura implements Serializable {
 	                name = "cursoId",
 	                referencedColumnName = "id"
 	        )
-	)*/	
-	@JsonIgnore
+	)*/
+	
+	//@JsonIgnore
 	@OneToMany(mappedBy="asignatura", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	private List<Curso> cursos;	
 	
@@ -69,8 +73,8 @@ public class Asignatura implements Serializable {
 	@OneToMany(mappedBy="asignatura", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Examen> examenes;
 	
-	@Column(name="activa", nullable=true)
-	private boolean activa;
+	/*@Column(name="activa", nullable=true)
+	private boolean activa;*/
 	
 	public Asignatura() {
 	}
@@ -79,7 +83,7 @@ public class Asignatura implements Serializable {
 		this.codigo = codigo;
 		this.nombre = nombre;
 		this.descripcion = descripcion;
-		this.activa = true;
+		//this.activa = true;
 	}
 	
 	public long getId() {
@@ -112,16 +116,24 @@ public class Asignatura implements Serializable {
 
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
-	}
+	}	
 
-	public boolean isActiva() {
+	/*public boolean isActiva() {
 		return activa;
 	}
 
 	public void setActiva(boolean activa) {
 		this.activa = activa;
-	}	
+	}*/	
 	
+	public boolean isTaller() {
+		return taller;
+	}
+
+	public void setTaller(boolean taller) {
+		this.taller = taller;
+	}
+
 	public List<Examen> getExamenes() {
 		return examenes;
 	}

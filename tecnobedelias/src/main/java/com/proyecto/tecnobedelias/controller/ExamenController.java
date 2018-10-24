@@ -48,62 +48,67 @@ public class ExamenController {
     public boolean crearExamen(HttpServletRequest request, @RequestBody Examen examen, @RequestParam(name = "codigo", required = true) String codigoAsignatura) throws ParseException{
 		System.out.println("entre a crearExamen");
 		Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByCodigo(codigoAsignatura);
-		examen.setAsignatura(asignaturaOpt.get());
-		if (!examenService.existeExamen(examen.getAsignatura(), examen.getFecha())){
-			System.out.println("no existe el examen");
-			boolean fechaOk = true;
-			List<Curso> cursosAsignatura = asignaturaOpt.get().getCursos();
-			if (!cursosAsignatura.isEmpty()) {
-				SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
-				String fechaFinCursoString;
-				Date fechaActualDate = new Date();
-				long fechaActual = fechaActualDate.getTime();
-				Date fechaFinCursoDate;
-				long fechaFinCurso;
-				long diferencia = Long.MAX_VALUE;
-				Curso ultimocurso = null;
-				for (Curso curso : cursosAsignatura) {
-					fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
-					fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
-					fechaFinCurso = fechaFinCursoDate.getTime();
-					if (fechaActual - fechaFinCurso < diferencia) {
-						diferencia = fechaActual - fechaFinCurso;
-						ultimocurso = curso;
+		if (!asignaturaOpt.get().isTaller()) {
+			examen.setAsignatura(asignaturaOpt.get());
+			if (!examenService.existeExamen(examen.getAsignatura(), examen.getFecha())){
+				System.out.println("no existe el examen");
+				boolean fechaOk = true;
+				List<Curso> cursosAsignatura = asignaturaOpt.get().getCursos();
+				if (!cursosAsignatura.isEmpty()) {
+					SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+					String fechaFinCursoString;
+					Date fechaActualDate = new Date();
+					long fechaActual = fechaActualDate.getTime();
+					Date fechaFinCursoDate;
+					long fechaFinCurso;
+					long diferencia = Long.MAX_VALUE;
+					Curso ultimocurso = null;
+					// obtengo el ultimo curso de la asignatura para la que se quiere crear el examen
+					for (Curso curso : cursosAsignatura) {
+						fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
+						fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
+						fechaFinCurso = fechaFinCursoDate.getTime();
+						if (fechaActual - fechaFinCurso < diferencia) {
+							diferencia = fechaActual - fechaFinCurso;
+							ultimocurso = curso;
+						}
+					}	
+					// si existe el ultimo curso
+					if (ultimocurso != null) {
+						System.out.println("encuentro ultimo curso");
+						fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(ultimocurso.getFechaFin());
+						fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
+						System.out.println("fecha fin ultimo curso " + fechaFinCursoString);
+						String fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.getFecha());
+						Date fechaExamenDate = formateadorfecha.parse(fechaExamenString);
+						if (fechaExamenDate.before(fechaFinCursoDate)) {
+							System.out.println("fecha examen < fecha fin curso");
+							fechaOk = false;
+						}
 					}
-				}		
-				if (ultimocurso != null) {
-					System.out.println("encuentro ultimo curso");
-					fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(ultimocurso.getFechaFin());
-					fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
-					System.out.println("fecha fin ultimo curso " + fechaFinCursoString);
-					String fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.getFecha());
-					Date fechaExamenDate = formateadorfecha.parse(fechaExamenString);
-					if (fechaExamenDate.before(fechaFinCursoDate)) {
-						System.out.println("fecha examen < fecha fin curso");
-						fechaOk = false;
+					else fechaOk = false;
+					if (fechaOk) {
+						examenService.altaExamen(examen);
+						Optional<Examen> examenOpt = examenService.obtenerExamen(examen.getAsignatura(), examen.getFecha());
+						Asignatura asignatura = examenOpt.get().getAsignatura();
+						asignatura.getExamenes().add(examenOpt.get());
+						//asignaturaRepository.save(asignatura);
+						return true;
 					}
+					else return false;
 				}
-				else fechaOk = false;
-				if (fechaOk) {
-					examenService.altaExamen(examen);
-					Optional<Examen> examenOpt = examenService.obtenerExamen(examen.getAsignatura(), examen.getFecha());
-					Asignatura asignatura = examenOpt.get().getAsignatura();
-					asignatura.getExamenes().add(examenOpt.get());
-					asignaturaRepository.save(asignatura);
-					return true;
+				else {
+					System.out.println("La asignatura no tiene cursos");
+					return false;			
 				}
-				else return false;
 			}
-			else {
-				System.out.println("La asignatura no tiene cursos");
-				return false;			
-			}
+			else return false; 
 		}
-		else return false;    	
+		else return false;
     }
 	
 	
-	@PostMapping("/borrar")
+	@GetMapping("/borrar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public boolean borrarExamen(HttpServletRequest request, @RequestParam(name = "examenId", required = true) Long examenId) {
 		if (examenService.existeExamen(examenId)) {

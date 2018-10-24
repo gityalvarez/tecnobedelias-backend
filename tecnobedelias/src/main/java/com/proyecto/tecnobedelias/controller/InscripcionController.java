@@ -1,6 +1,10 @@
 package com.proyecto.tecnobedelias.controller;
 
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,22 +66,46 @@ public class InscripcionController {
 	
 	@GetMapping("/curso")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public void inscribirCurso(HttpServletRequest request, @RequestParam(name = "curso", required = true) String cursoIdStr) {
+	public boolean inscribirCurso(HttpServletRequest request, @RequestParam(name = "curso", required = true) String cursoIdStr) throws ParseException {
 		long cursoId = Long.parseLong(cursoIdStr);
 		Optional<Curso> curso = cursoRepository.findById(cursoId);
 		String username = token.getUsername(request);
 		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
-		inscripcionService.inscripcionCurso(usuario.get(), curso.get());
+		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(curso.get().getFechaInicio());
+		calendar.add(Calendar.DAY_OF_YEAR, 10);
+		String fechaInicioMas10DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+		Date fechaInicioMas10Dias = formateadorfecha.parse(fechaInicioMas10DiasString);
+		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
+	 	// se puede anotar hasta 10 dias despues del inicio del curso
+	 	if (fechaActual.before(fechaInicioMas10Dias)) {
+	 		return inscripcionService.inscripcionCurso(usuario.get(), curso.get());
+	 	}
+	 	else return false;
 	}
 	
 	@GetMapping("/examen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public void inscribirExamen(HttpServletRequest request,	@RequestParam(name = "examen", required = true) String examenIdStr) {
+	public boolean inscribirExamen(HttpServletRequest request,	@RequestParam(name = "examen", required = true) String examenIdStr) throws ParseException {
 		long examenId = Long.parseLong(examenIdStr);
 		Optional<Examen> examen = examenRepository.findById(examenId);
 		String username = token.getUsername(request);
 		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
-		inscripcionService.inscripcionExamen(usuario.get(), examen.get());
+		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(examen.get().getFecha());
+		calendar.add(Calendar.DAY_OF_YEAR, -10);
+		String fechaExamenMenos10DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+		Date fechaInicioMenos10Dias = formateadorfecha.parse(fechaExamenMenos10DiasString);
+		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
+	 	// se puede anotar hasta 10 dias antes del examen
+	 	if (fechaActual.before(fechaInicioMenos10Dias)) {
+	 		return inscripcionService.inscripcionExamen(usuario.get(), examen.get());
+	 	}
+	 	else return false;
 	}
 	
 	/*@GetMapping("/desistircarrera")
@@ -97,7 +125,8 @@ public class InscripcionController {
 	@GetMapping("/desistircurso")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public void desistirCurso(HttpServletRequest request,
-			@RequestParam(name = "curso", required = true) Long cursoId) {
+			@RequestParam(name = "curso", required = true) String cursoIdStr) {
+		long cursoId = Long.parseLong(cursoIdStr);
 		Optional<Curso> curso = cursoRepository.findById(cursoId);
 		String username = token.getUsername(request);
 		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
@@ -107,7 +136,8 @@ public class InscripcionController {
 	@GetMapping("/desistirexamen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public void desistirExamen(HttpServletRequest request,
-			@RequestParam(name = "examen", required = true) Long examenId) {
+			@RequestParam(name = "examen", required = true) String examenIdStr) {
+		long examenId = Long.parseLong(examenIdStr);
 		Optional<Examen> examen = examenRepository.findById(examenId);
 		String username = token.getUsername(request);
 		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);

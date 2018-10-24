@@ -39,7 +39,7 @@ public class AsignaturaController{
 
     @PostMapping("/crear")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public void crearAsignatura(@RequestBody Asignatura asignatura){
+    public void crearAsignatura(@RequestBody Asignatura asignatura){    	
     	asignaturaRepository.save(asignatura);
     }
     

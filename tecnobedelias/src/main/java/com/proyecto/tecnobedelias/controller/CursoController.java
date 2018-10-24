@@ -46,7 +46,7 @@ public class CursoController {
 
 	@PostMapping("/crear")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean crearCurso(HttpServletRequest request, @RequestBody Curso curso/*, @RequestBody List<Horario> horarios*/, @RequestParam(name = "codigo", required = true) String codigoAsignatura) throws ParseException {
+	public boolean crearCurso(HttpServletRequest request, @RequestBody(required = true) Curso curso/*, @RequestBody List<Horario> horarios*/, @RequestParam(name = "codigo", required = true) String codigoAsignatura) throws ParseException {
 		System.out.println("entre a crearCurso");
 		Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByCodigo(codigoAsignatura);
 		curso.setAsignatura(asignaturaOpt.get());
@@ -57,6 +57,7 @@ public class CursoController {
 			int anioActual = Integer.parseInt(anioActualString);
 			System.out.println("anio actual: " + anioActual);	
 			if (curso.getAnio() >= anioActual) {
+				
 				boolean fechasOk = true;
 				SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 			 	String fechaInicioString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaInicio());
@@ -112,10 +113,8 @@ public class CursoController {
 		}
 		else return false;
 	}
-	
-	
 
-	@PostMapping("/borrar")
+	@GetMapping("/borrar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public boolean borrarCurso(HttpServletRequest request,@RequestParam(name = "cursoId", required = true) Long cursoId) {
 		if (cursoService.existeCurso(cursoId)) {

@@ -64,8 +64,8 @@ public class Usuario implements Serializable {
 	@Column(name="resetToken", nullable=true)	
 	private String resetToken;	
 	
-	@Column(name="activa", nullable=true)	
-	private boolean activa;
+	/*@Column(name="activa", nullable=true)	
+	private boolean activa; */
 	
 	public Usuario() {		
 		this.roles = new HashSet<Rol>();
@@ -83,9 +83,7 @@ public class Usuario implements Serializable {
 		this.email = email;
 		this.username = username;
 		this.password = password;
-		this.activa = true;
-		
-
+		//this.activa = true;
 	}
 
 	public long getId() {
@@ -168,13 +166,13 @@ public class Usuario implements Serializable {
 		this.resetToken = resetToken;
 	}
 	
-	public boolean isActiva() {
+	/*public boolean isActiva() {
 		return activa;
 	}
 
 	public void setActiva(boolean activa) {
 		this.activa = activa;
-	}	
+	}*/	
 
 	@JsonIgnore
 	@JoinTable(

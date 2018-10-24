@@ -60,8 +60,8 @@ public class Carrera implements Serializable {
 	@Column(name="creditosMinimos", nullable=true)
 	private int creditosMinimos;
 
-	@Column(name="activa", nullable=true)
-	private boolean activa;
+	/*@Column(name="activa", nullable=true)
+	private boolean activa;*/
 	
 	public Carrera() {
 	}	
@@ -70,7 +70,7 @@ public class Carrera implements Serializable {
 		this.nombre = nombre;
 		this.descripcion = descripcion;
 		this.creditosMinimos = creditosMinimos;
-		this.activa = true;
+		//this.activa = true;
 	}
 
 	public long getId() {
@@ -105,13 +105,13 @@ public class Carrera implements Serializable {
 		this.descripcion = descripcion;
 	}
 
-	public boolean isActiva() {
+	/*public boolean isActiva() {
 		return activa;
 	}
 
 	public void setActiva(boolean activa) {
 		this.activa = activa;
-	}
+	}*/
 
 	public List<Usuario> getEstudiantes() {
 		return estudiantes;

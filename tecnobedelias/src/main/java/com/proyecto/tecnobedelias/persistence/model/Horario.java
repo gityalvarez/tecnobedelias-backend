@@ -42,8 +42,8 @@ public class Horario implements Serializable {
 	@Column(name="hora_fin", nullable=false)	
 	private String horaFin;	
 	
-	@Column(name="activa", nullable=true)	
-	private boolean activa;
+	/*@Column(name="activa", nullable=true)	
+	private boolean activa;*/
 	
 	@JsonIgnore
 	@ManyToMany(mappedBy="horarios", cascade={CascadeType.ALL})
@@ -64,7 +64,7 @@ public class Horario implements Serializable {
 		this.dia = dia;
 		this.horaInicio = horaInicio;
 		this.horaFin = horaFin;
-		this.activa = true;
+		//this.activa = true;
 	}
 
 	public long getId() {
@@ -99,13 +99,13 @@ public class Horario implements Serializable {
 		this.horaFin = horaFin;
 	}
 	
-	public boolean isActiva() {
+	/*public boolean isActiva() {
 		return activa;
 	}
 
 	public void setActiva(boolean activa) {
 		this.activa = activa;
-	}	 
+	}*/	 
 
 	/*@JsonIgnore
 	@JoinTable(

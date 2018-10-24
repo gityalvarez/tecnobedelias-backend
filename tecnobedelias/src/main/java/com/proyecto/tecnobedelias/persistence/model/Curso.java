@@ -49,8 +49,8 @@ public class Curso implements Serializable {
 	@JoinColumn(name="id_asignatura", foreignKey = @ForeignKey(name="curso_asignatura_fkey"))
 	private Asignatura asignatura;
 	
-	@Column(name="activa", nullable=true)
-	private boolean activa;
+	/*@Column(name="activa", nullable=true)
+	private boolean activa;*/
 	
 	@OneToMany(mappedBy="curso", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	private List<Curso_Estudiante> cursoEstudiante;	
@@ -74,7 +74,7 @@ public void setHorarios(List<Horario> horarios) {
 		this.semestre = semestre;
 		this.fechaInicio = fechaInicio;
 		this.fechaFin = fechaFin;
-		this.activa = true;
+		//this.activa = true;
 	}
 
 	public long getId() {
@@ -117,13 +117,13 @@ public void setHorarios(List<Horario> horarios) {
 		this.fechaFin = fechaFin;
 	}	
 	
-	public boolean isActiva() {
+	/*public boolean isActiva() {
 		return activa;
 	}
 
 	public void setActiva(boolean activa) {
 		this.activa = activa;
-	}
+	}*/
 	
 	public Asignatura getAsignatura() {
 		return asignatura;
