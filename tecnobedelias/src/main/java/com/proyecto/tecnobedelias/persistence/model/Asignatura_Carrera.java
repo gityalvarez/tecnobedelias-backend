@@ -131,7 +131,7 @@ public class Asignatura_Carrera implements Serializable {
 	private Carrera carrera;
 	
 	@ManyToOne
-	@JsonIgnore
+	//@JsonIgnore
 	@JoinColumn(name="id_asignatura", foreignKey = @ForeignKey(name="asignatura_carrera_asignatura_fkey"))
 	private Asignatura asignatura;
 	

@@ -2,6 +2,7 @@ package com.proyecto.tecnobedelias.service.impl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -320,5 +321,27 @@ public class InscripcionServiceImpl implements InscripcionService {
 		}
 		return false;
 	}
+
+	@Override
+	public List<Curso> consultaCursos(Usuario usuario) {
+		List<Curso> listaCursos = new ArrayList<>();
+		for(Curso_Estudiante cursoEstudiante : usuario.getCursoEstudiante()) {
+			listaCursos.add(cursoEstudiante.getCurso());
+			//System.out.println(agregue el curso );
+		}
+		return listaCursos;
+	}
+	
+	
+	@Override
+	public List<Examen> consultaExamenes(Usuario usuario) {
+		List<Examen> listaExamenes = new ArrayList<>();
+		for(Estudiante_Examen examenEstudiante : usuario.getEstudianteExamen()) {
+			listaExamenes.add(examenEstudiante.getExamen());
+			//System.out.println(agregue el curso );
+		}
+		return listaExamenes;
+	}
+
 
 }

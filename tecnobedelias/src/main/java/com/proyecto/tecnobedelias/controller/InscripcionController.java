@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -86,6 +87,15 @@ public class InscripcionController {
 	 	else return false;
 	}
 	
+	@GetMapping("/curso/consulta")
+	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
+	public List<Curso> consultaCursos(HttpServletRequest request) {
+		
+		String username = token.getUsername(request);
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
+		return inscripcionService.consultaCursos(usuarioOpt.get());
+	}
+	
 	@GetMapping("/examen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public boolean inscribirExamen(HttpServletRequest request,	@RequestParam(name = "examen", required = true) String examenIdStr) throws ParseException {
@@ -108,6 +118,15 @@ public class InscripcionController {
 	 	else return false;
 	}
 	
+	@GetMapping("/examen/consulta")
+	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
+	public List<Examen> consultaExamenes(HttpServletRequest request) {
+		
+		String username = token.getUsername(request);
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
+		return inscripcionService.consultaExamenes(usuarioOpt.get());
+	}
+	
 	/*@GetMapping("/desistircarrera")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public boolean desistirCarrera(HttpServletRequest request,
@@ -124,24 +143,24 @@ public class InscripcionController {
 	
 	@GetMapping("/desistircurso")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public void desistirCurso(HttpServletRequest request,
+	public boolean desistirCurso(HttpServletRequest request,
 			@RequestParam(name = "curso", required = true) String cursoIdStr) {
 		long cursoId = Long.parseLong(cursoIdStr);
 		Optional<Curso> curso = cursoRepository.findById(cursoId);
 		String username = token.getUsername(request);
 		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
-		inscripcionService.desistirCurso(usuario.get(), curso.get());
+		return inscripcionService.desistirCurso(usuario.get(), curso.get());
 	}
 	
 	@GetMapping("/desistirexamen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public void desistirExamen(HttpServletRequest request,
+	public boolean desistirExamen(HttpServletRequest request,
 			@RequestParam(name = "examen", required = true) String examenIdStr) {
 		long examenId = Long.parseLong(examenIdStr);
 		Optional<Examen> examen = examenRepository.findById(examenId);
 		String username = token.getUsername(request);
 		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
-		inscripcionService.desistirExamen(usuario.get(), examen.get());
+		return inscripcionService.desistirExamen(usuario.get(), examen.get());
 	}
 	
 }

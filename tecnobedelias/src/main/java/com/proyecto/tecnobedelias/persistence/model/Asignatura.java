@@ -38,7 +38,7 @@ public class Asignatura implements Serializable {
 	@Column(name="taller", nullable=true)
 	private boolean taller;
 	
-	//@JsonIgnore
+	@JsonIgnore
 	@OneToMany(mappedBy="asignatura", fetch=FetchType.LAZY, cascade=CascadeType.ALL)	
 	private List<Asignatura_Carrera> asignaturaCarrera;	
 	
@@ -69,7 +69,7 @@ public class Asignatura implements Serializable {
 	                referencedColumnName = "id"
 	        )
 	)*/	
-	@JsonIgnore
+	//@JsonIgnore
 	@OneToMany(mappedBy="asignatura", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Examen> examenes;
 	

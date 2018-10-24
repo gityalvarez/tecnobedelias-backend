@@ -2,6 +2,7 @@ package com.proyecto.tecnobedelias.service.impl;
 
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -28,12 +29,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Usuario usuario = usuarioRepository.findByUsername(username).get();
-		if (usuario == null) {
+		System.out.println("entre al loadUser del userDetails");
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
+		if (!usuarioOpt.isPresent()) {
 			throw new UsernameNotFoundException(username);
 		}
 		else {
 			Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+			Usuario usuario = usuarioOpt.get();
 			for (Rol role : usuario.getRoles()) {
 				grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_"+role.getNombre()));
 				System.out.println("estos son los roles: "+role.getNombre());
