@@ -20,7 +20,7 @@ public interface InscripcionService {
 	
 	public boolean desistirExamen(Usuario usuario, Examen examen);
 	
-	public boolean desistirCarrera(Usuario usuario, Carrera carrera);
+	//public boolean desistirCarrera(Usuario usuario, Carrera carrera);
 	
 	public List<Curso> consultaCursos(Usuario usuario);
 	

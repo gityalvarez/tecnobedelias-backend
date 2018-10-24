@@ -89,8 +89,7 @@ public class InscripcionController {
 	
 	@GetMapping("/curso/consulta")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public List<Curso> consultaCursos(HttpServletRequest request) {
-		
+	public List<Curso> consultaCursos(HttpServletRequest request) {		
 		String username = token.getUsername(request);
 		Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
 		return inscripcionService.consultaCursos(usuarioOpt.get());
@@ -106,13 +105,13 @@ public class InscripcionController {
 		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(examen.get().getFecha());
-		calendar.add(Calendar.DAY_OF_YEAR, -10);
-		String fechaExamenMenos10DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
-		Date fechaInicioMenos10Dias = formateadorfecha.parse(fechaExamenMenos10DiasString);
+		calendar.add(Calendar.DAY_OF_YEAR, -5);
+		String fechaExamenMenos5DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+		Date fechaExamenMenos5Dias = formateadorfecha.parse(fechaExamenMenos5DiasString);
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
-	 	// se puede anotar hasta 10 dias antes del examen
-	 	if (fechaActual.before(fechaInicioMenos10Dias)) {
+	 	// se puede anotar hasta 5 dias antes del examen
+	 	if (fechaActual.before(fechaExamenMenos5Dias)) {
 	 		return inscripcionService.inscripcionExamen(usuario.get(), examen.get());
 	 	}
 	 	else return false;
@@ -120,8 +119,7 @@ public class InscripcionController {
 	
 	@GetMapping("/examen/consulta")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public List<Examen> consultaExamenes(HttpServletRequest request) {
-		
+	public List<Examen> consultaExamenes(HttpServletRequest request) {		
 		String username = token.getUsername(request);
 		Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
 		return inscripcionService.consultaExamenes(usuarioOpt.get());
@@ -144,23 +142,47 @@ public class InscripcionController {
 	@GetMapping("/desistircurso")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public boolean desistirCurso(HttpServletRequest request,
-			@RequestParam(name = "curso", required = true) String cursoIdStr) {
+			@RequestParam(name = "curso", required = true) String cursoIdStr) throws ParseException {
 		long cursoId = Long.parseLong(cursoIdStr);
 		Optional<Curso> curso = cursoRepository.findById(cursoId);
 		String username = token.getUsername(request);
 		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
-		return inscripcionService.desistirCurso(usuario.get(), curso.get());
+		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(curso.get().getFechaInicio());
+		calendar.add(Calendar.DAY_OF_YEAR, 15);
+		String fechaInicioMas15DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+		Date fechaInicioMas15Dias = formateadorfecha.parse(fechaInicioMas15DiasString);
+		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
+	 	// se puede desistir hasta 15 dias despues del inicio del curso
+	 	if (fechaActual.before(fechaInicioMas15Dias)) {		
+	 		return inscripcionService.desistirCurso(usuario.get(), curso.get());
+	 	}
+	 	else return false;
 	}
 	
 	@GetMapping("/desistirexamen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public boolean desistirExamen(HttpServletRequest request,
-			@RequestParam(name = "examen", required = true) String examenIdStr) {
+			@RequestParam(name = "examen", required = true) String examenIdStr) throws ParseException {
 		long examenId = Long.parseLong(examenIdStr);
 		Optional<Examen> examen = examenRepository.findById(examenId);
 		String username = token.getUsername(request);
 		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
-		return inscripcionService.desistirExamen(usuario.get(), examen.get());
+		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(examen.get().getFecha());
+		calendar.add(Calendar.DAY_OF_YEAR, -3);
+		String fechaExamenMenos3DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+		Date fechaExamenMenos3Dias = formateadorfecha.parse(fechaExamenMenos3DiasString);
+		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
+	 	// se puede desistir hasta 3 dias antes del examen
+	 	if (fechaActual.before(fechaExamenMenos3Dias)) {
+	 		return inscripcionService.desistirExamen(usuario.get(), examen.get());
+	 	}
+	 	else return false;
 	}
 	
 }

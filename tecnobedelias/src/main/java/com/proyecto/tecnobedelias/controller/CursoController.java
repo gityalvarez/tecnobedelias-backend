@@ -56,8 +56,7 @@ public class CursoController {
 			String anioActualString = new SimpleDateFormat("yyyy").format(fechaActual);
 			int anioActual = Integer.parseInt(anioActualString);
 			System.out.println("anio actual: " + anioActual);	
-			if (curso.getAnio() >= anioActual) {
-				
+			if (curso.getAnio() >= anioActual) {				
 				boolean fechasOk = true;
 				SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 			 	String fechaInicioString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaInicio());
@@ -116,7 +115,8 @@ public class CursoController {
 
 	@GetMapping("/borrar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean borrarCurso(HttpServletRequest request,@RequestParam(name = "cursoId", required = true) Long cursoId) {
+	public boolean borrarCurso(HttpServletRequest request,@RequestParam(name = "cursoId", required = true) String cursoIdStr) {
+		long cursoId = Long.parseLong(cursoIdStr);
 		if (cursoService.existeCurso(cursoId)) {
 			Curso curso = cursoService.obtenerCurso(cursoId).get();
 			if (curso.getCursoEstudiante().isEmpty()) {

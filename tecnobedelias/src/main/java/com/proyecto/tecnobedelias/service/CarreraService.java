@@ -15,7 +15,7 @@ public interface CarreraService {
 	
 	public void altaCarrera(Carrera carrera);
 	
-	public boolean asignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera);
+	public boolean asignarAsignaturaCarrera(Asignatura_Carrera asigncarrera);
 	
 	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera);
 	
@@ -35,4 +35,5 @@ public interface CarreraService {
 	
 	public void generarGrafoPrevias();
 	
+	public void bajaCarrera(Carrera carrera);
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
+import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Asignatura_CarreraRepository;
@@ -70,16 +71,22 @@ public class CarreraController{
 			@RequestParam(name = "carrera", required = true) String carrera) {
     	Optional<Carrera> carreraOpt = carreraRepository.findByNombre(carrera);
     	if (carreraOpt.isPresent()) {
-    		carreraRepository.delete(carreraOpt.get());
-    		return true;    		
+    		if (carreraOpt.get().getAsignaturaCarrera().isEmpty()) {
+    			if (carreraOpt.get().getEstudiantes().isEmpty()) {    		
+    				carreraService.bajaCarrera(carreraOpt.get());
+    				return true;
+    			}
+    			else return false;
+    		}
+    		else return false;  
     	}
-    	return false;
+    	else return false;
     }
     
     
-    @GetMapping("/asignarasignatura")
+    @PostMapping("/asignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public void asignarAsignaturaCarrera(HttpServletRequest request,
+    public void asignarAsignaturaCarrera(HttpServletRequest request, @RequestBody(required = true) Asignatura_Carrera asign_carrera,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre){
     	System.out.println("asi entro el parametro carreraNombre "+carreraNombre);
@@ -88,12 +95,11 @@ public class CarreraController{
     	System.out.println("obtuve la carrera "+carrera.get().getNombre());
     	Optional<Asignatura> asignatura = asignaturaRepository.findByNombre(asignaturaNombre);
     	System.out.println("obtuve la asignatura "+asignatura.get().getNombre());
-    	System.out.println("entro al carreraService");
-    	
-    	carreraService.asignarAsignaturaCarrera(asignatura.get(), carrera.get());
-    }
-    
-    
+    	System.out.println("entro al carreraService");  
+    	asign_carrera.setAsignatura(asignatura.get());
+    	asign_carrera.setCarrera(carrera.get());
+    	carreraService.asignarAsignaturaCarrera(asign_carrera);
+    }        
     
     @GetMapping("/desasignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")

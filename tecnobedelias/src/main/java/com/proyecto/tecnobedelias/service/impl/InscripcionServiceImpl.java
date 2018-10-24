@@ -285,33 +285,38 @@ public class InscripcionServiceImpl implements InscripcionService {
 	@Override
 	public boolean desistirCurso(Usuario usuario, Curso curso) {
 		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso,	usuario);
-		if (cursoEstudianteExistente.isPresent()) {
-			usuario.getCursoEstudiante().remove(cursoEstudianteExistente.get());
-			curso.getCursoEstudiante().remove(cursoEstudianteExistente.get());
-			cursoEstudianteRepository.delete(cursoEstudianteExistente.get());
-			return true;
-		} else {
-			return false;
-		}
+		if (cursoEstudianteExistente.isPresent()) {	
+			System.out.println("existe el estudiante en el curso");
+			if (cursoEstudianteExistente.get().getEstado().equals("MATRICULADO")) {
+				System.out.println("estado matriculado");
+				usuario.getCursoEstudiante().remove(cursoEstudianteExistente.get());
+				curso.getCursoEstudiante().remove(cursoEstudianteExistente.get());
+				cursoEstudianteRepository.delete(cursoEstudianteExistente.get());
+				return true;
+			}
+			else return false;
+		} 
+		else return false;		
 	}
 
 	@Override
-	public boolean desistirExamen(Usuario usuario, Examen examen) {
-		
+	public boolean desistirExamen(Usuario usuario, Examen examen) {		
 		Optional<Estudiante_Examen> estudianteExamenExistente = estudianteExamenRepository.findByExamenAndEstudiante(examen, usuario);
 		if (estudianteExamenExistente.isPresent()) {
-			usuario.getEstudianteExamen().remove(estudianteExamenExistente.get());
-			examen.getEstudianteExamen().remove(estudianteExamenExistente.get());
-			estudianteExamenRepository.delete(estudianteExamenExistente.get());
-			return true;
-		}else {
-			return false;
+			System.out.println("existe el estudiante en el examen");
+			if (estudianteExamenExistente.get().getEstado().equals("ANOTADO")) {
+				System.out.println("estado anotado");
+				usuario.getEstudianteExamen().remove(estudianteExamenExistente.get());
+				examen.getEstudianteExamen().remove(estudianteExamenExistente.get());
+				estudianteExamenRepository.delete(estudianteExamenExistente.get());
+				return true;
+			}
+			else return false;
 		}
-		
-
+		else return false;
 	}
 
-	@Override
+	/*@Override
 	public boolean desistirCarrera(Usuario usuario, Carrera carrera) {
 		if (usuario.getCarreras().contains(carrera)) {
 			usuario.getCarreras().remove(carrera);
@@ -320,7 +325,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 			return true;
 		}
 		return false;
-	}
+	}*/
 
 	@Override
 	public List<Curso> consultaCursos(Usuario usuario) {

@@ -52,6 +52,7 @@ public class ExamenServiceImpl implements ExamenService {
 	
 	@Override
 	public void bajaExamen(Examen examen) {
+		examen.getAsignatura().getExamenes().remove(examen);
 		examenRepository.delete(examen);
 	}
 

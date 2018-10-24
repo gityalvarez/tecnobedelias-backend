@@ -44,19 +44,14 @@ public class CarreraServiceImpl implements CarreraService {
 	}
 
 	@Override
-	public boolean asignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera) {
-		Optional<Asignatura_Carrera> asignaturaCarreraExistente = asignaturaCarreraRepository
-				.findByAsignaturaAndCarrera(asignatura, carrera);
+	public boolean asignarAsignaturaCarrera(Asignatura_Carrera asigncarrera) {
+		Optional<Asignatura_Carrera> asignaturaCarreraExistente = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asigncarrera.getAsignatura(), asigncarrera.getCarrera());
 		if (asignaturaCarreraExistente.isPresent()) {
 			return false;
 		} else {
-			Asignatura_Carrera asignaturaCarrera = new Asignatura_Carrera();
-			System.out.println("Dentro del carrera service");
-			asignaturaCarrera.setAsignatura(asignatura);
-			asignaturaCarrera.setCarrera(carrera);
-			carrera.getAsignaturaCarrera().add(asignaturaCarrera);
-			asignatura.getAsignaturaCarrera().add(asignaturaCarrera);
-			asignaturaCarreraRepository.save(asignaturaCarrera);
+			asigncarrera.getCarrera().getAsignaturaCarrera().add(asigncarrera);
+			asigncarrera.getAsignatura().getAsignaturaCarrera().add(asigncarrera);
+			asignaturaCarreraRepository.save(asigncarrera);
 			return true;
 		}
 	}
@@ -180,6 +175,11 @@ public class CarreraServiceImpl implements CarreraService {
 		}
 		asignaturasPreviasPosibles.remove(asignaturaCarrera.getAsignatura());
 		return asignaturasPreviasPosibles;
+	}
+	
+	@Override
+	public void bajaCarrera(Carrera carrera) {
+		carreraRepository.delete(carrera);
 	}
 
 }

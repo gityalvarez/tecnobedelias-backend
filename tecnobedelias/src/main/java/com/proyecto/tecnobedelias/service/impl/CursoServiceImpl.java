@@ -73,9 +73,9 @@ public class CursoServiceImpl implements CursoService {
 	}
 
 	@Override
-	public void bajaCurso(Curso curso) {		
-		cursoRepository.delete(curso);
-		
+	public void bajaCurso(Curso curso) {
+		curso.getAsignatura().getCursos().remove(curso);
+		cursoRepository.delete(curso);		
 	}
 	
 	
