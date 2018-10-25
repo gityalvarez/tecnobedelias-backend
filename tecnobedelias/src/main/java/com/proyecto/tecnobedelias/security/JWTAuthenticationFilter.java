@@ -68,10 +68,27 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
         
+
         System.out.println("devuelvo el string : "+TOKEN_PREFIX + token);
+        String usrnme=((User) auth.getPrincipal()).getUsername();
+        System.out.println("Consigo el username: "+usrnme);
+        
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+        /*Optional<Usuario> opUsr= usuarioRepository.findById((long) 1);//usuarioService.findUsuarioByUsername(usrnme);
+        Usuario usr;
+        */
+        //usuarioRepository.findByUsername(usrnme);
+        /*if (opUsr.isPresent()) {
+        	 usr = opUsr.get();/**/
+         String responseToClient= "    {\n" + 
+        		"   \"autorizado\" : true, \n"+
+        		"   \"username\" : \""+usrnme+"\" \n"+
+        		"    }";
+
         
-        
+        res.getWriter().write(responseToClient);
+        res.getWriter().flush();
+        res.getWriter().close();
         
         //res.addHeader("Access-Control-Allow-Origin", "*");
        
