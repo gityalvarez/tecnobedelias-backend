@@ -86,8 +86,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 			}
 		}
 		return asignaturaEnCarrera;
-	}
-	
+	}	
 	
 	@Override
 	public boolean inscripcionCurso(Usuario usuario, Curso curso) {
@@ -154,7 +153,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 										// si la asignatura previa no es electiva en la carrera
 										else {
 											System.out.println("La asignatura previa no es taller");
-											// para cada curso de la asignatura previa en la carrera 
+											// para el ultimo curso de la asignatura previa en la carrera 
 											if (!previa_asign_carrera.getAsignatura().getCursos().isEmpty()) {
 												for (Curso curso_previa : previa_asign_carrera.getAsignatura().getCursos()) {
 													// para cada estudiante del curso de la asignatura previa
@@ -163,30 +162,33 @@ public class InscripcionServiceImpl implements InscripcionService {
 														for (Curso_Estudiante curso_estudiante : curso_previa.getCursoEstudiante()) {
 															// si es el estudiante que quiere matricularse
 															if (curso_estudiante.getEstudiante().equals(usuario)) {
-																// si se verifica que no tiene salvado el curso de la asignatura previa
-																if (!curso_estudiante.getEstado().equals("SALVADO")) {
-																	System.out.println("no tiene salvado el curso de la asignatura previa");
-																	// si se verifica que tiene aprobado el curso de la asignatura previa (ganado el derecho a examen)
-																	if (curso_estudiante.getEstado().equals("EXAMEN")) {
-																		System.out.println("tiene aprobado el curso de la asignatura previa");
-																		// para cada examen del estudiante que pretende inscribirse al curso
-																		if (!usuario.getEstudianteExamen().isEmpty()) {
-																			for (Estudiante_Examen estudiante_examen: usuario.getEstudianteExamen()) {
-																				// si la asignatura del examen coincide con la asignatura previa del curso
-																				if (estudiante_examen.getExamen().getAsignatura().equals(curso_previa.getAsignatura())) {
-																					// si el examen no esta aprobado
-																					if (!estudiante_examen.getEstado().equals("APROBADO")) {
-																						System.out.println("no tiene aprobado el examen de la asignatura previa");
-																						// no cumple la previatura
-																						cumplePreviaturas = false;
-																					}																		
+																//if (!curso_estudiante.getEstado().equals("MATRICULADO")) {
+																	// si se verifica que no tiene salvado el curso de la asignatura previa
+																	if (!curso_estudiante.getEstado().equals("SALVADO")) {
+																		System.out.println("no tiene salvado el curso de la asignatura previa");
+																		// si se verifica que tiene aprobado el curso de la asignatura previa (ganado el derecho a examen)
+																		if (curso_estudiante.getEstado().equals("EXAMEN")) {
+																			System.out.println("tiene aprobado el curso de la asignatura previa");
+																			// para cada examen del estudiante que pretende inscribirse al curso
+																			if (!usuario.getEstudianteExamen().isEmpty()) {
+																				for (Estudiante_Examen estudiante_examen: usuario.getEstudianteExamen()) {
+																					// si la asignatura del examen coincide con la asignatura previa del curso
+																					if (estudiante_examen.getExamen().getAsignatura().equals(curso_previa.getAsignatura())) {
+																						// si el examen no esta aprobado
+																						if (!estudiante_examen.getEstado().equals("APROBADO")) {
+																							System.out.println("no tiene aprobado el examen de la asignatura previa");
+																							// no cumple la previatura
+																							cumplePreviaturas = false;
+																						}																		
+																					}
 																				}
 																			}
+																			else cumplePreviaturas = false;
 																		}
 																		else cumplePreviaturas = false;
 																	}
-																	else cumplePreviaturas = false;
-																}
+																/*}
+																else cumplePreviaturas = false;*/
 															}
 														}											
 													}

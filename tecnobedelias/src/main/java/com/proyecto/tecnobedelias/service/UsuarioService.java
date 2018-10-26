@@ -13,6 +13,10 @@ public interface UsuarioService {
 	
 	public boolean existeUsuario(String username);
 	
+	public boolean existeCedula(String cedula);
+	
+	public boolean existeEmail(String username);
+	
 	public void altaUsuario(Usuario usuario);
 	
 	public void altaBienUsuario(Usuario usuario);
@@ -30,4 +34,6 @@ public interface UsuarioService {
 	public Optional<Usuario> findUsuarioByUsername(String username);
 	
 	public void inicializar();
+	
+	public void modificacionUsuario(Usuario usuario, String username);
 }

@@ -162,6 +162,20 @@ public class UsuarioController {
     	}
     }
     
-    
+    @PostMapping("/modificar")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
+    public boolean modificarUsuario(HttpServletRequest request, @RequestBody(required = true) Usuario usuario, @RequestParam(name = "username", required = true) String username) {
+    	if (!usuarioService.existeUsuario(usuario.getUsername())) {
+    		if (!usuarioService.existeCedula(usuario.getCedula())) {
+    			if (!usuarioService.existeEmail(usuario.getEmail())) {
+    				usuarioService.modificacionUsuario(usuario, username);
+    				return true;
+    			}
+    			else return false;
+    		}
+    		else return false;
+    	}
+    	else return false;
+    }
     
 }

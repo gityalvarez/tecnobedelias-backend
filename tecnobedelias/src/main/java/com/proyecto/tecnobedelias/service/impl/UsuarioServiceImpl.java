@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Rol;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.RolRepository;
@@ -28,11 +29,12 @@ public class UsuarioServiceImpl implements UsuarioService{
 	@Autowired
 	BCryptPasswordEncoder bcrypt;
 	
+	@Override
 	public List<Usuario> listarUsuarios(){
 		return usuarioRepository.findAll();
 	}
 	
-	
+	@Override
 	public boolean existeUsuario(String username) {
 		Optional<Usuario> usuarioExistente = usuarioRepository.findByUsername(username);
 		if(usuarioExistente.isPresent()) return true;
@@ -40,14 +42,42 @@ public class UsuarioServiceImpl implements UsuarioService{
 		
 	}
 	
-	public void altaUsuario(Usuario usuario) {
-		usuarioRepository.save(usuario);
+	@Override
+	public boolean existeCedula(String cedula) {
+		Optional<Usuario> usuarioExistente = usuarioRepository.findByCedula(cedula);
+		if (usuarioExistente.isPresent()) 
+			return true;
+		else return false;		
 	}
 	
+	@Override
+	public boolean existeEmail(String email) {
+		Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(email);
+		if (usuarioExistente.isPresent()) 
+			return true;
+		else return false;		
+	}
+	
+	/*public void altaUsuario(Usuario usuario) {
+		usuarioRepository.save(usuario);
+	}*/
+	@Override
+	public void altaUsuario(Usuario usuario) {
+	if (!usuarioRepository.findByUsername(usuario.getUsername()).isPresent()) {
+		if (!usuarioRepository.findByCedula(usuario.getCedula()).isPresent()) {
+			if (!usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+				usuarioRepository.save(usuario);
+			}
+		}
+	}
+	}
+	
+	@Override
 	public List<Rol> listarRoles(){
 		return rolRepository.findAll();
 	}
 	
+	@Override
 	public void asignarRolUsuario(String rolName, Usuario usuario) {
 		System.out.println("entre al usuario service");
 		System.out.println("este es el rolName "+rolName);
@@ -64,18 +94,18 @@ public class UsuarioServiceImpl implements UsuarioService{
 		
 	}
 	
-	
+	@Override
 	public List<Usuario> filtrarEstudiantes() {
 		return usuarioRepository.findAll().stream().filter(u -> u.getRoles().iterator().next().getNombre().equals("ESTUDIANTE")).collect(Collectors.toList());
 	}
 	
-	
+	@Override
 	public void bajaUsuario(Usuario usuario) {
 		usuarioRepository.delete(usuario);
 	}
 	
 	@Override
-	public Optional findUsuarioByResetToken(String resetToken) {
+	public Optional<Usuario> findUsuarioByResetToken(String resetToken) {
 		return usuarioRepository.findByResetToken(resetToken);
 	}
 
@@ -145,6 +175,18 @@ public class UsuarioServiceImpl implements UsuarioService{
 	}
 	
 	
-	
+	@Override
+	public void modificacionUsuario(Usuario usuario, String username) {
+		Optional<Usuario> usuarioExistente = usuarioRepository.findByUsername(username);
+		if (usuarioExistente.isPresent()) {
+			if (!usuarioRepository.findByCedula(usuario.getCedula()).isPresent()) {
+				if (!usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+					usuario.setUsername(username);
+					usuario.setId(usuarioExistente.get().getId());
+					usuarioRepository.save(usuario);
+				}
+			}
+		}
+	}
 
 }

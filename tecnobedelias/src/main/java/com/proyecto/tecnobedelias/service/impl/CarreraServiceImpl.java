@@ -193,7 +193,7 @@ public class CarreraServiceImpl implements CarreraService {
 	
 	@Override
 	public void bajaCarrera(Carrera carrera) {
-		carreraRepository.delete(carrera);
+		carreraRepository.delete(carrera);		
 	}
 
 }

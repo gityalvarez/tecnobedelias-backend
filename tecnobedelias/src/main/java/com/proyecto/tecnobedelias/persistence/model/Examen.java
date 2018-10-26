@@ -35,6 +35,9 @@ public class Examen implements Serializable {
 	@Column(name="hora", nullable=true)	
 	private String hora;
 	
+	@Column(name="nombreAsignatura", nullable=false)
+	private String nombreAsignatura;
+	
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "id_asignatura", foreignKey = @ForeignKey(name="examen_asignatura_fkey"))
@@ -75,15 +78,15 @@ public class Examen implements Serializable {
 	public void setHora(String hora) {
 		this.hora = hora;
 	}
-
-	/*public boolean isActiva() {
-		return activa;
+	
+	public String getNombreAsignatura() {
+		return nombreAsignatura;
 	}
 
-	public void setActiva(boolean activa) {
-		this.activa = activa;
-	}	*/
-	
+	public void setNombreAsignatura(String nombreAsignatura) {
+		this.nombreAsignatura = nombreAsignatura;
+	}
+
 	public Asignatura getAsignatura() {
 		return asignatura;
 	}

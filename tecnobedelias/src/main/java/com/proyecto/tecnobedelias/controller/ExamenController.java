@@ -50,6 +50,7 @@ public class ExamenController {
 		Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByCodigo(codigoAsignatura);
 		if (!asignaturaOpt.get().isTaller()) {
 			examen.setAsignatura(asignaturaOpt.get());
+			examen.setNombreAsignatura(asignaturaOpt.get().getNombre());
 			if (!examenService.existeExamen(examen.getAsignatura(), examen.getFecha())){
 				System.out.println("no existe el examen");
 				boolean fechaOk = true;

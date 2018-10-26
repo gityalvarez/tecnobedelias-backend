@@ -50,6 +50,7 @@ public class CursoController {
 		System.out.println("entre a crearCurso");
 		Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByCodigo(codigoAsignatura);
 		curso.setAsignatura(asignaturaOpt.get());
+		curso.setNombreAsignatura(asignaturaOpt.get().getNombre());
 		//curso.setHorarios(horarios);
 		if (!cursoService.existeCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio())) {
 			Date fechaActual = new Date();

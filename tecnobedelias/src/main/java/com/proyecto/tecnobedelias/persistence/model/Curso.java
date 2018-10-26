@@ -44,6 +44,9 @@ public class Curso implements Serializable {
 	@Column(name="fechaFin", nullable=false)
 	private Date fechaFin;
 	
+	@Column(name="nombreAsignatura", nullable=false)
+	private String nombreAsignatura;
+	
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="id_asignatura", foreignKey = @ForeignKey(name="curso_asignatura_fkey"))
@@ -115,7 +118,7 @@ public void setHorarios(List<Horario> horarios) {
 
 	public void setFechaFin(Date fechaFin) {
 		this.fechaFin = fechaFin;
-	}	
+	}		
 	
 	/*public boolean isActiva() {
 		return activa;
@@ -125,6 +128,14 @@ public void setHorarios(List<Horario> horarios) {
 		this.activa = activa;
 	}*/
 	
+	public String getNombreAsignatura() {
+		return nombreAsignatura;
+	}
+
+	public void setNombreAsignatura(String nombreAsignatura) {
+		this.nombreAsignatura = nombreAsignatura;
+	}
+
 	public Asignatura getAsignatura() {
 		return asignatura;
 	}
