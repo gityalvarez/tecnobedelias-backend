@@ -17,6 +17,8 @@ public interface CarreraService {
 	
 	public boolean asignarAsignaturaCarrera(Asignatura_Carrera asigncarrera);
 	
+	public boolean modificarAsignaturaCarrera(Asignatura_Carrera asigncarrera);
+	
 	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera);
 	
 	public boolean agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);

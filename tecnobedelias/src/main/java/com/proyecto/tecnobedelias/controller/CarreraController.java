@@ -99,7 +99,22 @@ public class CarreraController{
     	asign_carrera.setAsignatura(asignatura.get());
     	asign_carrera.setCarrera(carrera.get());
     	carreraService.asignarAsignaturaCarrera(asign_carrera);
-    }        
+    }  
+    
+    @PostMapping("/modificarasignaturacarrera")
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    public boolean modificarAsignaturaCarrera(HttpServletRequest request, @RequestBody(required = true) Asignatura_Carrera asign_carrera,
+			@RequestParam(name = "carrera", required = true) String carreraNombre,
+			@RequestParam(name = "asignatura", required = true) String asignaturaNombre){
+    	Optional<Carrera> carrera =  carreraRepository.findByNombre(carreraNombre);
+    	System.out.println("obtuve la carrera "+carrera.get().getNombre());
+    	Optional<Asignatura> asignatura = asignaturaRepository.findByNombre(asignaturaNombre);
+    	System.out.println("obtuve la asignatura "+asignatura.get().getNombre());
+    	System.out.println("entro al carreraService");  
+    	asign_carrera.setAsignatura(asignatura.get());
+    	asign_carrera.setCarrera(carrera.get());
+    	return carreraService.modificarAsignaturaCarrera(asign_carrera);
+    }
     
     @GetMapping("/desasignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")

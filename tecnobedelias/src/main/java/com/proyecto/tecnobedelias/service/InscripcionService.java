@@ -26,5 +26,7 @@ public interface InscripcionService {
 	
 	public List<Examen> consultaExamenes(Usuario usuario);
 	
+	public boolean ingresarCalificacionExamen(Usuario usuario, Examen examen, int nota);
 	
+	public boolean ingresarCalificacionCurso(Usuario usuario, Curso curso, int nota);
 }

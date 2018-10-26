@@ -55,6 +55,20 @@ public class CarreraServiceImpl implements CarreraService {
 			return true;
 		}
 	}
+	
+	@Override
+	public boolean modificarAsignaturaCarrera(Asignatura_Carrera asign_carrera) {
+		Optional<Asignatura_Carrera> asignaturaCarreraExistente = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asign_carrera.getAsignatura(), asign_carrera.getCarrera());
+		if (!asignaturaCarreraExistente.isPresent()) {
+			return false;
+		} 
+		else {
+			asign_carrera.setId(asignaturaCarreraExistente.get().getId());
+			asignaturaCarreraRepository.save(asign_carrera);
+			return true;
+		}
+	}
+	
 
 	@Override
 	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera) {

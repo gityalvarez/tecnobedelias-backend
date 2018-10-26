@@ -335,8 +335,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 			//System.out.println(agregue el curso );
 		}
 		return listaCursos;
-	}
-	
+	}	
 	
 	@Override
 	public List<Examen> consultaExamenes(Usuario usuario) {
@@ -348,5 +347,92 @@ public class InscripcionServiceImpl implements InscripcionService {
 		return listaExamenes;
 	}
 
-
+	@Override
+	public boolean ingresarCalificacionExamen(Usuario usuario, Examen examen, int nota) {
+		Optional<Estudiante_Examen> estudianteExamenExistente = estudianteExamenRepository.findByExamenAndEstudiante(examen, usuario);
+		if (!usuario.getCarreras().isEmpty()) {
+			boolean asignaturaEncontrada = false;			
+			Carrera carrera = null; 
+			for (Carrera carreraEstudiante : usuario.getCarreras()) {	
+				for (Asignatura_Carrera asignaturaCarreraEstudiante: carreraEstudiante.getAsignaturaCarrera()) {
+					if (asignaturaCarreraEstudiante.getAsignatura().equals(examen.getAsignatura())) {
+						asignaturaEncontrada = true;
+						carrera = asignaturaCarreraEstudiante.getCarrera();
+					}
+				}
+			}
+			if (asignaturaEncontrada) {
+				Optional<Asignatura_Carrera> asignaturaCarreraEstudiante = asignaturaCarreraRepository.findByAsignaturaAndCarrera(examen.getAsignatura(), carrera);
+				if (estudianteExamenExistente.isPresent()) {
+					System.out.println("existe el estudiante en el examen");
+					if (estudianteExamenExistente.get().getEstado().equals("ANOTADO")) {
+						System.out.println("estado anotado");
+						if (nota <= asignaturaCarreraEstudiante.get().getNotaMaxima()) {
+							estudianteExamenExistente.get().setNota(nota);						
+							if (nota >= asignaturaCarreraEstudiante.get().getNotaSalvaExamen()) {
+								estudianteExamenExistente.get().setEstado("APROBADO");
+							}
+							else estudianteExamenExistente.get().setEstado("REPROBADO");
+							estudianteExamenRepository.save(estudianteExamenExistente.get());
+							return true;
+						}
+						else return false;						
+					}
+					else return false;
+				}
+				else return false;
+			}
+			else return false;
+		}
+		else return false;
+	}
+	
+	
+	@Override
+	public boolean ingresarCalificacionCurso(Usuario usuario, Curso curso, int nota) {
+		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso, usuario);
+		if (cursoEstudianteExistente.isPresent()) {
+			System.out.println("existe el estudiante en el curso");
+			if (!usuario.getCarreras().isEmpty()) {
+				boolean asignaturaEncontrada = false;			
+				Carrera carrera = null; 
+				for (Carrera carreraEstudiante : usuario.getCarreras()) {	
+					for (Asignatura_Carrera asignaturaCarreraEstudiante: carreraEstudiante.getAsignaturaCarrera()) {
+						if (asignaturaCarreraEstudiante.getAsignatura().equals(curso.getAsignatura())) {
+							asignaturaEncontrada = true;
+							carrera = asignaturaCarreraEstudiante.getCarrera();
+						}
+					}
+				}
+				if (asignaturaEncontrada) {
+					System.out.println("asignatura: " + curso.getAsignatura().getCodigo());
+					System.out.println("carrera: " + carrera.getNombre());
+					Optional<Asignatura_Carrera> asignaturaCarreraEstudiante = asignaturaCarreraRepository.findByAsignaturaAndCarrera(curso.getAsignatura(), carrera);
+					System.out.println("carrera: " + carrera.getNombre());
+					if (cursoEstudianteExistente.get().getEstado().equals("MATRICULADO")) {
+						System.out.println("estado matriculado");
+						if (nota >= 0 && nota <= asignaturaCarreraEstudiante.get().getNotaMaxima()) {
+							cursoEstudianteExistente.get().setNota(nota);
+							if (nota >= asignaturaCarreraEstudiante.get().getNotaMinimaExamen()) {
+								if (nota >= asignaturaCarreraEstudiante.get().getNotaMinimaExonera()) {
+									cursoEstudianteExistente.get().setEstado("SALVADO");
+								}
+								else cursoEstudianteExistente.get().setEstado("EXAMEN");
+							}
+							else cursoEstudianteExistente.get().setEstado("RECURSA");
+							cursoEstudianteRepository.save(cursoEstudianteExistente.get());
+							return true;							
+						}
+						else return false;						
+					}
+					else return false;
+				}
+				else return false;
+			}
+			else return false;
+		}
+		else return false;
+	}
+	
+	
 }
