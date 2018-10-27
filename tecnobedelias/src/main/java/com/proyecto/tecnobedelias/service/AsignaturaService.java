@@ -16,6 +16,12 @@ public interface AsignaturaService {
 	
 	public boolean existeAsignaturaNombre(String nombre);
 	
+	public Asignatura obtenerAsignaturaNombre(String nombre);
+	
+	public Asignatura obtenerAsignaturaCodigo(String codigo);
+	
 	public void bajaAsignatura(Asignatura asignatura);
+	
+	public void modificacionAsignatura(Asignatura asignatura);
 	
 }

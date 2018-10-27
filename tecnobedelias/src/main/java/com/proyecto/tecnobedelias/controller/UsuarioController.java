@@ -76,40 +76,51 @@ public class UsuarioController {
    // @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
     public boolean signUp(@RequestBody Usuario usuario,@PathVariable(value = "rol") String rol ) {
     	System.out.println("entre al crear con el usuario "+usuario.getUsername()+" y el rol "+rol);
-    	if (usuarioService.existeUsuario(usuario.getUsername())) return false;
-    	else {
-    		
-    		usuario.setPassword(bCryptPasswordEncoder.encode(usuario.getPassword()));
-    		usuarioService.altaUsuario(usuario);
-    		Optional<Usuario>usuarioOpt = usuarioRepository.findByUsername(usuario.getUsername());
-    		if (usuarioOpt.isPresent()) {
-    			usuarioService.asignarRolUsuario(rol, usuarioOpt.get());
-    			return true;
+    	if (!usuarioService.existeUsuario(usuario.getUsername())) {
+    		if (!usuarioService.existeCedula(usuario.getCedula())) {
+    			if (!usuarioService.existeEmail(usuario.getEmail())) {  
+    				usuario.setPassword(bCryptPasswordEncoder.encode(usuario.getPassword()));
+    	    		usuarioService.altaUsuario(usuario);
+    	    		if (usuarioService.existeUsuario(usuario.getUsername())) {
+    	    			Usuario usuarioExistente = usuarioService.findUsuarioByUsername(usuario.getUsername()).get();
+    	    		 	usuarioService.asignarRolUsuario(rol, usuarioExistente);
+    	    			return true;
+    	    		}
+    	    		else return false;
+    			}
+    			else return false;
     		}
-    	}return false;
+    		else return false;
+    	}
+    	else return false;
     }
     
     @PostMapping("/crearbien/{rol}")
     // @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
      public boolean crear(@RequestBody Usuario usuario,@PathVariable(value = "rol") String rol ) {
      	System.out.println("entre al crear con el usuario "+usuario.getUsername()+" y el rol "+rol);
-     	if (usuarioService.existeUsuario(usuario.getUsername())) return false;
-     	else {
-     		
-     		usuario.setPassword(bCryptPasswordEncoder.encode(usuario.getPassword()));
-     		usuarioService.altaBienUsuario(usuario);
-     		Optional<Usuario>usuarioOpt = usuarioRepository.findByUsername(usuario.getUsername());
-     		if (usuarioOpt.isPresent()) {
-     			usuarioService.asignarRolUsuario(rol, usuarioOpt.get());
-     			System.out.println("asigné el rol");
-     			if(rol.equals("ESTUDIANTE")) {
-     				System.out.println("voy a mandar el mail");
-     				emailService.sendEmailToken(usuarioOpt.get().getResetToken());
-     			}
-         		return true;
-     		}
-     	
-     	}return false;
+     	if (!usuarioService.existeUsuario(usuario.getUsername())) {
+    		if (!usuarioService.existeCedula(usuario.getCedula())) {
+    			if (!usuarioService.existeEmail(usuario.getEmail())) { 
+     		 		usuario.setPassword(bCryptPasswordEncoder.encode(usuario.getPassword()));
+     		 		usuarioService.altaBienUsuario(usuario);
+     		 		if (usuarioService.existeUsuario(usuario.getUsername())) {
+     		 			Usuario usuarioExistente = usuarioService.findUsuarioByUsername(usuario.getUsername()).get();
+     		 			usuarioService.asignarRolUsuario(rol, usuarioExistente);
+     		 			System.out.println("asigné el rol");
+     		 			if (rol.equals("ESTUDIANTE")) {
+     		 				System.out.println("voy a mandar el mail");
+     		 				emailService.sendEmailToken(usuarioExistente.getResetToken());
+     		 			}
+     		 			return true;
+     		 		}
+     		 		else return false;
+    			}
+    			else return false;
+     	   	}
+    		else return false;
+     	}
+     	else return false;
      }
     
     @GetMapping("/{id}")
@@ -162,20 +173,54 @@ public class UsuarioController {
     	}
     }
     
-    @PostMapping("/modificar")
+    /*@PostMapping("/modificar")
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
     public boolean modificarUsuario(HttpServletRequest request, @RequestBody(required = true) Usuario usuario, @RequestParam(name = "username", required = true) String username) {
-    	if (!usuarioService.existeUsuario(usuario.getUsername())) {
-    		if (!usuarioService.existeCedula(usuario.getCedula())) {
-    			if (!usuarioService.existeEmail(usuario.getEmail())) {
-    				usuarioService.modificacionUsuario(usuario, username);
-    				return true;
+    	if (usuarioService.existeUsuario(username)) {
+    		Usuario usuarioExistente;
+    		if (usuarioService.existeCedula(usuario.getCedula())) {
+    			usuarioExistente = usuarioService.obtenerUsuarioCedula(usuario.getCedula());
+    			if (usuarioExistente.getUsername().equals(username)) {
+    				if (usuarioService.existeEmail(usuario.getEmail())) {
+    					usuarioExistente = usuarioService.obtenerUsuarioEmail(usuario.getEmail());
+    					if (usuarioExistente.getUsername().equals(username)) {
+    						usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
+    						usuario.setId(usuarioExistente.getId());
+    						usuario.setUsername(username);
+    						usuarioService.modificacionUsuario(usuario);
+    						return true;
+    					}
+    					else return false;
+    				}
+    				else {
+    					usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
+						usuario.setId(usuarioExistente.getId());
+						usuario.setUsername(username);
+						usuarioService.modificacionUsuario(usuario);
+						return true;
+    				}
     			}
-    			else return false;
+    	    	else return false;
     		}
-    		else return false;
-    	}
-    	else return false;
-    }
-    
+    		else {
+    			if (usuarioService.existeEmail(usuario.getEmail())) {
+    				usuarioExistente = usuarioService.obtenerUsuarioEmail(usuario.getEmail());
+    				if (usuarioExistente.getUsername().equals(username)) {
+    					usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
+    					usuario.setId(usuarioExistente.getId());
+    					usuario.setUsername(username);
+    					usuarioService.modificacionUsuario(usuario);
+    					return true;
+    				}
+    				else return false;
+			}
+			else {
+				usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
+				usuario.setId(usuarioExistente.getId());
+				usuario.setUsername(username);
+				usuarioService.modificacionUsuario(usuario);
+				return true;
+			}
+    		}
+    */
 }

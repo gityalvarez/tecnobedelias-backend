@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="asignaturas", uniqueConstraints=@UniqueConstraint(name="codigo_asignatura_ukey", columnNames={"codigo"}), indexes = {@Index(name="nombre_asignatura_index", columnList="nombre")})
+//@Table(name="asignaturas", uniqueConstraints={@UniqueConstraint(name="codigo_asignatura_ukey", columnNames={"codigo"}), @UniqueConstraint(name="nombre_asignatura_ukey", columnNames={"nombre"})})
 public class Asignatura implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id

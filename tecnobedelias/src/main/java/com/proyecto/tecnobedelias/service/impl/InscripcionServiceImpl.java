@@ -88,6 +88,72 @@ public class InscripcionServiceImpl implements InscripcionService {
 		return asignaturaEnCarrera;
 	}	
 	
+	
+	public Curso obtenerUltimoCursoAsignaturaEstudiante(Asignatura asignatura, Usuario usuario) {	
+		Curso ultimoCursoAsignaturaEstudiante = null;
+		try {		
+			if (!asignatura.getCursos().isEmpty()) {
+				SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+				String fechaFinCursoString;
+				String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());			
+				Date fechaActualDate = formateadorfecha.parse(fechaActualString);
+				long fechaActual = fechaActualDate.getTime();
+				Date fechaFinCursoDate;
+				long fechaFinCurso;
+				long diferencia = Long.MAX_VALUE;
+				for (Curso curso : asignatura.getCursos()) {
+					for (Curso_Estudiante cursoEstudiante : curso.getCursoEstudiante()) {
+						if (cursoEstudiante.getEstudiante().equals(usuario)) {
+							fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
+							fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
+							fechaFinCurso = fechaFinCursoDate.getTime();
+							if (fechaActual - fechaFinCurso < diferencia) {
+								diferencia = fechaActual - fechaFinCurso;
+								ultimoCursoAsignaturaEstudiante = curso;
+							}
+						}
+					}				
+				}
+			}		
+		} catch (Exception e) {
+			System.out.println("Ha ocurrido una excepcion.");
+		}
+		return ultimoCursoAsignaturaEstudiante;
+	}
+	
+	
+	public Examen obtenerUltimoExamenAsignaturaEstudiante(Asignatura asignatura, Usuario usuario) {	
+		Examen ultimoExamenAsignaturaEstudiante = null;
+		try {		
+			if (!asignatura.getExamenes().isEmpty()) {
+				SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+				String fechaExamenString;
+				String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());			
+				Date fechaActualDate = formateadorfecha.parse(fechaActualString);
+				long fechaActual = fechaActualDate.getTime();
+				Date fechaExamenDate;
+				long fechaExamen;
+				long diferencia = Long.MAX_VALUE;
+				for (Examen examen : asignatura.getExamenes()) {
+					for (Estudiante_Examen estudianteExamen : examen.getEstudianteExamen()) {
+						if (estudianteExamen.getEstudiante().equals(usuario)) {
+							fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.getFecha());
+							fechaExamenDate = formateadorfecha.parse(fechaExamenString);
+							fechaExamen = fechaExamenDate.getTime();
+							if (fechaActual - fechaExamen < diferencia) {
+								diferencia = fechaActual - fechaExamen;
+								ultimoExamenAsignaturaEstudiante = examen;
+							}
+						}
+					}				
+				}
+			}		
+		} catch (Exception e) {
+			System.out.println("Ha ocurrido una excepcion.");
+		}
+		return ultimoExamenAsignaturaEstudiante;
+	}
+	
 	@Override
 	public boolean inscripcionCurso(Usuario usuario, Curso curso) {
 		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso,	usuario);
@@ -125,84 +191,86 @@ public class InscripcionServiceImpl implements InscripcionService {
 									// para cada asignatura en la carrera previa a la del curso al que el usuario intenta matricularse
 									for (Asignatura_Carrera previa_asign_carrera : asign_carrera.getPrevias()) {
 										System.out.println("asignatura previa: "+previa_asign_carrera.getAsignatura().getNombre());
-										// si la asignatura previa es electiva en la carrera
+										// si la asignatura previa es taller solo se verifican el ultimo curso
 										if (previa_asign_carrera.getAsignatura().isTaller()) {
-											// para cada curso de dicha asignatura previa en la carrera 
+											// para el ultimo curso de dicha asignatura previa en la carrera para el usuario dado 
 											System.out.println("La asignatura previa es taller");
 											if (!previa_asign_carrera.getAsignatura().getCursos().isEmpty()) {
-												for (Curso curso_previa : previa_asign_carrera.getAsignatura().getCursos()) {
-													System.out.println("asignatura previa: "+previa_asign_carrera.getAsignatura().getNombre());
-													// para cada estudiante del curso de la asignatura previa en la carrera
-													if (!curso_previa.getCursoEstudiante().isEmpty()) {
-														for (Curso_Estudiante curso_estudiante : curso_previa.getCursoEstudiante()) {											
-															// si es el estudiante que quiere matricularse
-															if (curso_estudiante.getEstudiante().equals(usuario)) {
-																// si se verifica que no está salvado el curso de la asignatura previa
-																if (!curso_estudiante.getEstado().equals("SALVADO")) {
-																	// no cumple las previaturas
-																	cumplePreviaturas = false;	
-																}												
-															}											
+												Curso ultimo_curso_previa = obtenerUltimoCursoAsignaturaEstudiante(previa_asign_carrera.getAsignatura(), usuario);
+												if (ultimo_curso_previa != null) {
+													Curso_Estudiante ultimo_curso_estudiante = cursoEstudianteRepository.findByCursoAndEstudiante(ultimo_curso_previa, usuario).get();
+													if (!ultimo_curso_estudiante.getEstado().equals("MATRICULADO")) {
+														System.out.println("el estado no es matriculado");
+														// si se verifica que no está salvado el ultimo curso de la asignatura previa
+														if (!ultimo_curso_estudiante.getEstado().equals("SALVADO")) {
+															// no cumple las previaturas
+															cumplePreviaturas = false;	
 														}
 													}
 													else cumplePreviaturas = false;
 												}
+												else cumplePreviaturas = false;
 											}
 											else cumplePreviaturas = false;
 										}
 										// si la asignatura previa no es electiva en la carrera
 										else {
 											System.out.println("La asignatura previa no es taller");
-											// para el ultimo curso de la asignatura previa en la carrera 
+											// para cada curso de la asignatura previa en la carrera 
 											if (!previa_asign_carrera.getAsignatura().getCursos().isEmpty()) {
-												for (Curso curso_previa : previa_asign_carrera.getAsignatura().getCursos()) {
-													// para cada estudiante del curso de la asignatura previa
-													System.out.println("asignatura previa: "+previa_asign_carrera.getAsignatura().getNombre());
-													if (!curso_previa.getCursoEstudiante().isEmpty()) {
-														for (Curso_Estudiante curso_estudiante : curso_previa.getCursoEstudiante()) {
-															// si es el estudiante que quiere matricularse
-															if (curso_estudiante.getEstudiante().equals(usuario)) {
-																//if (!curso_estudiante.getEstado().equals("MATRICULADO")) {
-																	// si se verifica que no tiene salvado el curso de la asignatura previa
-																	if (!curso_estudiante.getEstado().equals("SALVADO")) {
-																		System.out.println("no tiene salvado el curso de la asignatura previa");
-																		// si se verifica que tiene aprobado el curso de la asignatura previa (ganado el derecho a examen)
-																		if (curso_estudiante.getEstado().equals("EXAMEN")) {
-																			System.out.println("tiene aprobado el curso de la asignatura previa");
-																			// para cada examen del estudiante que pretende inscribirse al curso
-																			if (!usuario.getEstudianteExamen().isEmpty()) {
-																				for (Estudiante_Examen estudiante_examen: usuario.getEstudianteExamen()) {
-																					// si la asignatura del examen coincide con la asignatura previa del curso
-																					if (estudiante_examen.getExamen().getAsignatura().equals(curso_previa.getAsignatura())) {
-																						// si el examen no esta aprobado
-																						if (!estudiante_examen.getEstado().equals("APROBADO")) {
-																							System.out.println("no tiene aprobado el examen de la asignatura previa");
-																							// no cumple la previatura
-																							cumplePreviaturas = false;
-																						}																		
-																					}
-																				}
-																			}
-																			else cumplePreviaturas = false;
+												Curso ultimo_curso_previa = obtenerUltimoCursoAsignaturaEstudiante(previa_asign_carrera.getAsignatura(), usuario);												
+												if (ultimo_curso_previa != null) {
+													Curso_Estudiante ultimo_curso_estudiante = cursoEstudianteRepository.findByCursoAndEstudiante(ultimo_curso_previa, usuario).get();
+													if (!ultimo_curso_estudiante.getEstado().equals("MATRICULADO")) {
+														System.out.println("el estado no es matriculado");
+														if (!ultimo_curso_estudiante.getEstado().equals("SALVADO")) {
+															System.out.println("no tiene salvado el curso de la asignatura previa");
+															// si se verifica que tiene aprobado el curso de la asignatura previa (ganado el derecho a examen)
+															if (ultimo_curso_estudiante.getEstado().equals("EXAMEN")) {
+																System.out.println("tiene aprobado el curso de la asignatura previa");
+																// para cada examen del estudiante que pretende inscribirse al curso
+																if (!usuario.getEstudianteExamen().isEmpty()) {
+																	Examen ultimo_examen_previa = obtenerUltimoExamenAsignaturaEstudiante(previa_asign_carrera.getAsignatura(), usuario);
+																	if (ultimo_examen_previa != null) {
+																		Estudiante_Examen ultimo_estudiante_examen = estudianteExamenRepository.findByExamenAndEstudiante(ultimo_examen_previa, usuario).get();
+																		if (!ultimo_estudiante_examen.getEstado().equals("ANOTADO")) {
+																			if (!ultimo_estudiante_examen.getEstado().equals("APROBADO")) {
+																				System.out.println("no tiene aprobado el examen de la asignatura previa");
+																				// no cumple la previatura
+																				cumplePreviaturas = false;
+																			}	
+																	/*for (Estudiante_Examen estudiante_examen: usuario.getEstudianteExamen()) {
+																		// si la asignatura del examen coincide con la asignatura previa del curso
+																		if (estudiante_examen.getExamen().getAsignatura().equals(ultimo_curso_previa.getAsignatura())) {
+																			// si el examen no esta aprobado
+																			if (!estudiante_examen.getEstado().equals("APROBADO")) {
+																				System.out.println("no tiene aprobado el examen de la asignatura previa");
+																				// no cumple la previatura
+																				cumplePreviaturas = false;
+																			}																		
+																		}
+																	}*/
 																		}
 																		else cumplePreviaturas = false;
 																	}
-																/*}
-																else cumplePreviaturas = false;*/
+																	else cumplePreviaturas = false;
+																}
+																else cumplePreviaturas = false;
 															}
-														}											
+															else cumplePreviaturas = false;
+														}														
 													}
 													else cumplePreviaturas = false;
 												}
+												else cumplePreviaturas = false;
 											}
-											else cumplePreviaturas = false;
-										}
-									}							
+										}							
+									}
 								}
-							}
 						//}
 						//else cumplePreviaturas = false;
-					}
+							}
+					}	
 				}
 				else cumplePreviaturas = false;
 				if (cumplePreviaturas) {				
@@ -210,6 +278,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 					Curso_Estudiante cursoEstudiante = new Curso_Estudiante();
 					cursoEstudiante.setCurso(curso);
 					cursoEstudiante.setEstudiante(usuario);
+					cursoEstudiante.setNota(-1);
 					cursoEstudiante.setEstado("MATRICULADO");
 					usuario.getCursoEstudiante().add(cursoEstudiante);
 					//usuarioRepository.save(usuario);

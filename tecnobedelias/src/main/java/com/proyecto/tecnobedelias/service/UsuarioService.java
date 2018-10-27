@@ -33,7 +33,11 @@ public interface UsuarioService {
 	
 	public Optional<Usuario> findUsuarioByUsername(String username);
 	
+	public Usuario obtenerUsuarioCedula(String cedula);	
+	
+	public Usuario obtenerUsuarioEmail(String email);
+	
 	public void inicializar();
 	
-	public void modificacionUsuario(Usuario usuario, String username);
+	public void modificacionUsuario(Usuario usuario);
 }

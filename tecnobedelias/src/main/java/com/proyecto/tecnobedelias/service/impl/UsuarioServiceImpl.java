@@ -114,7 +114,16 @@ public class UsuarioServiceImpl implements UsuarioService{
 	public Optional<Usuario> findUsuarioByUsername(String username) {
 		return usuarioRepository.findByUsername(username);
 	}
-
+	
+	@Override
+	public Usuario obtenerUsuarioCedula(String cedula) {
+		return usuarioRepository.findByCedula(cedula).get();
+	}
+	
+	@Override
+	public Usuario obtenerUsuarioEmail(String email) {
+		return usuarioRepository.findByEmail(email).get();
+	}
 
 	@Override
 	public void altaBienUsuario(Usuario usuario) {
@@ -176,17 +185,8 @@ public class UsuarioServiceImpl implements UsuarioService{
 	
 	
 	@Override
-	public void modificacionUsuario(Usuario usuario, String username) {
-		Optional<Usuario> usuarioExistente = usuarioRepository.findByUsername(username);
-		if (usuarioExistente.isPresent()) {
-			if (!usuarioRepository.findByCedula(usuario.getCedula()).isPresent()) {
-				if (!usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
-					usuario.setUsername(username);
-					usuario.setId(usuarioExistente.get().getId());
-					usuarioRepository.save(usuario);
-				}
-			}
-		}
+	public void modificacionUsuario(Usuario usuario) {
+		usuarioRepository.save(usuario);
 	}
 
 }
