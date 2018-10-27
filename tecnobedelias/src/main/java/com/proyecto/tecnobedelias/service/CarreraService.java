@@ -5,6 +5,8 @@ import java.util.List;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
+import com.proyecto.tecnobedelias.persistence.model.Link;
+import com.proyecto.tecnobedelias.persistence.model.Nodo;
 
 
 public interface CarreraService {
@@ -38,4 +40,8 @@ public interface CarreraService {
 	public void generarGrafoPrevias();
 	
 	public void bajaCarrera(Carrera carrera);
+	
+	public List<Nodo> listarNodosGrafo(Carrera carrera);
+	
+	public List<Link> listarLinkGrafo(Carrera carrera);
 }

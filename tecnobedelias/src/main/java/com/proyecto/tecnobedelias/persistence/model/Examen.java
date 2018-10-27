@@ -35,7 +35,7 @@ public class Examen implements Serializable {
 	@Column(name="hora", nullable=true)	
 	private String hora;
 	
-	@Column(name="nombreAsignatura", nullable=false)
+	@Column(name="nombreAsignatura")
 	private String nombreAsignatura;
 	
 	@JsonIgnore

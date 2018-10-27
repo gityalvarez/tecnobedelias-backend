@@ -19,6 +19,8 @@ import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
+import com.proyecto.tecnobedelias.persistence.model.Link;
+import com.proyecto.tecnobedelias.persistence.model.Nodo;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Asignatura_CarreraRepository;
@@ -219,6 +221,30 @@ public class CarreraController{
 		System.out.println("obtuve la asignaturaCarrera "+asignaturaCarrera.get().getId());
 		return carreraService.listarPreviasPosibles(asignaturaCarrera.get());
 	}
+	
+	@GetMapping("/asignaturasgrafo")
+	@PreAuthorize("hasRole('DIRECTOR') or hasRole('ESTUDIANTE')")
+	public List<Nodo> listarNodosGrafo(HttpServletRequest request,
+			@RequestParam(name = "carrera", required = true) String carreraNombre){
+		Optional<Carrera>carreraOpt = carreraRepository.findByNombre(carreraNombre);
+		if (carreraOpt.isPresent()) {
+			return carreraService.listarNodosGrafo(carreraOpt.get());
+		}
+		else return null;			
+	}
+	
+	@GetMapping("/linksgrafo")
+	@PreAuthorize("hasRole('DIRECTOR') or hasRole('ESTUDIANTE')")
+	public List<Link> listarLinkGrafo(HttpServletRequest request,
+			@RequestParam(name = "carrera", required = true) String carreraNombre){
+		Optional<Carrera>carreraOpt = carreraRepository.findByNombre(carreraNombre);
+		if (carreraOpt.isPresent()) {
+			return carreraService.listarLinkGrafo(carreraOpt.get());
+		}
+		else return null;
+		
+	}
+	
     
     
     

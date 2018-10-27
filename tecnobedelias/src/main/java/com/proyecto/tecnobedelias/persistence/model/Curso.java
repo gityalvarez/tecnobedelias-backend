@@ -44,7 +44,7 @@ public class Curso implements Serializable {
 	@Column(name="fechaFin", nullable=false)
 	private Date fechaFin;
 	
-	@Column(name="nombreAsignatura", nullable=false)
+	@Column(name="nombreAsignatura")
 	private String nombreAsignatura;
 	
 	@JsonIgnore

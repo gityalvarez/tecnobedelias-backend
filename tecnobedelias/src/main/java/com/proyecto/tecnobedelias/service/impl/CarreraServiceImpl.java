@@ -3,6 +3,7 @@ package com.proyecto.tecnobedelias.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
+import com.proyecto.tecnobedelias.persistence.model.Link;
+import com.proyecto.tecnobedelias.persistence.model.Nodo;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Asignatura_CarreraRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
@@ -194,6 +197,50 @@ public class CarreraServiceImpl implements CarreraService {
 	@Override
 	public void bajaCarrera(Carrera carrera) {
 		carreraRepository.delete(carrera);		
+	}
+
+	@Override
+	public List<Nodo> listarNodosGrafo(Carrera carrera) {
+		List<Nodo> listaNodos = new ArrayList<>();
+		List<Asignatura_Carrera> asignaturasCarrera = carrera.getAsignaturaCarrera();
+		Random random = new Random();
+		String[] colores = {"blue", "red", "green", "yellow", "orange"};
+		for (Asignatura_Carrera asignaturaCarrera : asignaturasCarrera) {
+			int i = 0;
+			Asignatura asignatura = asignaturaCarrera.getAsignatura();
+			Nodo nodo = new Nodo();
+			String stringLong = ""+asignatura.getId();
+			nodo.setKey(stringLong);
+			nodo.setName(asignatura.getNombre());
+			
+
+	        // create a big random number - maximum is ffffff (hex) = 16777215 (dez)
+	        int nextInt = random.nextInt(4);
+
+	        // format it as hexadecimal string (with hashtag and leading zeros)
+	        String colorCode = colores[nextInt];
+			nodo.setColor(colorCode);
+			listaNodos.add(nodo);
+		}
+		return listaNodos;
+	}
+
+	@Override
+	public List<Link> listarLinkGrafo(Carrera carrera) {
+		List<Link> listaLinks = new ArrayList<>();
+		List<Asignatura_Carrera> asignaturasCarrera = carrera.getAsignaturaCarrera();
+		for (Asignatura_Carrera asignaturaCarrera : asignaturasCarrera) {
+			List<Asignatura_Carrera> previas = asignaturaCarrera.getPrevias();
+			for(Asignatura_Carrera previa : previas) {
+				Link link = new Link();
+				String fromString = ""+previa.getAsignatura().getId();
+				link.setFrom(fromString);
+				String toString = ""+asignaturaCarrera.getAsignatura().getId();
+				link.setTo(toString);
+				listaLinks.add(link);				
+			}
+		}
+		return listaLinks;
 	}
 
 }
