@@ -166,6 +166,10 @@ public class InscripcionServiceImpl implements InscripcionService {
 				System.out.println("El estudiante ya esta matriculado");
 			//}
 		}
+		if (isAprobadaAsignaturaEstudiante(curso.getAsignatura(), usuario)) {
+			System.out.println("El estudiante ya tiene aprobada la asignatura");
+			puedeMatricularse = false;	
+		}
 		// si no recorro las carreras en las que el usuario esta inscripto y me fijo si la asignatura del curso pertenece a una de estas carreras
 		if (puedeMatricularse) {
 			System.out.println("El estudiante no esta matriculado");
@@ -291,6 +295,34 @@ public class InscripcionServiceImpl implements InscripcionService {
 		}		
 		return matriculado;
 	}	
+	
+	
+	public boolean isAprobadaAsignaturaEstudiante(Asignatura asignatura, Usuario usuario) {
+		boolean aprobada = false;
+		Iterator<Curso_Estudiante> itCursoEst = usuario.getCursoEstudiante().iterator();
+		// reviso todos los cursos del el estudiante hasta que no haya mas o lo tenga salvado 
+		while (itCursoEst.hasNext() && !aprobada) {
+			// si la asignatura del curso coincide con la pasada como parametro
+			Curso_Estudiante curso_est = itCursoEst.next();
+			if (curso_est.getCurso().getAsignatura().equals(asignatura)) {
+				if (curso_est.getEstado().equals("SALVADO")) {
+					aprobada = true;
+				}
+			}
+		}
+		Iterator<Estudiante_Examen> itEstExamen = usuario.getEstudianteExamen().iterator();
+		// reviso todos los examenes del estudiante hasta que no haya mas o lo tenga aprobado 
+		while (itEstExamen.hasNext() && !aprobada) {
+			// si la asignatura del curso coincide con la pasada como parametro
+			Estudiante_Examen est_examen = itEstExamen.next();
+			if (est_examen.getExamen().getAsignatura().equals(asignatura)) {
+				if (est_examen.getEstado().equals("APROBADO")) {
+					aprobada = true;
+				}
+			}
+		}
+		return aprobada;
+	}
 
 	
 	@Override
@@ -305,6 +337,10 @@ public class InscripcionServiceImpl implements InscripcionService {
 					System.out.println("El estudiante ya esta anotado");
 					puedeAnotarse = false;	
 				//}
+			}
+			if (isAprobadaAsignaturaEstudiante(examen.getAsignatura(), usuario)) {
+				System.out.println("El estudiante ya tiene aprobada la asignatura");
+				puedeAnotarse = false;	
 			}
 			if (puedeAnotarse) {			
 				// si la asignatura del examen al cual se quiere anotar pertenece a una carrera en que esté matriculado	

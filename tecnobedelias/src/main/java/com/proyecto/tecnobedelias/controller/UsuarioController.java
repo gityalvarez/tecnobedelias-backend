@@ -173,9 +173,11 @@ public class UsuarioController {
     	}
     }
     
-    /*@PostMapping("/modificar")
+    @PostMapping("/modificar")
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-    public boolean modificarUsuario(HttpServletRequest request, @RequestBody(required = true) Usuario usuario, @RequestParam(name = "username", required = true) String username) {
+    public boolean modificarUsuario(HttpServletRequest request, 
+    		@RequestBody(required = true) Usuario usuario, 
+    		@RequestParam(name = "username", required = true) String username) {
     	if (usuarioService.existeUsuario(username)) {
     		Usuario usuarioExistente;
     		if (usuarioService.existeCedula(usuario.getCedula())) {
@@ -187,6 +189,7 @@ public class UsuarioController {
     						usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
     						usuario.setId(usuarioExistente.getId());
     						usuario.setUsername(username);
+    						usuario.setPassword(usuarioExistente.getPassword());
     						usuarioService.modificacionUsuario(usuario);
     						return true;
     					}
@@ -196,6 +199,7 @@ public class UsuarioController {
     					usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
 						usuario.setId(usuarioExistente.getId());
 						usuario.setUsername(username);
+						usuario.setPassword(usuarioExistente.getPassword());
 						usuarioService.modificacionUsuario(usuario);
 						return true;
     				}
@@ -213,14 +217,19 @@ public class UsuarioController {
     					return true;
     				}
     				else return false;
-			}
-			else {
-				usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
-				usuario.setId(usuarioExistente.getId());
-				usuario.setUsername(username);
-				usuarioService.modificacionUsuario(usuario);
-				return true;
-			}
+    			}
+    			else {
+    				usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
+    				usuario.setId(usuarioExistente.getId());
+    				usuario.setUsername(username);
+    				usuario.setPassword(usuarioExistente.getPassword());
+    				usuarioService.modificacionUsuario(usuario);
+    				return true;
+    			}
     		}
-    */
+    	}
+    	else return false;
+    }
+    
+    
 }
