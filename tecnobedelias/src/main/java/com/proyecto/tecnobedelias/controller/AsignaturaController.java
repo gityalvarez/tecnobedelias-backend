@@ -45,7 +45,7 @@ public class AsignaturaController{
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public boolean crearAsignatura(@RequestBody(required = true) Asignatura asignatura){  
     	if (!asignaturaService.existeAsignaturaCodigo(asignatura.getCodigo())) {
-    		if (!asignaturaService.existeAsignaturaNombre(asignatura.getNombre())) {
+    		if (!asignaturaService.existeAsignaturaNombre(asignatura.getNombre())) {    		
     			asignaturaRepository.save(asignatura);
     			return true;
     		}
@@ -59,7 +59,7 @@ public class AsignaturaController{
     public boolean borrarAsignatura(HttpServletRequest request,
 			@RequestParam(name = "nombre", required = true) String nombre) {
     	if (asignaturaService.existeAsignaturaNombre(nombre)) { 
-    		Asignatura asignaturaExistente = asignaturaService.obtenerAsignaturaNombre(nombre);
+    		Asignatura asignaturaExistente = asignaturaService.obtenerAsignaturaNombre(nombre).get();
     		if (asignaturaExistente.getAsignaturaCarrera().isEmpty()) {
     			if (asignaturaExistente.getCursos().isEmpty()) {
     				if (asignaturaExistente.getExamenes().isEmpty()) {
@@ -79,27 +79,16 @@ public class AsignaturaController{
     @PostMapping("/modificar")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public boolean modificarAsignatura(HttpServletRequest request,
-    		@RequestBody(required = true) Asignatura asignatura, @RequestParam(name = "nombre", required = true) String nombre) {
-    	if (asignaturaService.existeAsignaturaNombre(nombre)) {
-    		Asignatura asignaturaExistente;
-    		if (asignaturaService.existeAsignaturaCodigo(asignatura.getCodigo())) {
-    			asignaturaExistente = asignaturaService.obtenerAsignaturaCodigo(asignatura.getCodigo());
-    			if (asignaturaExistente.getNombre().equals(nombre)) {
-    				asignaturaExistente = asignaturaService.obtenerAsignaturaNombre(nombre);
-    				asignatura.setId(asignaturaExistente.getId());
-    				asignatura.setNombre(nombre);
-    				asignaturaService.modificacionAsignatura(asignatura);
-    				return true;  
-    			}
-    			else return false;
-    		}
-    		else {
-    			asignaturaExistente = asignaturaService.obtenerAsignaturaNombre(nombre);
-				asignatura.setId(asignaturaExistente.getId());
-				asignatura.setNombre(nombre);
-				asignaturaService.modificacionAsignatura(asignatura);
-				return true; 
-    		}
+    		@RequestBody(required = true) Asignatura asignatura, 
+    		@RequestParam(name = "asignaturaId", required = true) String asignaturaIdStr) {
+    	long asignaturaId = Long.parseLong(asignaturaIdStr);
+    	if (asignaturaService.existeAsignatura(asignaturaId)) {
+    		Asignatura asignaturaExistente = asignaturaService.obtenerAsignatura(asignaturaId).get();
+    		asignatura.setId(asignaturaId);
+    		asignatura.setCodigo(asignaturaExistente.getCodigo());
+    		asignatura.setNombre(asignaturaExistente.getNombre());
+    		asignaturaService.modificacionAsignatura(asignatura);
+    		return true;
     	}
     	else return false;
     }

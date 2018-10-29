@@ -177,29 +177,29 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
     public boolean modificarUsuario(HttpServletRequest request, 
     		@RequestBody(required = true) Usuario usuario, 
-    		@RequestParam(name = "username", required = true) String username) {
-    	if (usuarioService.existeUsuario(username)) {
-    		Usuario usuarioExistente;
+    		@RequestParam(name = "username", required = true) String usuarioIdStr) {
+    	long usuarioId = Long.parseLong(usuarioIdStr);
+    	Optional<Usuario> usuarioExistente = usuarioService.obtenerUsuario(usuarioId);
+    	if (usuarioExistente.isPresent()) {
     		if (usuarioService.existeCedula(usuario.getCedula())) {
     			usuarioExistente = usuarioService.obtenerUsuarioCedula(usuario.getCedula());
-    			if (usuarioExistente.getUsername().equals(username)) {
+    			if (usuarioExistente.get().getId() == usuarioId) {
     				if (usuarioService.existeEmail(usuario.getEmail())) {
     					usuarioExistente = usuarioService.obtenerUsuarioEmail(usuario.getEmail());
-    					if (usuarioExistente.getUsername().equals(username)) {
-    						usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
-    						usuario.setId(usuarioExistente.getId());
-    						usuario.setUsername(username);
-    						usuario.setPassword(usuarioExistente.getPassword());
+    					if (usuarioExistente.get().getId() == usuarioId) {
+    						usuario.setId(usuarioId);
+    						usuario.setUsername(usuarioExistente.get().getUsername());
+    						usuario.setPassword(usuarioExistente.get().getPassword());
     						usuarioService.modificacionUsuario(usuario);
     						return true;
     					}
     					else return false;
     				}
     				else {
-    					usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
-						usuario.setId(usuarioExistente.getId());
-						usuario.setUsername(username);
-						usuario.setPassword(usuarioExistente.getPassword());
+    					usuarioExistente = usuarioService.obtenerUsuario(usuarioId);
+						usuario.setId(usuarioId);
+						usuario.setUsername(usuarioExistente.get().getUsername());
+						usuario.setPassword(usuarioExistente.get().getPassword());
 						usuarioService.modificacionUsuario(usuario);
 						return true;
     				}
@@ -209,20 +209,20 @@ public class UsuarioController {
     		else {
     			if (usuarioService.existeEmail(usuario.getEmail())) {
     				usuarioExistente = usuarioService.obtenerUsuarioEmail(usuario.getEmail());
-    				if (usuarioExistente.getUsername().equals(username)) {
-    					usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
-    					usuario.setId(usuarioExistente.getId());
-    					usuario.setUsername(username);
+    				if (usuarioExistente.get().getId() == usuarioId) {
+    					usuario.setId(usuarioId);
+    					usuario.setUsername(usuarioExistente.get().getUsername());
+    					usuario.setPassword(usuarioExistente.get().getPassword());
     					usuarioService.modificacionUsuario(usuario);
     					return true;
     				}
     				else return false;
     			}
     			else {
-    				usuarioExistente = usuarioService.findUsuarioByUsername(username).get();
-    				usuario.setId(usuarioExistente.getId());
-    				usuario.setUsername(username);
-    				usuario.setPassword(usuarioExistente.getPassword());
+    				usuarioExistente = usuarioService.obtenerUsuario(usuarioId);
+    				usuario.setId(usuarioId);
+					usuario.setUsername(usuarioExistente.get().getUsername());
+					usuario.setPassword(usuarioExistente.get().getPassword());
     				usuarioService.modificacionUsuario(usuario);
     				return true;
     			}

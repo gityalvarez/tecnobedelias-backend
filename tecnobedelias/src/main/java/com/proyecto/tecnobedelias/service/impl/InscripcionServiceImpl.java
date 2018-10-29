@@ -27,6 +27,7 @@ import com.proyecto.tecnobedelias.persistence.repository.Curso_EstudianteReposit
 import com.proyecto.tecnobedelias.persistence.repository.Estudiante_ExamenRepository;
 import com.proyecto.tecnobedelias.persistence.repository.ExamenRepository;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
+import com.proyecto.tecnobedelias.service.EmailService;
 import com.proyecto.tecnobedelias.service.InscripcionService;
 
 @Service
@@ -52,7 +53,10 @@ public class InscripcionServiceImpl implements InscripcionService {
 	
 	@Autowired
 	Asignatura_CarreraRepository asignaturaCarreraRepository;
-
+	
+	@Autowired
+	EmailService emailService;
+	
 	@Override
 	public boolean inscripcionCarrera(Usuario usuario, Carrera carrera) {
 		if (usuario.getCarreras().contains(carrera)) {
@@ -365,6 +369,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 								examen.getEstudianteExamen().add(estudianteExamen);
 								//examenRepository.save(examen);
 								estudianteExamen.setEstado("ANOTADO");
+								estudianteExamen.setNota(-1);
 								estudianteExamenRepository.save(estudianteExamen);
 								anotado = true;						 	
 							}
@@ -474,13 +479,15 @@ public class InscripcionServiceImpl implements InscripcionService {
 					System.out.println("existe el estudiante en el examen");
 					if (estudianteExamenExistente.get().getEstado().equals("ANOTADO")) {
 						System.out.println("estado anotado");
-						if (nota <= asignaturaCarreraEstudiante.get().getNotaMaxima()) {
+						if (nota >= 0 && nota <= asignaturaCarreraEstudiante.get().getNotaMaxima()) {
 							estudianteExamenExistente.get().setNota(nota);						
 							if (nota >= asignaturaCarreraEstudiante.get().getNotaSalvaExamen()) {
 								estudianteExamenExistente.get().setEstado("APROBADO");
 							}
 							else estudianteExamenExistente.get().setEstado("REPROBADO");
 							estudianteExamenRepository.save(estudianteExamenExistente.get());
+							System.out.println("voy a mandar el mail");
+							emailService.sendEmailCalifiacion("examen", usuario.getEmail(), examen.getAsignatura().getNombre());
 							return true;
 						}
 						else return false;						
@@ -528,6 +535,8 @@ public class InscripcionServiceImpl implements InscripcionService {
 							}
 							else cursoEstudianteExistente.get().setEstado("RECURSA");
 							cursoEstudianteRepository.save(cursoEstudianteExistente.get());
+							System.out.println("voy a mandar el mail");
+     		 				emailService.sendEmailCalifiacion("curso", usuario.getEmail(), curso.getAsignatura().getNombre());
 							return true;							
 						}
 						else return false;						

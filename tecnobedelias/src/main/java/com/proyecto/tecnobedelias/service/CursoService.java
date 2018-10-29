@@ -19,6 +19,8 @@ public interface CursoService {
 	public Optional<Curso> obtenerCurso(long id);
 	
 	public void bajaCurso(Curso curso);
+	
+	public void modificacionCurso(Curso curso);
 
 	public boolean existeCurso(Asignatura asignatura, int semestre, int anio);
 

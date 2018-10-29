@@ -51,13 +51,18 @@ public class AsignaturaServiceImpl implements AsignaturaService {
 	}
 	
 	@Override
-	public Asignatura obtenerAsignaturaNombre(String nombre) {
-		return asignaturaRepository.findByNombre(nombre).get();
+	public Optional<Asignatura> obtenerAsignatura(long asignaturaId) {
+		return asignaturaRepository.findById(asignaturaId);
 	}
 	
 	@Override
-	public Asignatura obtenerAsignaturaCodigo(String codigo) {
-		return asignaturaRepository.findByCodigo(codigo).get();
+	public Optional<Asignatura> obtenerAsignaturaNombre(String nombre) {
+		return asignaturaRepository.findByNombre(nombre);
+	}
+	
+	@Override
+	public Optional<Asignatura> obtenerAsignaturaCodigo(String codigo) {
+		return asignaturaRepository.findByCodigo(codigo);
 	}
 	
 	@Override

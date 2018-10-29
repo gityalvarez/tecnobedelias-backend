@@ -34,6 +34,7 @@ import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.CursoService;
 import com.proyecto.tecnobedelias.service.ExamenService;
 import com.proyecto.tecnobedelias.service.InscripcionService;
+import com.proyecto.tecnobedelias.service.UsuarioService;
 
 @RestController
 
@@ -48,6 +49,9 @@ public class InscripcionController {
 	
 	@Autowired
 	CursoService cursoService;
+	
+	@Autowired
+	UsuarioService usuarioService;
 	
 	@Autowired
 	UsuarioRepository usuarioRepository;
@@ -201,27 +205,28 @@ public class InscripcionController {
 	@GetMapping("/ingresarcalificacionexamen")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public boolean cargarCalificacionExamen(HttpServletRequest request,
-			@RequestParam(name = "username", required = true) String username,
+			@RequestParam(name = "usuarioId", required = true) String usuarioIdStr,
 			@RequestParam(name = "examenId", required = true) String examenIdStr,
 			@RequestParam(name = "nota", required = true) String notaStr) throws ParseException {
+		long usuarioId = Long.parseLong(usuarioIdStr);
 		long examenId = Long.parseLong(examenIdStr);
 		int nota = Integer.parseInt(notaStr);
 		Optional<Examen> examen = examenService.obtenerExamen(examenId);
-		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
+		Optional<Usuario> usuario = usuarioService.obtenerUsuario(usuarioId);
 		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 		String fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.get().getFecha());
 		Date fechaExamen = formateadorfecha.parse(fechaExamenString);
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar la nota del examen luego de que fue rendido
-	 	if (fechaActual.after(fechaExamen)) {
+	 	//if (fechaActual.after(fechaExamen)) {
 	 		return inscripcionService.ingresarCalificacionExamen(usuario.get(), examen.get(), nota);
-	 	}
-	 	else return false;
+	 	/*}
+	 		else return false;*/
 	}
 	
 	
-	/*@PostMapping("/ingresarcalificacionesexamen")
+	@PostMapping("/ingresarcalificacionesexamen")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public boolean cargarCalificacionesExamen(HttpServletRequest request,
 			@RequestBody(required = true) List<Estudiante_Examen> estudiantesExamen,
@@ -245,32 +250,33 @@ public class InscripcionController {
 	 	}
 	 	else calificacionCargada = false;
 	 	return calificacionCargada;
-	}*/
+	}
 	
 	@GetMapping("/ingresarcalificacioncurso")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public boolean cargarCalificacionCurso(HttpServletRequest request,
-			@RequestParam(name = "username", required = true) String username,
+			@RequestParam(name = "usuarioId", required = true) String usuarioIdStr,
 			@RequestParam(name = "cursoId", required = true) String cursoIdStr,
 			@RequestParam(name = "nota", required = true) String notaStr) throws ParseException {
+		long usuarioId = Long.parseLong(usuarioIdStr);
 		long cursoId = Long.parseLong(cursoIdStr);
 		int nota = Integer.parseInt(notaStr);
 		Optional<Curso> curso = cursoService.obtenerCurso(cursoId);
-		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
+		Optional<Usuario> usuario = usuarioService.obtenerUsuario(usuarioId);
 		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 		String fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(curso.get().getFechaFin());
 		Date fechaFinCurso = formateadorfecha.parse(fechaFinCursoString);
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar la nota del curso luego de que ha finalizado
-	 	if (fechaActual.after(fechaFinCurso)) {
+	 	//if (fechaActual.after(fechaFinCurso)) {
 	 		return inscripcionService.ingresarCalificacionCurso(usuario.get(), curso.get(), nota);
-	 	}
-	 	else return false;
+	 	/*}
+	 	else return false;*/
 	}
 	
 	
-	/*@PostMapping("/ingresarcalificacionescurso")
+	@PostMapping("/ingresarcalificacionescurso")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public boolean cargarCalificacionesCurso(HttpServletRequest request,
 			@RequestBody(required = true) List<Curso_Estudiante> estudiantesCurso,
@@ -294,7 +300,7 @@ public class InscripcionController {
 	 	}
 	 	else calificacionCargada = false;
 	 	return calificacionCargada;
-	}*/
+	}
 	
 	
 }

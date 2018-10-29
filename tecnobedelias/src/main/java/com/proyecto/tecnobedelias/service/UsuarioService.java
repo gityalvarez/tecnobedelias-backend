@@ -33,9 +33,11 @@ public interface UsuarioService {
 	
 	public Optional<Usuario> findUsuarioByUsername(String username);
 	
-	public Usuario obtenerUsuarioCedula(String cedula);	
+	public Optional<Usuario> obtenerUsuarioCedula(String cedula);	
 	
-	public Usuario obtenerUsuarioEmail(String email);
+	public Optional<Usuario> obtenerUsuarioEmail(String email);
+	
+	public Optional<Usuario> obtenerUsuario(long usuarioId);
 	
 	public void inicializar();
 	

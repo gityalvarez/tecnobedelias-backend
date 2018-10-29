@@ -109,6 +109,47 @@ public class EmailServiceImpl implements EmailService {
 			}
 		}
 		
+		
+		@Async
+		public boolean sendEmailCalifiacion(String tipo, String email, String nombreAsignatura) {
+			try {
+				Properties pro = new Properties();
+				pro.put("mail.smtp.host", "smtp.gmail.com");
+				pro.setProperty("mail.smtp.starttls.enable", "true");
+				pro.setProperty("mail.smtp.port", "587");
+				pro.setProperty("mail.smtp.user", "proyecto.tecnobedelias@gmail.com");
+				pro.setProperty("mail.smtp.auth", "true");
+				pro.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+
+				Session session = Session.getDefaultInstance(pro, null);
+				BodyPart texto = new MimeBodyPart();
+				texto.setText("Ha sido ingresada una nueva calificacion correspondiente al " + tipo + " de la asignatura " + nombreAsignatura + ".");
+
+				MimeMultipart m = new MimeMultipart();
+				m.addBodyPart(texto);
+
+				MimeMessage mensaje = new MimeMessage(session);
+				mensaje.setFrom(new InternetAddress("proyecto.tecnobedelias@gmail.com"));
+				mensaje.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(email));
+				mensaje.setSubject("Aviso de nueva calificacion de " + tipo);
+				mensaje.setContent(m);
+
+				Transport t = session.getTransport("smtp");
+				t.connect("proyecto.tecnobedelias@gmail.com", "HYFLM2018");
+				t.sendMessage(mensaje, mensaje.getAllRecipients());
+				t.close();
+				System.out.println("mande el mail!!!!!");
+				return true;
+
+			} catch (Exception e) {
+				System.out.println("Error----" + e);
+				return false;
+			}
+		}
+		
+		
+		
+		
 		/*
 		SimpleMailMessage mailPrueba = new SimpleMailMessage();
 		mailPrueba.setFrom("proyecto.tecnobedelias@gmail.com");

@@ -5,8 +5,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
@@ -32,31 +37,52 @@ public class CarreraServiceImpl implements CarreraService {
 	@Autowired
 	Asignatura_CarreraRepository asignaturaCarreraRepository;
 	
+	@Override
 	public List<Carrera> listarCarreras(){
 		return carreraRepository.findAll();
 	}
 	
+	@Override
 	public boolean existeCarrera(String nombre) {
 		Optional<Carrera> carreraExistente = carreraRepository.findByNombre(nombre);
 		if (carreraExistente.isPresent()) return true;
 		else return false;
 	}
 	
+	@Override
 	public void altaCarrera(Carrera carrera) {
 		carreraRepository.save(carrera);
 	}
-
+	
+	@Override
+	public Optional<Carrera> obtenerCarrera(long carreraId) {
+		return carreraRepository.findById(carreraId);
+	}
+	
+	@Override
+	public Optional<Carrera> obtenerCarreraNombre(String nombre) {
+		return carreraRepository.findByNombre(nombre);
+	}
+	
+	@Override
+	public void modificacionCarrera(Carrera carrera) {
+		carreraRepository.save(carrera);
+	}
+				
+				
 	@Override
 	public boolean asignarAsignaturaCarrera(Asignatura_Carrera asigncarrera) {
 		Optional<Asignatura_Carrera> asignaturaCarreraExistente = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asigncarrera.getAsignatura(), asigncarrera.getCarrera());
 		if (asignaturaCarreraExistente.isPresent()) {
 			return false;
-		} else {
+		} 
+		if (asigncarrera.getCreditos() >= 0) {
 			asigncarrera.getCarrera().getAsignaturaCarrera().add(asigncarrera);
 			asigncarrera.getAsignatura().getAsignaturaCarrera().add(asigncarrera);
 			asignaturaCarreraRepository.save(asigncarrera);
 			return true;
 		}
+		else return false;
 	}
 	
 	@Override
@@ -65,11 +91,12 @@ public class CarreraServiceImpl implements CarreraService {
 		if (!asignaturaCarreraExistente.isPresent()) {
 			return false;
 		} 
-		else {
+		if (asign_carrera.getCreditos() >= 0) {
 			asign_carrera.setId(asignaturaCarreraExistente.get().getId());
 			asignaturaCarreraRepository.save(asign_carrera);
 			return true;
 		}
+		else return true;
 	}
 	
 

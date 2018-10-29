@@ -116,13 +116,18 @@ public class UsuarioServiceImpl implements UsuarioService{
 	}
 	
 	@Override
-	public Usuario obtenerUsuarioCedula(String cedula) {
-		return usuarioRepository.findByCedula(cedula).get();
+	public Optional<Usuario> obtenerUsuarioCedula(String cedula) {
+		return usuarioRepository.findByCedula(cedula);
 	}
 	
 	@Override
-	public Usuario obtenerUsuarioEmail(String email) {
-		return usuarioRepository.findByEmail(email).get();
+	public Optional<Usuario> obtenerUsuarioEmail(String email) {
+		return usuarioRepository.findByEmail(email);
+	}
+	
+	@Override
+	public Optional<Usuario> obtenerUsuario(long usuarioId) {
+		return usuarioRepository.findById(usuarioId);
 	}
 
 	@Override

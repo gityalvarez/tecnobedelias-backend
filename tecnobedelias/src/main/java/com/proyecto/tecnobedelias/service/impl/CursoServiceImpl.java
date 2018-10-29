@@ -78,6 +78,9 @@ public class CursoServiceImpl implements CursoService {
 		cursoRepository.delete(curso);		
 	}
 	
-	
+	@Override
+	public void modificacionCurso(Curso curso) {
+		cursoRepository.save(curso);		
+	}
 
 }

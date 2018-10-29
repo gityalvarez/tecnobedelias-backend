@@ -1,6 +1,7 @@
 package com.proyecto.tecnobedelias.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 
@@ -16,9 +17,11 @@ public interface AsignaturaService {
 	
 	public boolean existeAsignaturaNombre(String nombre);
 	
-	public Asignatura obtenerAsignaturaNombre(String nombre);
+	public Optional<Asignatura> obtenerAsignatura(long asignaturaId);
 	
-	public Asignatura obtenerAsignaturaCodigo(String codigo);
+	public Optional<Asignatura> obtenerAsignaturaNombre(String nombre);
+	
+	public Optional<Asignatura> obtenerAsignaturaCodigo(String codigo);
 	
 	public void bajaAsignatura(Asignatura asignatura);
 	

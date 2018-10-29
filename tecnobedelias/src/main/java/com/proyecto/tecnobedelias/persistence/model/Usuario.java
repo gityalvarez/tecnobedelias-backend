@@ -58,6 +58,9 @@ public class Usuario implements Serializable {
 	@Column(name="password", nullable=false)	
 	private String password;
 	
+	@Column(name="foto", length=10485760, nullable=true)	
+	private String foto;
+	
 	@Column(name="app_token", nullable=true)	
 	private String app_token;
 	
@@ -148,6 +151,14 @@ public class Usuario implements Serializable {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}	
+
+	public String getFoto() {
+		return foto;
+	}
+
+	public void setFoto(String foto) {
+		this.foto = foto;
 	}
 
 	public String getApp_token() {

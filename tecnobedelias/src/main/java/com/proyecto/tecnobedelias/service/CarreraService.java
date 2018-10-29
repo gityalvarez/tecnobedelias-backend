@@ -1,6 +1,7 @@
 package com.proyecto.tecnobedelias.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
@@ -16,6 +17,12 @@ public interface CarreraService {
 	public boolean existeCarrera(String nombre);
 	
 	public void altaCarrera(Carrera carrera);
+	
+	public Optional<Carrera> obtenerCarrera(long carreraId);
+	
+	public Optional<Carrera> obtenerCarreraNombre(String nombre);
+	
+	public void modificacionCarrera(Carrera carrera);
 	
 	public boolean asignarAsignaturaCarrera(Asignatura_Carrera asigncarrera);
 	

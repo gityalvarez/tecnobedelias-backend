@@ -62,8 +62,11 @@ public class CarreraController{
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public boolean crearCarrera(@RequestBody Carrera carrera){
     	if (!carreraService.existeCarrera(carrera.getNombre())) {
-    		carreraService.altaCarrera(carrera);
-    		return true;
+    		if (carrera.getCreditosMinimos() >= 0) {
+    			carreraService.altaCarrera(carrera);
+    			return true;
+    		}
+    		else return false;
     	}else return false;
     }
     
@@ -85,6 +88,21 @@ public class CarreraController{
     	else return false;
     }
     
+    @PostMapping("/modificar")
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    public boolean modificarCarrera(HttpServletRequest request,
+    		@RequestBody(required = true) Carrera carrera,
+			@RequestParam(name = "carreraId", required = true) String carreraIdStr) {
+    	long carreraId = Long.parseLong(carreraIdStr);
+    	Optional<Carrera> carreraOpt = carreraService.obtenerCarrera(carreraId);
+    	if (carreraOpt.isPresent()) {
+    		carrera.setId(carreraId);
+    		carrera.setNombre(carreraOpt.get().getNombre());
+    		carreraService.modificacionCarrera(carrera);
+    		return true;
+    	}
+    	else return false;
+    }    
     
     @PostMapping("/asignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")

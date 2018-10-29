@@ -6,4 +6,5 @@ public interface EmailService {
 	public void sendEmail(SimpleMailMessage email);
 	public boolean sendEmailPrueba();
 	public boolean sendEmailToken(String token);
+	public boolean sendEmailCalifiacion(String tipo, String email, String nombreAsignatura);
 }
