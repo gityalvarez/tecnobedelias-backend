@@ -50,9 +50,10 @@ public class CursoController {
 
 	@PostMapping("/crear")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean crearCurso(HttpServletRequest request, @RequestBody(required = true) Curso curso/*, @RequestBody List<Horario> horarios*/, @RequestParam(name = "codigo", required = true) String codigoAsignatura) throws ParseException {
+	public boolean crearCurso(HttpServletRequest request, @RequestBody(required = true) Curso curso/*, @RequestBody List<Horario> horarios*/, 
+			@RequestParam(name = "nombre", required = true) String nombreAsignatura) throws ParseException {
 		System.out.println("entre a crearCurso");
-		Optional<Asignatura> asignaturaOpt = asignaturaService.obtenerAsignaturaCodigo(codigoAsignatura);
+		Optional<Asignatura> asignaturaOpt = asignaturaService.obtenerAsignaturaNombre(nombreAsignatura);
 		curso.setAsignatura(asignaturaOpt.get());
 		curso.setNombreAsignatura(asignaturaOpt.get().getNombre());
 		//curso.setHorarios(horarios);
@@ -171,12 +172,24 @@ public class CursoController {
 		 		}
 		 		if (horariosOk) {
 		 			Curso cursoExistente = cursoService.obtenerCurso(cursoId).get();
-		 			curso.setId(cursoId);
-		 			curso.setAsignatura(cursoExistente.getAsignatura());
-		 			curso.setAnio(cursoExistente.getAnio());
-		 			curso.setSemestre(cursoExistente.getSemestre());
-		 			cursoService.modificacionCurso(curso);
-		 			return true;
+		 			if (cursoExistente.getSemestre() != curso.getSemestre()) {
+		 				if (!cursoService.existeCurso(cursoExistente.getAsignatura(), curso.getSemestre(), cursoExistente.getAnio())) {
+		 					cursoExistente.setFechaInicio(curso.getFechaInicio());
+		 					cursoExistente.setFechaFin(curso.getFechaFin());
+		 					cursoExistente.setHorarios(curso.getHorarios());
+		 					cursoExistente.setSemestre(curso.getSemestre());
+		 					cursoService.modificacionCurso(cursoExistente);
+		 					return true;
+		 				}
+		 				else return false;
+		 			}
+		 			else {
+		 				cursoExistente.setFechaInicio(curso.getFechaInicio());
+	 					cursoExistente.setFechaFin(curso.getFechaFin());
+	 					cursoExistente.setHorarios(curso.getHorarios());
+	 					cursoService.modificacionCurso(cursoExistente);
+	 					return true;
+		 			}
 		 		}
 		 		else return false;
 			}

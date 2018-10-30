@@ -22,6 +22,7 @@ import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.ExamenRepository;
+import com.proyecto.tecnobedelias.service.AsignaturaService;
 import com.proyecto.tecnobedelias.service.ExamenService;
 
 @RestController
@@ -30,6 +31,9 @@ public class ExamenController {
 
 	@Autowired
 	ExamenService examenService;
+	
+	@Autowired
+	AsignaturaService asignaturaService;
 	
 	@Autowired
 	AsignaturaRepository asignaturaRepository;
@@ -45,9 +49,11 @@ public class ExamenController {
 	
 	@PostMapping("/crear")
     @PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-    public boolean crearExamen(HttpServletRequest request, @RequestBody(required = true) Examen examen, @RequestParam(name = "codigo", required = true) String codigoAsignatura) throws ParseException{
+    public boolean crearExamen(HttpServletRequest request, 
+    		@RequestBody(required = true) Examen examen, 
+    		@RequestParam(name = "nombre", required = true) String nombreAsignatura) throws ParseException{
 		System.out.println("entre a crearExamen");
-		Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByCodigo(codigoAsignatura);
+		Optional<Asignatura> asignaturaOpt = asignaturaService.obtenerAsignaturaNombre(nombreAsignatura);
 		if (!asignaturaOpt.get().isTaller()) {
 			examen.setAsignatura(asignaturaOpt.get());
 			examen.setNombreAsignatura(asignaturaOpt.get().getNombre());
@@ -108,6 +114,77 @@ public class ExamenController {
 				}
 			}
 			else return false; 
+		}
+		else return false;
+    }
+	
+	
+	@PostMapping("/modificar")
+    @PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
+    public boolean modificarExamen(HttpServletRequest request, 
+    		@RequestBody(required = true) Examen examen, 
+    		@RequestParam(name = "examenId", required = true) String examenIdStr) throws ParseException{
+		System.out.println("entre a modificarExamen");
+		long examenId = Long.parseLong(examenIdStr);
+		if (examenService.existeExamen(examenId)) {			
+			boolean fechaOk = true;
+			SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+			String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+			Date fechaActualDate = formateadorfecha.parse(fechaActualString);
+			String fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.getFecha());
+			Date fechaExamenDate = formateadorfecha.parse(fechaExamenString);
+			if (fechaExamenDate.after(fechaActualDate)) {
+				List<Curso> cursosAsignatura = examen.getAsignatura().getCursos();
+				if (!cursosAsignatura.isEmpty()) {
+					String fechaFinCursoString;				
+					long fechaActual = fechaActualDate.getTime();
+					Date fechaFinCursoDate;
+					long fechaFinCurso;
+					long diferencia = Long.MAX_VALUE;
+					Curso ultimocurso = null;
+					// obtengo el ultimo curso de la asignatura para la que se quiere modificar el examen
+					for (Curso curso : cursosAsignatura) {
+						fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
+						fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
+						fechaFinCurso = fechaFinCursoDate.getTime();
+						if (fechaActual - fechaFinCurso < diferencia) {
+							diferencia = fechaActual - fechaFinCurso;
+							ultimocurso = curso;
+						}
+					}	
+					// si existe el ultimo curso
+					if (ultimocurso != null) {
+						System.out.println("encuentro ultimo curso");
+						fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(ultimocurso.getFechaFin());
+						fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
+						System.out.println("fecha fin ultimo curso " + fechaFinCursoString);
+						//if (fechaActualDate.after(fechaFinCursoDate)) {
+							if (fechaExamenDate.before(fechaFinCursoDate)) {
+								System.out.println("fecha examen < fecha fin curso");
+								fechaOk = false;
+							}
+						/*}
+						//else fechaOk = false;*/
+					}
+					else fechaOk = false;
+					if (fechaOk) {
+						Examen examenExistente = examenService.obtenerExamen(examenId).get();
+						if (!examenService.existeExamen(examenExistente.getAsignatura(), examen.getFecha())) {
+							examenExistente.setFecha(examen.getFecha());
+							examenExistente.setHora(examen.getHora());
+							examenService.modificacionExamen(examenExistente);
+							return true;
+						}
+						else return false;
+					}
+					else return false;
+				}
+				else {
+					System.out.println("La asignatura no tiene cursos");
+					return false;			
+				}
+			}
+			else return false;
 		}
 		else return false;
     }

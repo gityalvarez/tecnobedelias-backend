@@ -26,8 +26,8 @@ PROYECTO 2018 TECNOBEDELIAS BACKEND
 
 -Entrar denuevo al pgadmin ejecutar esta sentencia sql:
 
-INSERT INTO public.roles (id,activa, descripcion, nombre)
-VALUES (1,true, 'el que administra', 'ADMINISTRADOR'); 
+INSERT INTO public.roles (id, descripcion, nombre)
+VALUES (1, 'el que administra', 'ADMINISTRADOR'); 
 
 -Con la aplicación corriendo entrar al Postman para crear usuarios
 Post al http://localhost:8080/usuario/crear/ADMINISTRADOR

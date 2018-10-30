@@ -35,14 +35,6 @@ public class AsignaturaServiceImpl implements AsignaturaService {
 	}
 	
 	@Override
-	public boolean existeAsignaturaCodigo(String codigo) {
-		Optional<Asignatura> asignaturaExistente = asignaturaRepository.findByCodigo(codigo);
-		if (asignaturaExistente.isPresent()) 
-			return true;
-		else return false;
-	}
-	
-	@Override
 	public boolean existeAsignaturaNombre(String nombre) {
 		Optional<Asignatura> asignaturaExistente = asignaturaRepository.findByNombre(nombre);
 		if (asignaturaExistente.isPresent()) 
@@ -58,11 +50,6 @@ public class AsignaturaServiceImpl implements AsignaturaService {
 	@Override
 	public Optional<Asignatura> obtenerAsignaturaNombre(String nombre) {
 		return asignaturaRepository.findByNombre(nombre);
-	}
-	
-	@Override
-	public Optional<Asignatura> obtenerAsignaturaCodigo(String codigo) {
-		return asignaturaRepository.findByCodigo(codigo);
 	}
 	
 	@Override

@@ -7,8 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 @Repository
-public interface AsignaturaRepository extends JpaRepository<Asignatura,Long> {
-	
-	Optional<Asignatura> findByNombre(String nombre);
-	Optional<Asignatura> findByCodigo(String codigo);
+public interface AsignaturaRepository extends JpaRepository<Asignatura,Long> {	
+	Optional<Asignatura> findByNombre(String nombre);	
 }

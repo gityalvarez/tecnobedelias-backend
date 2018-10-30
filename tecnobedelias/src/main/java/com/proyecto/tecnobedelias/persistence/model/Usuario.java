@@ -185,7 +185,7 @@ public class Usuario implements Serializable {
 		this.activa = activa;
 	}*/	
 
-	@JsonIgnore
+	//@JsonIgnore
 	@JoinTable(
 	        name = "rol_usuario",
 	        joinColumns = @JoinColumn(

@@ -24,10 +24,9 @@ public class ExamenServiceImpl implements ExamenService {
 	AsignaturaRepository asignaturaRepository;	
 	
 	@Override
-	public boolean altaExamen(Examen examen) {
+	public void altaExamen(Examen examen) {
 		System.out.println("Entro a altaExamen");
 		examenRepository.save(examen);		
-		return true;
 	}
 	
 	@Override
@@ -64,5 +63,10 @@ public class ExamenServiceImpl implements ExamenService {
 		else return false;	
 	}
 
+	@Override
+	public void modificacionExamen(Examen examen) {
+		examenRepository.save(examen);		
+	}
+	
 	
 }

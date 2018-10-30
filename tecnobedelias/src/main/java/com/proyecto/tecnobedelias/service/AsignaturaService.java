@@ -13,15 +13,11 @@ public interface AsignaturaService {
 	
 	public boolean existeAsignatura(long asignaturaId);
 	
-	public boolean existeAsignaturaCodigo(String codigo);
-	
 	public boolean existeAsignaturaNombre(String nombre);
 	
 	public Optional<Asignatura> obtenerAsignatura(long asignaturaId);
 	
 	public Optional<Asignatura> obtenerAsignaturaNombre(String nombre);
-	
-	public Optional<Asignatura> obtenerAsignaturaCodigo(String codigo);
 	
 	public void bajaAsignatura(Asignatura asignatura);
 	

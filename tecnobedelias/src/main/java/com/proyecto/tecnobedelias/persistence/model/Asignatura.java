@@ -18,8 +18,7 @@ import javax.persistence.UniqueConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name="asignaturas", uniqueConstraints=@UniqueConstraint(name="codigo_asignatura_ukey", columnNames={"codigo"}), indexes = {@Index(name="nombre_asignatura_index", columnList="nombre")})
-//@Table(name="asignaturas", uniqueConstraints={@UniqueConstraint(name="codigo_asignatura_ukey", columnNames={"codigo"}), @UniqueConstraint(name="nombre_asignatura_ukey", columnNames={"nombre"})})
+@Table(name="asignaturas", uniqueConstraints=@UniqueConstraint(name="nombre_asignatura_ukey", columnNames={"nombre"}))
 public class Asignatura implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
@@ -27,9 +26,6 @@ public class Asignatura implements Serializable {
 	@Column(name="id")
 	private long id;
 
-	@Column(name="codigo", nullable=false)
-	private String codigo;
-	
 	@Column(name="nombre", nullable=false)
 	private String nombre;
 	
@@ -80,8 +76,7 @@ public class Asignatura implements Serializable {
 	public Asignatura() {
 	}
 	
-	public Asignatura(String codigo, String nombre, String descripcion) {
-		this.codigo = codigo;
+	public Asignatura(String nombre, String descripcion) {
 		this.nombre = nombre;
 		this.descripcion = descripcion;
 		//this.activa = true;
@@ -94,14 +89,6 @@ public class Asignatura implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}	
-	
-	public String getCodigo() {
-		return codigo;
-	}
-
-	public void setCodigo(String codigo) {
-		this.codigo = codigo;
-	}
 
 	public String getDescripcion() {
 		return descripcion;

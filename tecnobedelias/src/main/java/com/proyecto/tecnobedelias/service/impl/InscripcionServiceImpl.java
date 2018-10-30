@@ -519,7 +519,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 					}
 				}
 				if (asignaturaEncontrada) {
-					System.out.println("asignatura: " + curso.getAsignatura().getCodigo());
+					System.out.println("asignatura: " + curso.getAsignatura().getNombre());
 					System.out.println("carrera: " + carrera.getNombre());
 					Optional<Asignatura_Carrera> asignaturaCarreraEstudiante = asignaturaCarreraRepository.findByAsignaturaAndCarrera(curso.getAsignatura(), carrera);
 					System.out.println("carrera: " + carrera.getNombre());

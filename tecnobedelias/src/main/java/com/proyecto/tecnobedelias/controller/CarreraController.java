@@ -67,14 +67,16 @@ public class CarreraController{
     			return true;
     		}
     		else return false;
-    	}else return false;
+    	}
+    	else return false;
     }
     
     @GetMapping("/borrar")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public boolean borrarCarrera(HttpServletRequest request,
-			@RequestParam(name = "carrera", required = true) String carrera) {
-    	Optional<Carrera> carreraOpt = carreraRepository.findByNombre(carrera);
+			@RequestParam(name = "carreraId", required = true) String carreraIdStr) {
+    	long carreraId = Long.parseLong(carreraIdStr);
+    	Optional<Carrera> carreraOpt = carreraService.obtenerCarrera(carreraId);
     	if (carreraOpt.isPresent()) {
     		if (carreraOpt.get().getAsignaturaCarrera().isEmpty()) {
     			if (carreraOpt.get().getEstudiantes().isEmpty()) {    		
@@ -96,9 +98,8 @@ public class CarreraController{
     	long carreraId = Long.parseLong(carreraIdStr);
     	Optional<Carrera> carreraOpt = carreraService.obtenerCarrera(carreraId);
     	if (carreraOpt.isPresent()) {
-    		carrera.setId(carreraId);
-    		carrera.setNombre(carreraOpt.get().getNombre());
-    		carreraService.modificacionCarrera(carrera);
+    		carreraOpt.get().setDescripcion(carrera.getDescripcion());
+    		carreraService.modificacionCarrera(carreraOpt.get());
     		return true;
     	}
     	else return false;

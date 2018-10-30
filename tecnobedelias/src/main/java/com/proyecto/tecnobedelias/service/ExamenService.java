@@ -9,7 +9,7 @@ import com.proyecto.tecnobedelias.persistence.model.Examen;
 
 public interface ExamenService {
 	
-	public boolean altaExamen(Examen examen);
+	public void altaExamen(Examen examen);
 	
 	public List<Examen> listarExamenes();
 	
@@ -22,6 +22,7 @@ public interface ExamenService {
 	public void bajaExamen(Examen examen);
 
 	public boolean existeExamen(Asignatura asignatura, Date fecha);
-
+	
+	public void modificacionExamen(Examen examen);
 
 }

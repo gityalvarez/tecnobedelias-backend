@@ -12,6 +12,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="roles", uniqueConstraints = @UniqueConstraint(name="nombre_rol_ukey", columnNames={"nombre"}))
 public class Rol implements Serializable {
@@ -30,6 +32,7 @@ public class Rol implements Serializable {
 	/*@Column(name="activa", nullable=true)
 	private boolean activa; */
     
+	@JsonIgnore
     @ManyToMany(mappedBy="roles")
     private List<Usuario> usuarios;
     

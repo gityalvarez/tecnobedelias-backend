@@ -26,10 +26,8 @@ import com.proyecto.tecnobedelias.service.CarreraService;
 
 @RequestMapping("/asignatura")
 public class AsignaturaController{
-	private AsignaturaRepository asignaturaRepository;	
 	public AsignaturaController(AsignaturaRepository asignaturaRepository) {
 		super();
-		this.asignaturaRepository = asignaturaRepository;
 	}
 	
 	@Autowired
@@ -44,12 +42,9 @@ public class AsignaturaController{
     @PostMapping("/crear")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public boolean crearAsignatura(@RequestBody(required = true) Asignatura asignatura){  
-    	if (!asignaturaService.existeAsignaturaCodigo(asignatura.getCodigo())) {
-    		if (!asignaturaService.existeAsignaturaNombre(asignatura.getNombre())) {    		
-    			asignaturaRepository.save(asignatura);
-    			return true;
-    		}
-    		else return false;
+    	if (!asignaturaService.existeAsignaturaNombre(asignatura.getNombre())) {    		
+    		asignaturaService.altaAsignatura(asignatura);
+    		return true;
     	}
     	else return false;
     }
@@ -57,9 +52,10 @@ public class AsignaturaController{
     @GetMapping("/borrar")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
     public boolean borrarAsignatura(HttpServletRequest request,
-			@RequestParam(name = "nombre", required = true) String nombre) {
-    	if (asignaturaService.existeAsignaturaNombre(nombre)) { 
-    		Asignatura asignaturaExistente = asignaturaService.obtenerAsignaturaNombre(nombre).get();
+			@RequestParam(name = "asignaturaId", required = true) String asignaturaIdStr) {
+    	long asignaturaId = Long.parseLong(asignaturaIdStr);
+    	if (asignaturaService.existeAsignatura(asignaturaId)) { 
+    		Asignatura asignaturaExistente = asignaturaService.obtenerAsignatura(asignaturaId).get();
     		if (asignaturaExistente.getAsignaturaCarrera().isEmpty()) {
     			if (asignaturaExistente.getCursos().isEmpty()) {
     				if (asignaturaExistente.getExamenes().isEmpty()) {
@@ -83,11 +79,9 @@ public class AsignaturaController{
     		@RequestParam(name = "asignaturaId", required = true) String asignaturaIdStr) {
     	long asignaturaId = Long.parseLong(asignaturaIdStr);
     	if (asignaturaService.existeAsignatura(asignaturaId)) {
-    		Asignatura asignaturaExistente = asignaturaService.obtenerAsignatura(asignaturaId).get();
-    		asignatura.setId(asignaturaId);
-    		asignatura.setCodigo(asignaturaExistente.getCodigo());
-    		asignatura.setNombre(asignaturaExistente.getNombre());
-    		asignaturaService.modificacionAsignatura(asignatura);
+    		Optional<Asignatura> asignaturaExistente = asignaturaService.obtenerAsignatura(asignaturaId);
+    		asignaturaExistente.get().setDescripcion(asignatura.getDescripcion());
+    		asignaturaService.modificacionAsignatura(asignaturaExistente.get());
     		return true;
     	}
     	else return false;
