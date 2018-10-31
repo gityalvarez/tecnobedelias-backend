@@ -288,10 +288,10 @@ public class InscripcionServiceImpl implements InscripcionService {
 					cursoEstudiante.setEstudiante(usuario);
 					cursoEstudiante.setNota(-1);
 					cursoEstudiante.setEstado("MATRICULADO");
+					cursoEstudiante.setNombre(usuario.getNombre());
+					cursoEstudiante.setApellido(usuario.getApellido());
 					usuario.getCursoEstudiante().add(cursoEstudiante);
-					//usuarioRepository.save(usuario);
-					curso.getCursoEstudiante().add(cursoEstudiante);
-					//cursoRepository.save(curso);
+					curso.getCursoEstudiante().add(cursoEstudiante);					
 					cursoEstudianteRepository.save(cursoEstudiante);
 					matriculado = true;				 				
 				}
@@ -357,6 +357,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 						Curso_Estudiante curso_est = itCursoEst.next();
 						if (curso_est.getCurso().getAsignatura().equals(examen.getAsignatura())) {
 							System.out.println("El estudiante esta matriculado en un curso de la asignatura del examen");
+							System.out.println("estado curso "+curso_est.getEstado());
 							// si el estudiante tiene ganado el curso para el que se encuentra matriculado en la asignatura del examen
 							if (curso_est.getEstado().equals("EXAMEN")) {
 								System.out.println("El estudiante tiene ganado el curso");
@@ -364,10 +365,10 @@ public class InscripcionServiceImpl implements InscripcionService {
 								Estudiante_Examen estudianteExamen = new Estudiante_Examen();
 								estudianteExamen.setEstudiante(usuario);
 								usuario.getEstudianteExamen().add(estudianteExamen);
-								//usuarioRepository.save(usuario);
 								estudianteExamen.setExamen(examen);
 								examen.getEstudianteExamen().add(estudianteExamen);
-								//examenRepository.save(examen);
+								estudianteExamen.setNombre(usuario.getNombre());
+								estudianteExamen.setApellido(usuario.getApellido());
 								estudianteExamen.setEstado("ANOTADO");
 								estudianteExamen.setNota(-1);
 								estudianteExamenRepository.save(estudianteExamen);

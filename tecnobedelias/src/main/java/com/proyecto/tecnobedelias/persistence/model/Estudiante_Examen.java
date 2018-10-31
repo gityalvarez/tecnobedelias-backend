@@ -36,6 +36,12 @@ public class Estudiante_Examen implements Serializable {
 	 */
 	private String estado;
 	
+	@Column(name="nombre", nullable=true)
+	private String nombre;
+	
+	@Column(name="apellido", nullable=true)
+	private String apellido;
+	
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "id_examen", foreignKey = @ForeignKey(name = "estudiante_examen_examen_fkey"))
@@ -46,16 +52,12 @@ public class Estudiante_Examen implements Serializable {
 	@JoinColumn(name = "id_usuario", foreignKey = @ForeignKey(name = "estudiante_examen_usuario_fkey"))
 	private Usuario estudiante;
 	
-	/*@Column(name="activa", nullable=true)
-	private boolean activa;*/
-	
 	public Estudiante_Examen() {
 	}
 		
 	public Estudiante_Examen(int nota, String estado) {
 		this.nota = nota;
 		this.estado = estado;
-		//this.activa = true;
 	}
 
 	public long getId() {
@@ -82,13 +84,21 @@ public class Estudiante_Examen implements Serializable {
 		this.estado = estado;
 	}
 	
-	/*public boolean isActiva() {
-		return activa;
+	public String getNombre() {
+		return nombre;
 	}
 
-	public void setActiva(boolean activa) {
-		this.activa = activa;
-	}*/
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public String getApellido() {
+		return apellido;
+	}
+
+	public void setApellido(String apellido) {
+		this.apellido = apellido;
+	}
 
 	public Examen getExamen() {
 		return examen;

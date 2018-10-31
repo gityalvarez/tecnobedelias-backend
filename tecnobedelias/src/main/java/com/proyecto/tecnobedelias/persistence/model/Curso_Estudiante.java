@@ -36,8 +36,11 @@ public class Curso_Estudiante implements Serializable {
 		 */
 		private String estado;
 		
-		/*@Column(name="activa", nullable=true)
-		private boolean activa;*/
+		@Column(name="nombre", nullable=true)
+		private String nombre;
+		
+		@Column(name="apellido", nullable=true)
+		private String apellido;
 		
 		@ManyToOne
 		@JsonIgnore
@@ -55,7 +58,6 @@ public class Curso_Estudiante implements Serializable {
 		public Curso_Estudiante(int nota, String estado) {
 			this.nota = nota;
 			this.estado = estado;
-			//this.activa = true;
 		}
 		
 		public long getId() {
@@ -80,15 +82,23 @@ public class Curso_Estudiante implements Serializable {
 
 		public void setEstado(String estado) {
 			this.estado = estado;
+		}	
+
+		public String getNombre() {
+			return nombre;
 		}
 
-		/*public boolean isActiva() {
-			return activa;
+		public void setNombre(String nombre) {
+			this.nombre = nombre;
 		}
 
-		public void setActiva(boolean activa) {
-			this.activa = activa;
-		}*/		
+		public String getApellido() {
+			return apellido;
+		}
+
+		public void setApellido(String apellido) {
+			this.apellido = apellido;
+		}
 
 		public Curso getCurso() {
 			return curso;

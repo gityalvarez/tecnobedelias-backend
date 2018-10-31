@@ -99,6 +99,7 @@ public class ExamenController {
 					}
 					else fechaOk = false;
 					if (fechaOk) {
+						examen.setNombreAsignatura(nombreAsignatura);
 						examenService.altaExamen(examen);
 						Optional<Examen> examenOpt = examenService.obtenerExamen(examen.getAsignatura(), examen.getFecha());
 						Asignatura asignatura = examenOpt.get().getAsignatura();

@@ -107,7 +107,7 @@ public class CarreraController{
     
     @PostMapping("/asignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public void asignarAsignaturaCarrera(HttpServletRequest request, @RequestBody(required = true) Asignatura_Carrera asign_carrera,
+    public boolean asignarAsignaturaCarrera(HttpServletRequest request, @RequestBody(required = true) Asignatura_Carrera asign_carrera,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre){
     	System.out.println("asi entro el parametro carreraNombre "+carreraNombre);
@@ -119,7 +119,7 @@ public class CarreraController{
     	System.out.println("entro al carreraService");  
     	asign_carrera.setAsignatura(asignatura.get());
     	asign_carrera.setCarrera(carrera.get());
-    	carreraService.asignarAsignaturaCarrera(asign_carrera);
+    	return carreraService.asignarAsignaturaCarrera(asign_carrera);
     }  
     
     @PostMapping("/modificarasignaturacarrera")
@@ -151,23 +151,22 @@ public class CarreraController{
     	System.out.println("entro al carreraService");
     	if (carreraService.desasignarAsignaturaCarrera(asignatura.get(), carrera.get())) {
     		return true;
-    	}else return false;
+    	}
+    	else return false;
     }
     
     @GetMapping("/listarasignaturas/{nombre}")
     @PreAuthorize("hasRole('DIRECTOR') or hasRole('ESTUDIANTE')")
 	public List<Asignatura> listarAsignaturas(@PathVariable(value = "nombre") String nombre){
 		System.out.println("entre al listarAsignaturas con la carrera "+nombre);
-		return carreraService.listarAsingaturas(nombre);
-		
+		return carreraService.listarAsingaturas(nombre);		
 	}
     
 	@GetMapping("/listarasignaturasfaltantes/{nombre}")
 	@PreAuthorize("hasRole('ROLE_DIRECTOR')")
 	public List<Asignatura> listarAsignaturasFaltantes(@PathVariable(value = "nombre") String nombre){
 		System.out.println("entre al listaFaltantes con la carrera "+nombre);
-		return carreraService.listarAsignaturasFaltantes(nombre);
-		
+		return carreraService.listarAsignaturasFaltantes(nombre);		
 	}
     
     

@@ -105,6 +105,7 @@ public class CursoController {
 			 			}
 			 		}
 			 		if (horariosOk) {
+			 			curso.setNombreAsignatura(nombreAsignatura);
 			 			cursoService.altaCurso(curso/*, horarios*/);
 			 			Optional<Curso> cursoOpt = cursoService.obtenerCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio());
 			 			Asignatura asignatura = cursoOpt.get().getAsignatura();
