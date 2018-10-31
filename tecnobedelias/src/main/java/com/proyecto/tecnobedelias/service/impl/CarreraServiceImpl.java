@@ -2,6 +2,7 @@ package com.proyecto.tecnobedelias.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Optional;
 import java.util.Random;
 
@@ -230,22 +231,35 @@ public class CarreraServiceImpl implements CarreraService {
 	public List<Nodo> listarNodosGrafo(Carrera carrera) {
 		List<Nodo> listaNodos = new ArrayList<>();
 		List<Asignatura_Carrera> asignaturasCarrera = carrera.getAsignaturaCarrera();
-		Random random = new Random();
-		String[] colores = {"blue", "red", "green", "yellow", "orange"};
+		// Random random = new Random();
+		// String[] colores = {"blue", "red", "green", "darkorange", "purple"};
+		List<String> colores = new ArrayList<>();
+		colores.add("darkred");
+		colores.add("tomato");
+		colores.add("darkgreen");
+		colores.add("darkcyan");
+		colores.add("steelblue");
+		colores.add("indigo");
+		colores.add("purple");
+		colores.add("deeppink");
+		ListIterator<String> listaColores = colores.listIterator();
 		for (Asignatura_Carrera asignaturaCarrera : asignaturasCarrera) {
-			int i = 0;
+			// int i = 0;
 			Asignatura asignatura = asignaturaCarrera.getAsignatura();
 			Nodo nodo = new Nodo();
 			String stringLong = ""+asignatura.getId();
 			nodo.setKey(stringLong);
 			nodo.setName(asignatura.getNombre());
 			
-
 	        // create a big random number - maximum is ffffff (hex) = 16777215 (dez)
-	        int nextInt = random.nextInt(4);
-
+	        // int nextInt = random.nextInt(4);
+			// int nextInt = random.nextInt(colores.size()-1);
 	        // format it as hexadecimal string (with hashtag and leading zeros)
-	        String colorCode = colores[nextInt];
+	        // String colorCode = colores.get(nextInt);
+			
+			if (!listaColores.hasNext()) listaColores = colores.listIterator();	
+			String colorCode = listaColores.next();
+
 			nodo.setColor(colorCode);
 			listaNodos.add(nodo);
 		}
