@@ -110,7 +110,7 @@ public class UsuarioController {
      		 			System.out.println("asigné el rol");
      		 			if (rol.equals("ESTUDIANTE")) {
      		 				System.out.println("voy a mandar el mail");
-     		 				emailService.sendEmailToken(usuarioExistente.getResetToken());
+     		 				emailService.sendEmailToken(usuarioExistente.getResetToken(),usuarioExistente.getEmail());
      		 			}
      		 			return true;
      		 		}
@@ -161,6 +161,7 @@ public class UsuarioController {
     	if (usuarioOpt.isPresent()) {
     		Usuario usuario = usuarioOpt.get();
     		usuario.setPassword(bCryptPasswordEncoder.encode(password));
+    		usuario.setResetToken(null);
     		usuarioRepository.save(usuario);
     	}
     }

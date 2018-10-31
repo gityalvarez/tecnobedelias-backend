@@ -71,7 +71,7 @@ public class EmailServiceImpl implements EmailService {
 		
 		
 		@Async
-		public boolean sendEmailToken(String token) {
+		public boolean sendEmailToken(String token, String email) {
 			System.out.println("entre al sendEmailToken con el token "+token);
 			try {
 				Properties pro = new Properties();
@@ -92,7 +92,7 @@ public class EmailServiceImpl implements EmailService {
 
 				MimeMessage mensaje = new MimeMessage(session);
 				mensaje.setFrom(new InternetAddress("proyecto.tecnobedelias@gmail.com"));
-				mensaje.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress("yamandu.alvarez@gmail.com"));
+				mensaje.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(email));
 				mensaje.setSubject("Token");
 				mensaje.setContent(m);
 
