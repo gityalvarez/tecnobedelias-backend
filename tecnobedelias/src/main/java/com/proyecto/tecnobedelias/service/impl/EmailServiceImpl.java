@@ -85,7 +85,9 @@ public class EmailServiceImpl implements EmailService {
 
 				Session session = Session.getDefaultInstance(pro, null);
 				BodyPart texto = new MimeBodyPart();
-				texto.setText("http://localhost:4200/reset?token="+token);
+				texto.setText("Ingrese por unica vez al siguiente link para cambiar su password \n"
+						+ "http://localhost:4200/reset?token="+token);
+				
 
 				MimeMultipart m = new MimeMultipart();
 				m.addBodyPart(texto);
