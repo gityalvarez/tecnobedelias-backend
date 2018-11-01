@@ -40,17 +40,10 @@ public class UsuarioController {
 	
 	@Autowired
 	EmailService emailService;
-	
-	
-    private UsuarioRepository usuarioRepository;
+
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private RolRepository rolRepository;
-    public UsuarioController(UsuarioRepository usuarioRepository,
-                          BCryptPasswordEncoder bCryptPasswordEncoder,
-                          RolRepository rolRepository) {
-        this.usuarioRepository = usuarioRepository;
+    public UsuarioController(BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.rolRepository = rolRepository;
     }
     
     @GetMapping("/listar")
@@ -68,7 +61,7 @@ public class UsuarioController {
 
 		String username = claims.getSubject();
 		System.out.println(("obtuve al estudiante "+username));
-		return usuarioRepository.findByUsername(username);
+		return usuarioService.findUsuarioByUsername(username);
 		
     }
     
@@ -125,8 +118,8 @@ public class UsuarioController {
     
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-    public Optional<Usuario> getOne(@PathVariable(value = "id") Long id){
-        return usuarioRepository.findById(id);
+    public Optional<Usuario> getOne(@PathVariable(value = "id") long id){
+        return usuarioService.obtenerUsuario(id);
     }
     
     @PostMapping("/rol")
@@ -134,7 +127,7 @@ public class UsuarioController {
     public void asignarRol(HttpServletRequest request,
 			@RequestParam(name = "usuarioId", required = true) Long usuarioId,
 			@RequestParam(name = "rol", required = true) String rol) {
-    	Optional<Usuario> usuarioOpt =usuarioRepository.findById(usuarioId);
+    	Optional<Usuario> usuarioOpt = usuarioService.obtenerUsuario(usuarioId);
     	System.out.println("el rol es "+rol);
     	Usuario usuario = usuarioOpt.get();
     	System.out.println("el usuario es "+usuario.getUsername());
@@ -162,7 +155,7 @@ public class UsuarioController {
     		Usuario usuario = usuarioOpt.get();
     		usuario.setPassword(bCryptPasswordEncoder.encode(password));
     		usuario.setResetToken(null);
-    		usuarioRepository.save(usuario);
+    		usuarioService.modificacionUsuario(usuario);
     	}
     }
     

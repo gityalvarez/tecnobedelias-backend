@@ -5,6 +5,7 @@ import java.util.List;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Curso_Estudiante;
+import com.proyecto.tecnobedelias.persistence.model.Estudiante_Examen;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 
@@ -25,6 +26,10 @@ public interface InscripcionService {
 	public List<Curso> consultaCursos(Usuario usuario);
 	
 	public List<Examen> consultaExamenes(Usuario usuario);
+	
+	public Usuario obtenerEstudianteCursoEstudiante(long id_curso_est);
+	
+	public Usuario obtenerEstudianteEstudianteExamen(long id_est_examen);
 	
 	public boolean ingresarCalificacionExamen(Usuario usuario, Examen examen, int nota);
 	

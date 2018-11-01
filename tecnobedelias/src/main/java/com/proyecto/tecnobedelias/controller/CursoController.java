@@ -34,9 +34,6 @@ public class CursoController {
 	CursoRepository cursoRepository;
 
 	@Autowired
-	AsignaturaRepository asignaturaRepository;
-	
-	@Autowired
 	CursoService cursoService;
 	
 	@Autowired
@@ -110,7 +107,7 @@ public class CursoController {
 			 			Optional<Curso> cursoOpt = cursoService.obtenerCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio());
 			 			Asignatura asignatura = cursoOpt.get().getAsignatura();
 			 			asignatura.getCursos().add(cursoOpt.get());
-			 			asignaturaRepository.save(asignatura);
+			 			asignaturaService.modificacionAsignatura(asignatura);
 			 			return true;
 			 		}
 			 		else return false;

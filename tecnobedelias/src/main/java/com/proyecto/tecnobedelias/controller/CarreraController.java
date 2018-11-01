@@ -25,6 +25,7 @@ import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Asignatura_CarreraRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
+import com.proyecto.tecnobedelias.service.AsignaturaService;
 import com.proyecto.tecnobedelias.service.CarreraService;
 
 @RestController
@@ -35,13 +36,12 @@ public class CarreraController{
 	@Autowired
 	CarreraService carreraService;
 	
-	private CarreraRepository carreraRepository;	
-	private AsignaturaRepository asignaturaRepository;	
+	@Autowired
+	AsignaturaService asignaturaService;
+	
 	private Asignatura_CarreraRepository asignaturaCarreraRepository;
-	public CarreraController(CarreraRepository carreraRepository, AsignaturaRepository asignaturaRepository,Asignatura_CarreraRepository asignaturaCarreraRepository ) {
+	public CarreraController(Asignatura_CarreraRepository asignaturaCarreraRepository ) {
 		super();
-		this.carreraRepository = carreraRepository;
-		this.asignaturaRepository = asignaturaRepository;
 		this.asignaturaCarreraRepository = asignaturaCarreraRepository;
 	}
 	
@@ -112,9 +112,9 @@ public class CarreraController{
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre){
     	System.out.println("asi entro el parametro carreraNombre "+carreraNombre);
     	System.out.println("asi entro el parametro asignaturaNombre "+asignaturaNombre);
-    	Optional<Carrera> carrera =  carreraRepository.findByNombre(carreraNombre);
+    	Optional<Carrera> carrera =  carreraService.obtenerCarreraNombre(carreraNombre);
     	System.out.println("obtuve la carrera "+carrera.get().getNombre());
-    	Optional<Asignatura> asignatura = asignaturaRepository.findByNombre(asignaturaNombre);
+    	Optional<Asignatura> asignatura = asignaturaService.obtenerAsignaturaNombre(asignaturaNombre);
     	System.out.println("obtuve la asignatura "+asignatura.get().getNombre());
     	System.out.println("entro al carreraService");  
     	asign_carrera.setAsignatura(asignatura.get());
@@ -127,9 +127,9 @@ public class CarreraController{
     public boolean modificarAsignaturaCarrera(HttpServletRequest request, @RequestBody(required = true) Asignatura_Carrera asign_carrera,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre){
-    	Optional<Carrera> carrera =  carreraRepository.findByNombre(carreraNombre);
+    	Optional<Carrera> carrera =  carreraService.obtenerCarreraNombre(carreraNombre);
     	System.out.println("obtuve la carrera "+carrera.get().getNombre());
-    	Optional<Asignatura> asignatura = asignaturaRepository.findByNombre(asignaturaNombre);
+    	Optional<Asignatura> asignatura = asignaturaService.obtenerAsignaturaNombre(asignaturaNombre);
     	System.out.println("obtuve la asignatura "+asignatura.get().getNombre());
     	System.out.println("entro al carreraService");  
     	asign_carrera.setAsignatura(asignatura.get());
@@ -144,9 +144,9 @@ public class CarreraController{
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre){
     	System.out.println("asi entro el parametro carreraNombre "+carreraNombre);
     	System.out.println("asi entro el parametro asignaturaNombre "+asignaturaNombre);
-    	Optional<Carrera> carrera =  carreraRepository.findByNombre(carreraNombre);
+    	Optional<Carrera> carrera =  carreraService.obtenerCarreraNombre(carreraNombre);
     	System.out.println("obtuve la carrera "+carrera.get().getNombre());
-    	Optional<Asignatura> asignatura = asignaturaRepository.findByNombre(asignaturaNombre);
+    	Optional<Asignatura> asignatura = asignaturaService.obtenerAsignaturaNombre(asignaturaNombre);
     	System.out.println("obtuve la asignatura "+asignatura.get().getNombre());
     	System.out.println("entro al carreraService");
     	if (carreraService.desasignarAsignaturaCarrera(asignatura.get(), carrera.get())) {
@@ -176,9 +176,9 @@ public class CarreraController{
     		@RequestParam(name = "carrera", required = true) String carrera,
 			@RequestParam(name = "asignatura", required = true) String asignatura,
 			@RequestParam(name = "asignaturaPrevia", required = true) String asignaturaPrevia) {
-    	Optional<Carrera> carreraOpt = carreraRepository.findByNombre(carrera);
-    	Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByNombre(asignatura);
-    	Optional<Asignatura> asignaturaPreviaOpt = asignaturaRepository.findByNombre(asignaturaPrevia);
+    	Optional<Carrera> carreraOpt = carreraService.obtenerCarreraNombre(carrera);
+    	Optional<Asignatura> asignaturaOpt = asignaturaService.obtenerAsignaturaNombre(asignatura);
+    	Optional<Asignatura> asignaturaPreviaOpt = asignaturaService.obtenerAsignaturaNombre(asignaturaPrevia);
     	if (carreraOpt.isPresent() && asignaturaOpt.isPresent()) {
         	Optional<Asignatura_Carrera> asignaturaCarreraOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaOpt.get(), carreraOpt.get());
         	Optional<Asignatura_Carrera> asignaturaCarreraPreviaOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaPreviaOpt.get(), carreraOpt.get());
@@ -197,11 +197,10 @@ public class CarreraController{
     public boolean eliminarPrevia(HttpServletRequest request,
     		@RequestParam(name = "carrera", required = true) String carrera,
 			@RequestParam(name = "asignatura", required = true) String asignatura,
-			@RequestParam(name = "asignaturaPrevia", required = true) String asignaturaPrevia) {
-    	
-    	Optional<Carrera> carreraOpt = carreraRepository.findByNombre(carrera);
-    	Optional<Asignatura> asignaturaOpt = asignaturaRepository.findByNombre(asignatura);
-    	Optional<Asignatura> asignaturaPreviaOpt = asignaturaRepository.findByNombre(asignaturaPrevia);
+			@RequestParam(name = "asignaturaPrevia", required = true) String asignaturaPrevia) {    	
+    	Optional<Carrera> carreraOpt = carreraService.obtenerCarreraNombre(carrera);
+    	Optional<Asignatura> asignaturaOpt = asignaturaService.obtenerAsignaturaNombre(asignatura);
+    	Optional<Asignatura> asignaturaPreviaOpt = asignaturaService.obtenerAsignaturaNombre(asignaturaPrevia);
     	if (carreraOpt.isPresent() && asignaturaOpt.isPresent()) {
         	Optional<Asignatura_Carrera> asignaturaCarreraOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaOpt.get(), carreraOpt.get());
         	Optional<Asignatura_Carrera> asignaturaCarreraPreviaOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaPreviaOpt.get(), carreraOpt.get());
@@ -220,8 +219,8 @@ public class CarreraController{
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre,
 			@RequestParam(name = "carrera", required = true) String carreraNombre) {
 		System.out.println("entre al listarPrevia con "+asignaturaNombre+" y "+carreraNombre);
-		Optional<Asignatura>asignatura = asignaturaRepository.findByNombre(asignaturaNombre);
-		Optional<Carrera>carrera = carreraRepository.findByNombre(carreraNombre);
+		Optional<Asignatura> asignatura = asignaturaService.obtenerAsignaturaNombre(asignaturaNombre);
+		Optional<Carrera> carrera = carreraService.obtenerCarreraNombre(carreraNombre);
 		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura.get(), carrera.get());
 		System.out.println("obtuve la asignaturaCarrera "+asignaturaCarrera.get().getId());
 		return carreraService.listarPrevias(asignaturaCarrera.get());
@@ -233,8 +232,8 @@ public class CarreraController{
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre,
 			@RequestParam(name = "carrera", required = true) String carreraNombre) {
 		System.out.println("entre al listarPreviaPosibles con "+asignaturaNombre+" y "+carreraNombre);
-		Optional<Asignatura>asignatura = asignaturaRepository.findByNombre(asignaturaNombre);
-		Optional<Carrera>carrera = carreraRepository.findByNombre(carreraNombre);
+		Optional<Asignatura>asignatura = asignaturaService.obtenerAsignaturaNombre(asignaturaNombre);
+		Optional<Carrera>carrera = carreraService.obtenerCarreraNombre(carreraNombre);
 		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura.get(), carrera.get());
 		System.out.println("obtuve la asignaturaCarrera "+asignaturaCarrera.get().getId());
 		return carreraService.listarPreviasPosibles(asignaturaCarrera.get());
@@ -244,7 +243,7 @@ public class CarreraController{
 	@PreAuthorize("hasRole('DIRECTOR') or hasRole('ESTUDIANTE')")
 	public List<Nodo> listarNodosGrafo(HttpServletRequest request,
 			@RequestParam(name = "carrera", required = true) String carreraNombre){
-		Optional<Carrera>carreraOpt = carreraRepository.findByNombre(carreraNombre);
+		Optional<Carrera> carreraOpt = carreraService.obtenerCarreraNombre(carreraNombre);
 		if (carreraOpt.isPresent()) {
 			return carreraService.listarNodosGrafo(carreraOpt.get());
 		}
@@ -255,7 +254,7 @@ public class CarreraController{
 	@PreAuthorize("hasRole('DIRECTOR') or hasRole('ESTUDIANTE')")
 	public List<Link> listarLinkGrafo(HttpServletRequest request,
 			@RequestParam(name = "carrera", required = true) String carreraNombre){
-		Optional<Carrera>carreraOpt = carreraRepository.findByNombre(carreraNombre);
+		Optional<Carrera> carreraOpt = carreraService.obtenerCarreraNombre(carreraNombre);
 		if (carreraOpt.isPresent()) {
 			return carreraService.listarLinkGrafo(carreraOpt.get());
 		}

@@ -240,15 +240,17 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar las notas del examen luego de que fue rendido
 	 	boolean calificacionCargada = true;
-	 	if (fechaActual.after(fechaExamen)) {	 		
+	 	//if (fechaActual.after(fechaExamen)) {	 		
 	 		Estudiante_Examen estudianteExamen;
 	 		Iterator<Estudiante_Examen> itEstudianteExamen = estudiantesExamen.iterator();
-	 		while (itEstudianteExamen.hasNext() && calificacionCargada) {
+	 		Usuario estudiante;
+	 		while (itEstudianteExamen.hasNext() && calificacionCargada) {	
 	 			estudianteExamen = itEstudianteExamen.next();
-	 			calificacionCargada = inscripcionService.ingresarCalificacionExamen(estudianteExamen.getEstudiante(), examen.get(), estudianteExamen.getNota());
+	 			estudiante = inscripcionService.obtenerEstudianteEstudianteExamen(estudianteExamen.getId());
+	 			calificacionCargada = inscripcionService.ingresarCalificacionExamen(estudiante, examen.get(), estudianteExamen.getNota());
 	 		}
-	 	}
-	 	else calificacionCargada = false;
+	 	/*}
+	 	else calificacionCargada = false;*/
 	 	return calificacionCargada;
 	}
 	
@@ -290,15 +292,18 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se pueden ingresar las notas del cusro luego de que finalizo
 	 	boolean calificacionCargada = true;
-	 	if (fechaActual.after(fechaFinCurso)) {	 		
+	 	System.out.println("Entro a cargarCalificacionesCurso");
+	 	//if (fechaActual.after(fechaFinCurso)) {	 		
 	 		Curso_Estudiante estudianteCurso;
 	 		Iterator<Curso_Estudiante> itEstudianteCurso = estudiantesCurso.iterator();
+	 		Usuario estudiante;
 	 		while (itEstudianteCurso.hasNext() && calificacionCargada) {
 	 			estudianteCurso = itEstudianteCurso.next();
-	 			calificacionCargada = inscripcionService.ingresarCalificacionCurso(estudianteCurso.getEstudiante(), curso.get(), estudianteCurso.getNota());
+	 			estudiante = inscripcionService.obtenerEstudianteCursoEstudiante(estudianteCurso.getId());
+	 			calificacionCargada = inscripcionService.ingresarCalificacionCurso(estudiante, curso.get(), estudianteCurso.getNota());
 	 		}
-	 	}
-	 	else calificacionCargada = false;
+	 	/*}
+	 	else calificacionCargada = false;*/
 	 	return calificacionCargada;
 	}
 	

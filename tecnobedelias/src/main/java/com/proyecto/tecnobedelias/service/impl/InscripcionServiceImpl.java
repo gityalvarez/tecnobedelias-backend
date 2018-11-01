@@ -246,18 +246,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 																				System.out.println("no tiene aprobado el examen de la asignatura previa");
 																				// no cumple la previatura
 																				cumplePreviaturas = false;
-																			}	
-																	/*for (Estudiante_Examen estudiante_examen: usuario.getEstudianteExamen()) {
-																		// si la asignatura del examen coincide con la asignatura previa del curso
-																		if (estudiante_examen.getExamen().getAsignatura().equals(ultimo_curso_previa.getAsignatura())) {
-																			// si el examen no esta aprobado
-																			if (!estudiante_examen.getEstado().equals("APROBADO")) {
-																				System.out.println("no tiene aprobado el examen de la asignatura previa");
-																				// no cumple la previatura
-																				cumplePreviaturas = false;
-																			}																		
-																		}
-																	}*/
+																			}																	
 																		}
 																		else cumplePreviaturas = false;
 																	}
@@ -356,8 +345,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 						// si la asignatura del curso coincide con la del examen
 						Curso_Estudiante curso_est = itCursoEst.next();
 						if (curso_est.getCurso().getAsignatura().equals(examen.getAsignatura())) {
-							System.out.println("El estudiante esta matriculado en un curso de la asignatura del examen");
-							System.out.println("estado curso "+curso_est.getEstado());
+							System.out.println("estado estudiante en curso "+curso_est.getEstado());
 							// si el estudiante tiene ganado el curso para el que se encuentra matriculado en la asignatura del examen
 							if (curso_est.getEstado().equals("EXAMEN")) {
 								System.out.println("El estudiante tiene ganado el curso");
@@ -376,18 +364,6 @@ public class InscripcionServiceImpl implements InscripcionService {
 							}
 						}
 					}
-				/*for (Curso_Estudiante cursoEstudiante: usuario.getCursoEstudiante()) {
-					if (cursoEstudiante.getCurso().getAsignatura().equals(examen.getAsignatura())) {
-						if (cursoEstudiante.getEstado().equals("EXAMEN")) {
-							Estudiante_Examen examenEstudiante = new Estudiante_Examen();
-							examenEstudiante.setEstudiante(usuario);
-							examenEstudiante.setExamen(examen);
-							examenEstudiante.setEstado("ANOTADO");
-							estudianteExamenRepository.save(examenEstudiante);
-							anotado = true;						
-						}
-					}
-				}*/
 				}
 			}
 		}		
@@ -445,7 +421,6 @@ public class InscripcionServiceImpl implements InscripcionService {
 		List<Curso> listaCursos = new ArrayList<>();
 		for(Curso_Estudiante cursoEstudiante : usuario.getCursoEstudiante()) {
 			listaCursos.add(cursoEstudiante.getCurso());
-			//System.out.println(agregue el curso );
 		}
 		return listaCursos;
 	}	
@@ -455,9 +430,18 @@ public class InscripcionServiceImpl implements InscripcionService {
 		List<Examen> listaExamenes = new ArrayList<>();
 		for(Estudiante_Examen examenEstudiante : usuario.getEstudianteExamen()) {
 			listaExamenes.add(examenEstudiante.getExamen());
-			//System.out.println(agregue el curso );
 		}
 		return listaExamenes;
+	}
+	
+	@Override
+	public Usuario obtenerEstudianteCursoEstudiante(long id_curso_est) {
+		return cursoEstudianteRepository.findById(id_curso_est).get().getEstudiante();
+	}
+	
+	@Override
+	public Usuario obtenerEstudianteEstudianteExamen(long id_est_examen) {
+		return estudianteExamenRepository.findById(id_est_examen).get().getEstudiante();
 	}
 
 	@Override
@@ -477,9 +461,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 			if (asignaturaEncontrada) {
 				Optional<Asignatura_Carrera> asignaturaCarreraEstudiante = asignaturaCarreraRepository.findByAsignaturaAndCarrera(examen.getAsignatura(), carrera);
 				if (estudianteExamenExistente.isPresent()) {
-					System.out.println("existe el estudiante en el examen");
 					if (estudianteExamenExistente.get().getEstado().equals("ANOTADO")) {
-						System.out.println("estado anotado");
 						if (nota >= 0 && nota <= asignaturaCarreraEstudiante.get().getNotaMaxima()) {
 							estudianteExamenExistente.get().setNota(nota);						
 							if (nota >= asignaturaCarreraEstudiante.get().getNotaSalvaExamen()) {
@@ -487,7 +469,6 @@ public class InscripcionServiceImpl implements InscripcionService {
 							}
 							else estudianteExamenExistente.get().setEstado("REPROBADO");
 							estudianteExamenRepository.save(estudianteExamenExistente.get());
-							System.out.println("voy a mandar el mail");
 							emailService.sendEmailCalifiacion("examen", usuario.getEmail(), examen.getAsignatura().getNombre());
 							return true;
 						}
@@ -523,9 +504,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 					System.out.println("asignatura: " + curso.getAsignatura().getNombre());
 					System.out.println("carrera: " + carrera.getNombre());
 					Optional<Asignatura_Carrera> asignaturaCarreraEstudiante = asignaturaCarreraRepository.findByAsignaturaAndCarrera(curso.getAsignatura(), carrera);
-					System.out.println("carrera: " + carrera.getNombre());
 					if (cursoEstudianteExistente.get().getEstado().equals("MATRICULADO")) {
-						System.out.println("estado matriculado");
 						if (nota >= 0 && nota <= asignaturaCarreraEstudiante.get().getNotaMaxima()) {
 							cursoEstudianteExistente.get().setNota(nota);
 							if (nota >= asignaturaCarreraEstudiante.get().getNotaMinimaExamen()) {
@@ -536,8 +515,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 							}
 							else cursoEstudianteExistente.get().setEstado("RECURSA");
 							cursoEstudianteRepository.save(cursoEstudianteExistente.get());
-							System.out.println("voy a mandar el mail");
-     		 				emailService.sendEmailCalifiacion("curso", usuario.getEmail(), curso.getAsignatura().getNombre());
+							emailService.sendEmailCalifiacion("curso", usuario.getEmail(), curso.getAsignatura().getNombre());
 							return true;							
 						}
 						else return false;						

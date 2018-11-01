@@ -35,16 +35,10 @@ public class ExamenController {
 	@Autowired
 	AsignaturaService asignaturaService;
 	
-	@Autowired
-	AsignaturaRepository asignaturaRepository;
-	
-	@Autowired
-	ExamenRepository examenRepository;
-	
 	@GetMapping("/listar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public List<Examen> listarExamenes() {
-		return examenRepository.findAll();
+		return examenService.listarExamenes();
 	}
 	
 	@PostMapping("/crear")
@@ -104,7 +98,7 @@ public class ExamenController {
 						Optional<Examen> examenOpt = examenService.obtenerExamen(examen.getAsignatura(), examen.getFecha());
 						Asignatura asignatura = examenOpt.get().getAsignatura();
 						asignatura.getExamenes().add(examenOpt.get());
-						asignaturaRepository.save(asignatura);
+						asignaturaService.modificacionAsignatura(asignatura);
 						return true;
 					}
 					else return false;

@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.ActaService;
 
 @RestController
@@ -16,9 +15,6 @@ import com.proyecto.tecnobedelias.service.ActaService;
 
 
 public class ActaController {
-	
-	@Autowired
-	UsuarioRepository usuarioRepository;
 	
 	@Autowired
 	ActaService actaService;
