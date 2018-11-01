@@ -78,33 +78,48 @@ public class CarreraServiceImpl implements CarreraService {
 			return false;
 		} 
 		if (asigncarrera.getCreditos() >= 0) {
-			asigncarrera.getCarrera().getAsignaturaCarrera().add(asigncarrera);
-			asigncarrera.getAsignatura().getAsignaturaCarrera().add(asigncarrera);
-			asignaturaCarreraRepository.save(asigncarrera);
-			return true;
+			if (asigncarrera.getNotaMinimaExamen() >= 0 && asigncarrera.getNotaMinimaExamen() < asigncarrera.getNotaMinimaExonera() && asigncarrera.getNotaMinimaExonera() <= asigncarrera.getNotaMaxima()) {
+				if (asigncarrera.getNotaSalvaExamen() >= 0 && asigncarrera.getNotaSalvaExamen() <= asigncarrera.getNotaMaxima()) {
+					asigncarrera.getCarrera().getAsignaturaCarrera().add(asigncarrera);
+					asigncarrera.getAsignatura().getAsignaturaCarrera().add(asigncarrera);
+					asignaturaCarreraRepository.save(asigncarrera);
+					return true;
+				}
+				else return false;
+			}
+			else return false;
 		}
 		else return false;
 	}
 	
 	@Override
-	public boolean modificarAsignaturaCarrera(Asignatura_Carrera asign_carrera) {
-		Optional<Asignatura_Carrera> asignaturaCarreraExistente = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asign_carrera.getAsignatura(), asign_carrera.getCarrera());
+	public boolean modificarAsignaturaCarrera(Asignatura_Carrera asigncarrera) {
+		Optional<Asignatura_Carrera> asignaturaCarreraExistente = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asigncarrera.getAsignatura(), asigncarrera.getCarrera());
 		if (!asignaturaCarreraExistente.isPresent()) {
 			return false;
 		} 
-		if (asign_carrera.getCreditos() >= 0) {
-			asign_carrera.setId(asignaturaCarreraExistente.get().getId());
-			asignaturaCarreraRepository.save(asign_carrera);
-			return true;
+		if (asigncarrera.getCreditos() >= 0) {
+			if (asigncarrera.getNotaMinimaExamen() >= 0 && asigncarrera.getNotaMinimaExamen() < asigncarrera.getNotaMinimaExonera() && asigncarrera.getNotaMinimaExonera() <= asigncarrera.getNotaMaxima()) {
+				if (asigncarrera.getNotaSalvaExamen() >= 0 && asigncarrera.getNotaSalvaExamen() <= asigncarrera.getNotaMaxima()) {
+					asignaturaCarreraExistente.get().setCreditos(asigncarrera.getCreditos());
+					asignaturaCarreraExistente.get().setNotaMinimaExamen(asigncarrera.getNotaMinimaExamen());
+					asignaturaCarreraExistente.get().setNotaMinimaExonera(asigncarrera.getNotaMinimaExonera());
+					asignaturaCarreraExistente.get().setNotaSalvaExamen(asigncarrera.getNotaSalvaExamen());
+					asignaturaCarreraExistente.get().setNotaMaxima(asigncarrera.getNotaMaxima());
+					asignaturaCarreraRepository.save(asignaturaCarreraExistente.get());
+					return true;
+				}
+				else return false;
+			}
+			else return false;
 		}
-		else return true;
+		else return false;
 	}
 	
 
 	@Override
 	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera) {
-		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository
-				.findByAsignaturaAndCarrera(asignatura, carrera);
+		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura, carrera);
 		if (asignaturaCarrera.isPresent() && asignaturaCarrera.get().getPreviaDe().isEmpty()) {
 			asignatura.getAsignaturaCarrera().remove(asignaturaCarrera.get());
 			carrera.getAsignaturaCarrera().remove(asignaturaCarrera.get());
@@ -186,7 +201,6 @@ public class CarreraServiceImpl implements CarreraService {
 		System.out.println("entre al listarAsignaturasFaltantes en el service");
 		Optional<Carrera> carreraOpt = carreraRepository.findByNombre(carrera);
 		List<Asignatura> listaAsignaturas = new ArrayList<>();
-
 		if (carreraOpt.isPresent()) {
 			listaAsignaturas = asignaturaRepository.findAll();			
 			for(Asignatura_Carrera asignaturaCarrera : carreraOpt.get().getAsignaturaCarrera()) {

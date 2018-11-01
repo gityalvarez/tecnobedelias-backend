@@ -99,6 +99,7 @@ public class CarreraController{
     	Optional<Carrera> carreraOpt = carreraService.obtenerCarrera(carreraId);
     	if (carreraOpt.isPresent()) {
     		carreraOpt.get().setDescripcion(carrera.getDescripcion());
+    		carreraOpt.get().setCreditosMinimos(carrera.getCreditosMinimos());
     		carreraService.modificacionCarrera(carreraOpt.get());
     		return true;
     	}
