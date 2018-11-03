@@ -8,10 +8,17 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +38,7 @@ import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CursoRepository;
 import com.proyecto.tecnobedelias.persistence.repository.ExamenRepository;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
+import com.proyecto.tecnobedelias.service.AndroidPushNotificationsService;
 import com.proyecto.tecnobedelias.service.CursoService;
 import com.proyecto.tecnobedelias.service.ExamenService;
 import com.proyecto.tecnobedelias.service.InscripcionService;
@@ -67,6 +75,9 @@ public class InscripcionController {
 	
 	@Autowired
 	TokenUtil token;
+	
+	@Autowired
+	AndroidPushNotificationsService androidPushNotificationsService;
 	
 	
 	@GetMapping("/carrera")
@@ -220,7 +231,17 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar la nota del examen luego de que fue rendido
 	 	//if (fechaActual.after(fechaExamen)) {
-	 		return inscripcionService.ingresarCalificacionExamen(usuario.get(), examen.get(), nota);
+	 		if (inscripcionService.ingresarCalificacionExamen(usuario.get(), examen.get(), nota)) {
+	 			try {
+	 				this.send(usuario.get().getApp_token());
+	 			}catch(Exception e) {
+	 				System.out.println(e);
+	 			}
+	 			
+	 			
+	 			return true;
+	 		}else return false;
+	 		
 	 	/*}
 	 		else return false;*/
 	}
@@ -307,5 +328,40 @@ public class InscripcionController {
 	 	return calificacionCargada;
 	}
 	
+	@GetMapping(value = "/send", produces = "application/json")
+	public ResponseEntity<String> send(String appToken) throws JSONException {
+		 
+		JSONObject body = new JSONObject();
+		body.put("to", "faIJVxb-iFk:APA91bGRZYEObsPYNdg2LWpdVJeGMIWRaeqONyYCbmMzVlefnHWx6YFOO_uCm2DiAA11lnx97nH4QIvMUlieZx2e0WxwyKgJz-QlwxsJxjyUWXfzYvRRNz5MWVZF5vzLeyhlBnc_kkwK");
+		body.put("priority", "high");
+ 
+		JSONObject notification = new JSONObject();
+		notification.put("title", "TecnoBedelias");
+		notification.put("body", "Usted tiene una nueva Calificacion!");
+		
+		JSONObject data = new JSONObject();
+		data.put("Key-1", "JSA Data 1");
+		data.put("Key-2", "JSA Data 2");
+ 
+		body.put("notification", notification);
+		body.put("data", data);
+ 
+		HttpEntity<String> request = new HttpEntity<>(body.toString());
+ 
+		CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
+		CompletableFuture.allOf(pushNotification).join();
+ 
+		try {
+			String firebaseResponse = pushNotification.get();
+			
+			return new ResponseEntity<>(firebaseResponse, HttpStatus.OK);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+ 
+		return new ResponseEntity<>("Push Notification ERROR!", HttpStatus.BAD_REQUEST);
+	}
 	
 }
