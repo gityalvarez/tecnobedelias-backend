@@ -46,7 +46,7 @@ public class CarreraController{
 	}
 	
 	@GetMapping("/listar")
-	@PreAuthorize("hasRole('DIRECTOR') or hasRole('ESTUDIANTE')")
+	@PreAuthorize("hasRole('DIRECTOR') or hasRole('ESTUDIANTE') or hasRole('FUNCIONARIO')")
 	public List<Carrera> listarCarreras() {
 		return carreraService.listarCarreras();
 	}
