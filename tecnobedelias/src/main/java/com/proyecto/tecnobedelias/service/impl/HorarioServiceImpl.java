@@ -15,6 +15,7 @@ public class HorarioServiceImpl implements HorarioService {
 	@Autowired
 	HorarioRepository horarioRepository;
 	
+	@Override
 	public boolean altaHorario(Horario horario) {
 		if (existeHorario(horario.getDia(), horario.getHoraInicio(), horario.getHoraFin())) {
 			System.out.println("horario encontrado");
@@ -27,6 +28,7 @@ public class HorarioServiceImpl implements HorarioService {
 		}		
 	}
 	
+	@Override
 	public boolean existeHorario(String dia, String horaInicio, String horaFin) {
 		List<Horario> horarios = horarioRepository.findAll();
 		for (Horario h : horarios) {
@@ -34,6 +36,11 @@ public class HorarioServiceImpl implements HorarioService {
 				return true;
 		}			
 		return false;
+	}
+	
+	@Override
+	public void bajaHorario(Horario horario) {
+		horarioRepository.delete(horario);
 	}
 	
 }

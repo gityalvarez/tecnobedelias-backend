@@ -2,6 +2,7 @@ package com.proyecto.tecnobedelias.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CursoRepository;
 import com.proyecto.tecnobedelias.service.AsignaturaService;
 import com.proyecto.tecnobedelias.service.CursoService;
+import com.proyecto.tecnobedelias.service.HorarioService;
 
 @RestController
 @RequestMapping("/curso")
@@ -35,6 +37,9 @@ public class CursoController {
 
 	@Autowired
 	CursoService cursoService;
+	
+	@Autowired
+	HorarioService horarioService;
 	
 	@Autowired
 	AsignaturaService asignaturaService;
@@ -64,13 +69,20 @@ public class CursoController {
 				SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd");
 				String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(fechaActualDate);
 				Date fechaActual = formateadorfecha.parse(fechaActualString);
-			 	String fechaInicioString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaInicio());
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(curso.getFechaInicio());
+				calendar.add(Calendar.DAY_OF_YEAR, 1);
+			 	//String fechaInicioString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaInicio());
+				String fechaInicioString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
 			 	Date fechaInicio = formateadorfecha.parse(fechaInicioString);
-			 	System.out.println("fecha actual: " + fechaActual);	
-			 	System.out.println("fecha inicio: " + fechaInicio);	
-			 	String fechaFinString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
+			 	//System.out.println("fecha actual: " + fechaActual);	
+			 	//System.out.println("fecha inicio: " + fechaInicio);
+			 	calendar.setTime(curso.getFechaFin());
+				calendar.add(Calendar.DAY_OF_YEAR, 1);
+			 	//String fechaFinString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
+				String fechaFinString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
 			 	Date fechaFin = formateadorfecha.parse(fechaFinString);	
-			 	System.out.println("fecha fin: " + fechaFin);	
+			 	//System.out.println("fecha fin: " + fechaFin);	
 			 	if (fechaInicio.before(fechaActual)) {
 			 		fechasOk = false;
 			 		System.out.println("fecha inicio < fecha actual");				
@@ -91,10 +103,10 @@ public class CursoController {
 			 		while (itHorarios.hasNext() && horariosOk) {
 			 			horario = itHorarios.next();
 			 			horaInicioDate = formateadorhora.parse(horario.getHoraInicio());
-			 			System.out.println("horaInicioDate: "+ horaInicioDate);	
+			 			//System.out.println("horaInicioDate: "+ horaInicioDate);	
 			 			horaInicio = horaInicioDate.getTime();
 			 			horaFinDate = formateadorhora.parse(horario.getHoraFin());
-			 			System.out.println("horaFinDate: "+ horaFinDate);	
+			 			//System.out.println("horaFinDate: "+ horaFinDate);	
 			 			horaFin = horaFinDate.getTime();
 			 			if (horaFin <= horaInicio) {
 			 				horariosOk = false;
@@ -103,6 +115,8 @@ public class CursoController {
 			 		}
 			 		if (horariosOk) {
 			 			curso.setNombreAsignatura(nombreAsignatura);
+			 			curso.setFechaInicio(fechaInicio);
+			 			curso.setFechaFin(fechaFin);
 			 			cursoService.altaCurso(curso/*, horarios*/);
 			 			Optional<Curso> cursoOpt = cursoService.obtenerCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio());
 			 			Asignatura asignatura = cursoOpt.get().getAsignatura();
@@ -120,7 +134,7 @@ public class CursoController {
 	}
 	
 	
-	@GetMapping("/modificar")
+	@PostMapping("/modificar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public boolean modificarCurso(HttpServletRequest request,  
 			@RequestBody(required = true) Curso curso, 
@@ -131,12 +145,21 @@ public class CursoController {
 			SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 			String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 			Date fechaActual = formateadorfecha.parse(fechaActualString);
-		 	String fechaInicioString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaInicio());
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(curso.getFechaInicio());
+			calendar.add(Calendar.DAY_OF_YEAR, 1);
+		 	//String fechaInicioString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaInicio());
+			String fechaInicioString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
 		 	Date fechaInicio = formateadorfecha.parse(fechaInicioString);
-		 	System.out.println("fecha actual: " + fechaActual);	
-		 	System.out.println("fecha inicio: " + fechaInicio);	
-		 	String fechaFinString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
+		 	curso.setFechaInicio(fechaInicio);
+		 	//System.out.println("fecha actual: " + fechaActual);	
+		 	//System.out.println("fecha inicio: " + fechaInicio);	
+		 	calendar.setTime(curso.getFechaFin());
+			calendar.add(Calendar.DAY_OF_YEAR, 1);
+		 	//String fechaFinString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
+			String fechaFinString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
 		 	Date fechaFin = formateadorfecha.parse(fechaFinString);	
+		 	curso.setFechaFin(fechaFin);
 		 	System.out.println("fecha fin: " + fechaFin);	
 		 	if (fechaInicio.before(fechaActual)) {
 		 		fechasOk = false;
@@ -145,6 +168,11 @@ public class CursoController {
 		 	if (fechaFin.before(fechaInicio)) {
 		 		fechasOk = false;
 		 		System.out.println("fecha fin < fecha inicio");				
+		 	}
+		 	Curso cursoExistente = cursoService.obtenerCurso(cursoId).get();
+		 	if (cursoExistente.getFechaFin().before(fechaActual)) {
+		 		fechasOk = false;
+		 		System.out.println("fecha fin curso existente < fecha actual");				
 		 	}
 		 	if (fechasOk) {
 		 		boolean horariosOk = true;
@@ -158,25 +186,28 @@ public class CursoController {
 		 		while (itHorarios.hasNext() && horariosOk) {
 		 			horario = itHorarios.next();
 		 			horaInicioDate = formateadorhora.parse(horario.getHoraInicio());
-		 			System.out.println("horaInicioDate: "+ horaInicioDate);	
+		 			//System.out.println("horaInicioDate: "+ horaInicioDate);	
 		 			horaInicio = horaInicioDate.getTime();
 		 			horaFinDate = formateadorhora.parse(horario.getHoraFin());
-		 			System.out.println("horaFinDate: "+ horaFinDate);	
+		 			//System.out.println("horaFinDate: "+ horaFinDate);	
 		 			horaFin = horaFinDate.getTime();
 		 			if (horaFin <= horaInicio) {
 		 				horariosOk = false;
 		 				System.out.println("hora fin <= hora inicio");	
 		 			}
 		 		}
-		 		if (horariosOk) {
-		 			Curso cursoExistente = cursoService.obtenerCurso(cursoId).get();
+		 		if (horariosOk) {		 			
 		 			if (cursoExistente.getSemestre() != curso.getSemestre()) {
 		 				if (!cursoService.existeCurso(cursoExistente.getAsignatura(), curso.getSemestre(), cursoExistente.getAnio())) {
 		 					cursoExistente.setFechaInicio(curso.getFechaInicio());
 		 					cursoExistente.setFechaFin(curso.getFechaFin());
+		 					List<Horario> horarios = cursoExistente.getHorarios();
 		 					cursoExistente.setHorarios(curso.getHorarios());
-		 					cursoExistente.setSemestre(curso.getSemestre());
-		 					cursoService.modificacionCurso(cursoExistente);
+		 					cursoService.modificacionCurso(cursoExistente);	
+		 					for (Horario diayhoras : horarios) {
+		 						System.out.println("dia "+diayhoras.getDia());	
+		 						horarioService.bajaHorario(diayhoras);
+		 					}
 		 					return true;
 		 				}
 		 				else return false;
@@ -184,8 +215,13 @@ public class CursoController {
 		 			else {
 		 				cursoExistente.setFechaInicio(curso.getFechaInicio());
 	 					cursoExistente.setFechaFin(curso.getFechaFin());
+	 					List<Horario> horarios = cursoExistente.getHorarios();
 	 					cursoExistente.setHorarios(curso.getHorarios());
-	 					cursoService.modificacionCurso(cursoExistente);
+	 					cursoService.modificacionCurso(cursoExistente);	
+	 					for (Horario diayhoras : horarios) {
+	 						System.out.println("dia "+diayhoras.getDia());	
+	 						horarioService.bajaHorario(diayhoras);
+	 					}
 	 					return true;
 		 			}
 		 		}

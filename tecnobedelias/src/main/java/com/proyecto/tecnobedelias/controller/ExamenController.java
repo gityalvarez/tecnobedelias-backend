@@ -2,6 +2,7 @@ package com.proyecto.tecnobedelias.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -51,12 +52,19 @@ public class ExamenController {
 		if (!asignaturaOpt.get().isTaller()) {
 			examen.setAsignatura(asignaturaOpt.get());
 			examen.setNombreAsignatura(asignaturaOpt.get().getNombre());
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(examen.getFecha());
+			calendar.add(Calendar.DAY_OF_YEAR, 1);
+			SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+			String fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+			Date fechaExamen = formateadorfecha.parse(fechaExamenString);
+			examen.setFecha(fechaExamen);
+			System.out.println("fecha examen "+examen.getFecha());
 			if (!examenService.existeExamen(examen.getAsignatura(), examen.getFecha())){
 				System.out.println("no existe el examen");
 				boolean fechaOk = true;
 				List<Curso> cursosAsignatura = asignaturaOpt.get().getCursos();
 				if (!cursosAsignatura.isEmpty()) {
-					SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 					String fechaFinCursoString;
 					String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 					Date fechaActualDate = formateadorfecha.parse(fechaActualString);
@@ -80,9 +88,9 @@ public class ExamenController {
 						System.out.println("encuentro ultimo curso");
 						fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(ultimocurso.getFechaFin());
 						fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
-						System.out.println("fecha fin ultimo curso " + fechaFinCursoString);
+						System.out.println("fecha fin ultimo curso " + fechaFinCursoDate);
 						//if (fechaActualDate.after(fechaFinCursoDate)) {
-							String fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.getFecha());
+							fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.getFecha());
 							Date fechaExamenDate = formateadorfecha.parse(fechaExamenString);
 							if (fechaExamenDate.before(fechaFinCursoDate)) {
 								System.out.println("fecha examen < fecha fin curso");
@@ -118,18 +126,28 @@ public class ExamenController {
     @PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
     public boolean modificarExamen(HttpServletRequest request, 
     		@RequestBody(required = true) Examen examen, 
-    		@RequestParam(name = "examenId", required = true) String examenIdStr) throws ParseException{
+    		@RequestParam(name = "examenId", required = true) String examenIdStr) throws ParseException {
 		System.out.println("entre a modificarExamen");
 		long examenId = Long.parseLong(examenIdStr);
 		if (examenService.existeExamen(examenId)) {			
 			boolean fechaOk = true;
+			Examen examenExistente = examenService.obtenerExamen(examenId).get();
 			SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 			String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 			Date fechaActualDate = formateadorfecha.parse(fechaActualString);
-			String fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.getFecha());
-			Date fechaExamenDate = formateadorfecha.parse(fechaExamenString);
-			if (fechaExamenDate.after(fechaActualDate)) {
-				List<Curso> cursosAsignatura = examen.getAsignatura().getCursos();
+			String fechaActualExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examenExistente.getFecha());
+			Date fechaActualExamenDate = formateadorfecha.parse(fechaActualExamenString);
+			System.out.println("fecha actual examen "+fechaActualExamenDate);
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(examen.getFecha());
+			calendar.add(Calendar.DAY_OF_YEAR, 1);
+			//String fechaNuevaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.getFecha());
+			String fechaNuevaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+			Date fechaNuevaExamenDate = formateadorfecha.parse(fechaNuevaExamenString);
+			examen.setFecha(fechaNuevaExamenDate);
+			//System.out.println("fecha nueva examen "+examen.getFecha());
+			if (fechaNuevaExamenDate.after(fechaActualDate) && fechaActualDate.before(fechaActualExamenDate)) {
+				List<Curso> cursosAsignatura = examenExistente.getAsignatura().getCursos();
 				if (!cursosAsignatura.isEmpty()) {
 					String fechaFinCursoString;				
 					long fechaActual = fechaActualDate.getTime();
@@ -149,12 +167,12 @@ public class ExamenController {
 					}	
 					// si existe el ultimo curso
 					if (ultimocurso != null) {
-						System.out.println("encuentro ultimo curso");
+						//System.out.println("encuentro ultimo curso");
 						fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(ultimocurso.getFechaFin());
 						fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
-						System.out.println("fecha fin ultimo curso " + fechaFinCursoString);
+						//System.out.println("fecha fin ultimo curso " + fechaFinCursoString);
 						//if (fechaActualDate.after(fechaFinCursoDate)) {
-							if (fechaExamenDate.before(fechaFinCursoDate)) {
+							if (fechaNuevaExamenDate.before(fechaFinCursoDate)) {
 								System.out.println("fecha examen < fecha fin curso");
 								fechaOk = false;
 							}
@@ -163,14 +181,27 @@ public class ExamenController {
 					}
 					else fechaOk = false;
 					if (fechaOk) {
-						Examen examenExistente = examenService.obtenerExamen(examenId).get();
-						if (!examenService.existeExamen(examenExistente.getAsignatura(), examen.getFecha())) {
+						//System.out.println("fechaOk");
+						//System.out.println("asignatura "+examenExistente.getAsignatura().getNombre());
+						//System.out.println("nueva fecha "+examen.getFecha());
+						if (examenService.existeExamen(examenExistente.getAsignatura(), examen.getFecha())) {
+							Examen examenExistenteAsignFecha = examenService.obtenerExamen(examenExistente.getAsignatura(), examen.getFecha()).get();
+							if (examenExistenteAsignFecha.getId() == examenExistente.getId()) {
+								System.out.println("fecha examen: "+ examen.getFecha());
+								examenExistente.setFecha(examen.getFecha());
+								examenExistente.setHora(examen.getHora());
+								examenService.modificacionExamen(examenExistente);
+								return true;
+							}
+							else return false;
+						}
+						else {
+							System.out.println("fecha examen: "+examen.getFecha());
 							examenExistente.setFecha(examen.getFecha());
 							examenExistente.setHora(examen.getHora());
 							examenService.modificacionExamen(examenExistente);
 							return true;
 						}
-						else return false;
 					}
 					else return false;
 				}
