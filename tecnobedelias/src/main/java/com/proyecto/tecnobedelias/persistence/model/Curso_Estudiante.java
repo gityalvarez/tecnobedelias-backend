@@ -42,6 +42,9 @@ public class Curso_Estudiante implements Serializable {
 		@Column(name="apellido", nullable=true)
 		private String apellido;
 		
+		@Column(name="cedula", nullable=true)
+		private String cedula;
+		
 		@ManyToOne
 		@JsonIgnore
 		@JoinColumn(name = "id_curso", foreignKey = @ForeignKey(name = "curso_estudiante_curso_fkey"))
@@ -98,6 +101,14 @@ public class Curso_Estudiante implements Serializable {
 
 		public void setApellido(String apellido) {
 			this.apellido = apellido;
+		}				
+
+		public String getCedula() {
+			return cedula;
+		}
+
+		public void setCedula(String cedula) {
+			this.cedula = cedula;
 		}
 
 		public Curso getCurso() {

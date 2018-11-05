@@ -279,6 +279,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 					cursoEstudiante.setEstado("MATRICULADO");
 					cursoEstudiante.setNombre(usuario.getNombre());
 					cursoEstudiante.setApellido(usuario.getApellido());
+					cursoEstudiante.setCedula(usuario.getCedula());
 					usuario.getCursoEstudiante().add(cursoEstudiante);
 					curso.getCursoEstudiante().add(cursoEstudiante);					
 					cursoEstudianteRepository.save(cursoEstudiante);
@@ -357,6 +358,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 								examen.getEstudianteExamen().add(estudianteExamen);
 								estudianteExamen.setNombre(usuario.getNombre());
 								estudianteExamen.setApellido(usuario.getApellido());
+								estudianteExamen.setCedula(usuario.getCedula());
 								estudianteExamen.setEstado("ANOTADO");
 								estudianteExamen.setNota(-1);
 								estudianteExamenRepository.save(estudianteExamen);
@@ -377,7 +379,6 @@ public class InscripcionServiceImpl implements InscripcionService {
 		if (cursoEstudianteExistente.isPresent()) {	
 			System.out.println("existe el estudiante en el curso");
 			if (cursoEstudianteExistente.get().getEstado().equals("MATRICULADO")) {
-				System.out.println("estado matriculado");
 				usuario.getCursoEstudiante().remove(cursoEstudianteExistente.get());
 				curso.getCursoEstudiante().remove(cursoEstudianteExistente.get());
 				cursoEstudianteRepository.delete(cursoEstudianteExistente.get());
@@ -394,7 +395,6 @@ public class InscripcionServiceImpl implements InscripcionService {
 		if (estudianteExamenExistente.isPresent()) {
 			System.out.println("existe el estudiante en el examen");
 			if (estudianteExamenExistente.get().getEstado().equals("ANOTADO")) {
-				System.out.println("estado anotado");
 				usuario.getEstudianteExamen().remove(estudianteExamenExistente.get());
 				examen.getEstudianteExamen().remove(estudianteExamenExistente.get());
 				estudianteExamenRepository.delete(estudianteExamenExistente.get());

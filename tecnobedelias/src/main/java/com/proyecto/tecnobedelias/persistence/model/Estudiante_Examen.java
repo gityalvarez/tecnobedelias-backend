@@ -31,8 +31,7 @@ public class Estudiante_Examen implements Serializable {
 	/*
 	ANOTADO - si el estudiante ya esta anotado para rendir el examen 
 	APROBADO - si el estudiante ya tiene salvada la asignatura correspondiente al examen 
-	REPROBADO - si el estudiante perdio el examen
-	RENDIDO - si el estudiante ya dio el examen
+	REPROBADO - si el estudiante perdio el examen	
 	 */
 	private String estado;
 	
@@ -41,6 +40,9 @@ public class Estudiante_Examen implements Serializable {
 	
 	@Column(name="apellido", nullable=true)
 	private String apellido;
+	
+	@Column(name="cedula", nullable=true)
+	private String cedula;
 	
 	@JsonIgnore
 	@ManyToOne
@@ -98,6 +100,14 @@ public class Estudiante_Examen implements Serializable {
 
 	public void setApellido(String apellido) {
 		this.apellido = apellido;
+	}	
+
+	public String getCedula() {
+		return cedula;
+	}
+
+	public void setCedula(String cedula) {
+		this.cedula = cedula;
 	}
 
 	public Examen getExamen() {
