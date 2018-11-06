@@ -213,7 +213,7 @@ public class InscripcionController {
 	 	else return false;
 	}	
 	
-	@GetMapping("/ingresarcalificacionexamen")
+	@PostMapping("/ingresarcalificacionexamen")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public boolean cargarCalificacionExamen(HttpServletRequest request,
 			@RequestParam(name = "usuarioId", required = true) String usuarioIdStr,
@@ -270,12 +270,14 @@ public class InscripcionController {
 	 			estudiante = inscripcionService.obtenerEstudianteEstudianteExamen(estudianteExamen.getId());
 	 			calificacionCargada = inscripcionService.ingresarCalificacionExamen(estudiante, examen.get(), estudianteExamen.getNota());
 	 		}
+	 		String topico = examen.get().getAsignatura().getNombre().replace(" ","_") +"-examen-"+String.valueOf(examen.get().getId());
+	 		this.send(topico);
 	 	/*}
 	 	else calificacionCargada = false;*/
 	 	return calificacionCargada;
 	}
 	
-	@GetMapping("/ingresarcalificacioncurso")
+	@PostMapping("/ingresarcalificacioncurso")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public boolean cargarCalificacionCurso(HttpServletRequest request,
 			@RequestParam(name = "usuarioId", required = true) String usuarioIdStr,
@@ -323,16 +325,19 @@ public class InscripcionController {
 	 			estudiante = inscripcionService.obtenerEstudianteCursoEstudiante(estudianteCurso.getId());
 	 			calificacionCargada = inscripcionService.ingresarCalificacionCurso(estudiante, curso.get(), estudianteCurso.getNota());
 	 		}
+	 		String topico = curso.get().getAsignatura().getNombre().replace(" ","_") +"-"+String.valueOf(curso.get().getSemestre()+"-"+String.valueOf(curso.get().getAnio()));
+	 		this.send(topico);
+
 	 	/*}
 	 	else calificacionCargada = false;*/
 	 	return calificacionCargada;
 	}
 	
 	@GetMapping(value = "/send", produces = "application/json")
-	public ResponseEntity<String> send(String appToken) throws JSONException {
+	public ResponseEntity<String> send(String topico) throws JSONException {
 		 
 		JSONObject body = new JSONObject();
-		body.put("to", "faIJVxb-iFk:APA91bGRZYEObsPYNdg2LWpdVJeGMIWRaeqONyYCbmMzVlefnHWx6YFOO_uCm2DiAA11lnx97nH4QIvMUlieZx2e0WxwyKgJz-QlwxsJxjyUWXfzYvRRNz5MWVZF5vzLeyhlBnc_kkwK");
+		body.put("to", "/topics/"+topico);
 		body.put("priority", "high");
  
 		JSONObject notification = new JSONObject();

@@ -1,6 +1,7 @@
 package com.proyecto.tecnobedelias.service.impl;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.proyecto.tecnobedelias.persistence.model.Actividad;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
+import com.proyecto.tecnobedelias.persistence.model.Curso_Estudiante;
+import com.proyecto.tecnobedelias.persistence.model.Estudiante_Examen;
 import com.proyecto.tecnobedelias.persistence.model.Rol;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.RolRepository;
@@ -192,6 +196,39 @@ public class UsuarioServiceImpl implements UsuarioService{
 	@Override
 	public void modificacionUsuario(Usuario usuario) {
 		usuarioRepository.save(usuario);
+	}
+
+	@Override
+	public List<Actividad> escolaridad(Usuario usuario) {
+		List<Actividad> listaActividades = new ArrayList();
+		for(Curso_Estudiante cursoEstudiante: usuario.getCursoEstudiante()){
+			if(!cursoEstudiante.getEstado().equals("MATRICULADO")) {
+				Actividad actividad = new Actividad();
+				actividad.setAsignatura(cursoEstudiante.getCurso().getNombreAsignatura());
+				actividad.setFecha(cursoEstudiante.getCurso().getFechaFin());
+				actividad.setCreditos(cursoEstudiante.getCurso().getAsignatura().getAsignaturaCarrera().get(0).getCreditos());
+				actividad.setNotaMaxima(cursoEstudiante.getCurso().getAsignatura().getAsignaturaCarrera().get(0).getNotaMaxima());
+				actividad.setNota(cursoEstudiante.getNota());
+				actividad.setEstado(cursoEstudiante.getEstado());
+				actividad.setTipo("CURSO");
+				listaActividades.add(actividad);
+			}
+			
+		}
+		for (Estudiante_Examen estudianteExamen : usuario.getEstudianteExamen()) {
+			if(!estudianteExamen.getEstado().equals("ANOTADO")) {
+				Actividad actividad = new Actividad();
+				actividad.setAsignatura(estudianteExamen.getExamen().getNombreAsignatura());
+				actividad.setFecha(estudianteExamen.getExamen().getFecha());
+				actividad.setCreditos(estudianteExamen.getExamen().getAsignatura().getAsignaturaCarrera().get(0).getCreditos());
+				actividad.setNotaMaxima(12);
+				actividad.setNota(estudianteExamen.getNota());
+				actividad.setEstado(estudianteExamen.getEstado());
+				actividad.setTipo("EXAMEN");
+				listaActividades.add(actividad);
+			}
+		}
+		return listaActividades;
 	}
 
 }

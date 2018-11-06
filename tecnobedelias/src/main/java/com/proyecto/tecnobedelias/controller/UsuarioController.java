@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.proyecto.tecnobedelias.persistence.model.Actividad;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.RolRepository;
 import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
@@ -235,6 +236,19 @@ public class UsuarioController {
     	}
     	else return false;
     }
+    
+    @GetMapping("/escolaridad")
+    @PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
+    public List<Actividad> escolaridad(HttpServletRequest request,
+    		@RequestParam(name = "cedula", required = true) String cedula) {
+    	Optional<Usuario> usuarioOpt = usuarioService.obtenerUsuarioCedula(cedula);
+    	if(usuarioOpt.isPresent()) {
+    		return usuarioService.escolaridad(usuarioOpt.get());
+    	}else return null;    	
+
+    }
+    
+    
     
     
 }

@@ -3,6 +3,7 @@ package com.proyecto.tecnobedelias.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.proyecto.tecnobedelias.persistence.model.Actividad;
 import com.proyecto.tecnobedelias.persistence.model.Rol;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 
@@ -42,4 +43,6 @@ public interface UsuarioService {
 	public void inicializar();
 	
 	public void modificacionUsuario(Usuario usuario);
+	
+	public List<Actividad> escolaridad(Usuario usuario);
 }
