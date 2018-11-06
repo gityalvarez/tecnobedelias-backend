@@ -4,6 +4,10 @@ import static com.proyecto.tecnobedelias.security.SecurityConstants.HEADER_STRIN
 import static com.proyecto.tecnobedelias.security.SecurityConstants.SECRET;
 import static com.proyecto.tecnobedelias.security.SecurityConstants.TOKEN_PREFIX;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +20,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,8 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.proyecto.tecnobedelias.persistence.model.Actividad;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
-import com.proyecto.tecnobedelias.persistence.repository.RolRepository;
-import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.EmailService;
 import com.proyecto.tecnobedelias.service.UsuarioService;
 
@@ -91,12 +92,21 @@ public class UsuarioController {
     
     @PostMapping("/crearbien/{rol}")
     // @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-     public boolean crear(@RequestBody Usuario usuario,@PathVariable(value = "rol") String rol ) {
+     public boolean crear(@RequestBody Usuario usuario,@PathVariable(value = "rol") String rol ) throws ParseException {
      	System.out.println("entre al crear con el usuario "+usuario.getUsername()+" y el rol "+rol);
      	if (!usuarioService.existeUsuario(usuario.getUsername())) {
     		if (!usuarioService.existeCedula(usuario.getCedula())) {
     			if (!usuarioService.existeEmail(usuario.getEmail())) { 
      		 		usuario.setPassword(bCryptPasswordEncoder.encode(usuario.getPassword()));
+     		 		if (usuario.getFechaNacimiento() != null) {
+     		 			Calendar calendar = Calendar.getInstance();     		 		
+     		 			calendar.setTime(usuario.getFechaNacimiento());
+     		 			calendar.add(Calendar.DAY_OF_YEAR, 1);
+     		 			SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+     		 			String fechaNacimientoString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+     		 			Date fechaNacimiento = formateadorfecha.parse(fechaNacimientoString);
+     		 			usuario.setFechaNacimiento(fechaNacimiento);
+     		 		}
      		 		usuarioService.altaBienUsuario(usuario);
      		 		if (usuarioService.existeUsuario(usuario.getUsername())) {
      		 			Usuario usuarioExistente = usuarioService.findUsuarioByUsername(usuario.getUsername()).get();
@@ -172,7 +182,7 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
     public boolean modificarUsuario(HttpServletRequest request, 
     		@RequestBody(required = true) Usuario usuario, 
-    		@RequestParam(name = "usuarioId", required = true) String usuarioIdStr) {
+    		@RequestParam(name = "usuarioId", required = true) String usuarioIdStr) throws ParseException {
     	long usuarioId = Long.parseLong(usuarioIdStr);
     	Optional<Usuario> usuarioExistente = usuarioService.obtenerUsuario(usuarioId);
     	if (usuarioExistente.isPresent()) {
@@ -185,6 +195,15 @@ public class UsuarioController {
     						usuarioExistente = usuarioService.obtenerUsuario(usuarioId);
     						usuarioExistente.get().setApellido(usuario.getApellido());
     						usuarioExistente.get().setNombre(usuario.getNombre());
+    						if (usuario.getFechaNacimiento() != null) {
+    	     		 			Calendar calendar = Calendar.getInstance();     		 		
+    	     		 			calendar.setTime(usuario.getFechaNacimiento());
+    	     		 			calendar.add(Calendar.DAY_OF_YEAR, 1);
+    	     		 			SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+    	     		 			String fechaNacimientoString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+    	     		 			Date fechaNacimiento = formateadorfecha.parse(fechaNacimientoString);
+    	     		 			usuario.setFechaNacimiento(fechaNacimiento);
+    	     		 		}
     						usuarioExistente.get().setFechaNacimiento(usuario.getFechaNacimiento());
     						usuarioExistente.get().setFoto(usuario.getFoto());
     						usuarioService.modificacionUsuario(usuarioExistente.get());

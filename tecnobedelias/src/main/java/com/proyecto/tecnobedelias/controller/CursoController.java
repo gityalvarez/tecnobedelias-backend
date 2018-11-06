@@ -22,8 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Horario;
-import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
-import com.proyecto.tecnobedelias.persistence.repository.CursoRepository;
 import com.proyecto.tecnobedelias.service.AsignaturaService;
 import com.proyecto.tecnobedelias.service.CursoService;
 import com.proyecto.tecnobedelias.service.HorarioService;
@@ -31,9 +29,6 @@ import com.proyecto.tecnobedelias.service.HorarioService;
 @RestController
 @RequestMapping("/curso")
 public class CursoController {
-
-	@Autowired
-	CursoRepository cursoRepository;
 
 	@Autowired
 	CursoService cursoService;
@@ -47,12 +42,12 @@ public class CursoController {
 	@GetMapping("/listar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO') or hasRole('ROLE_ESTUDIANTE')")
 	public List<Curso> listarCursos() {
-		return cursoRepository.findAll();
+		return cursoService.listarCursos();
 	}
 
 	@PostMapping("/crear")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean crearCurso(HttpServletRequest request, @RequestBody(required = true) Curso curso/*, @RequestBody List<Horario> horarios*/, 
+	public boolean crearCurso(HttpServletRequest request, @RequestBody(required = true) Curso curso, 
 			@RequestParam(name = "nombre", required = true) String nombreAsignatura) throws ParseException {
 		System.out.println("entre a crearCurso");
 		Optional<Asignatura> asignaturaOpt = asignaturaService.obtenerAsignaturaNombre(nombreAsignatura);

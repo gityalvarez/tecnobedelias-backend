@@ -34,11 +34,8 @@ import com.proyecto.tecnobedelias.persistence.model.Curso_Estudiante;
 import com.proyecto.tecnobedelias.persistence.model.Estudiante_Examen;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
-import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
-import com.proyecto.tecnobedelias.persistence.repository.CursoRepository;
-import com.proyecto.tecnobedelias.persistence.repository.ExamenRepository;
-import com.proyecto.tecnobedelias.persistence.repository.UsuarioRepository;
 import com.proyecto.tecnobedelias.service.AndroidPushNotificationsService;
+import com.proyecto.tecnobedelias.service.CarreraService;
 import com.proyecto.tecnobedelias.service.CursoService;
 import com.proyecto.tecnobedelias.service.ExamenService;
 import com.proyecto.tecnobedelias.service.InscripcionService;
@@ -62,16 +59,7 @@ public class InscripcionController {
 	UsuarioService usuarioService;
 	
 	@Autowired
-	UsuarioRepository usuarioRepository;
-	
-	@Autowired
-	CarreraRepository carreraRepository;
-	
-	@Autowired
-	CursoRepository cursoRepository;
-	
-	@Autowired
-	ExamenRepository examenRepository;
+	CarreraService carreraService;
 	
 	@Autowired
 	TokenUtil token;
@@ -84,9 +72,9 @@ public class InscripcionController {
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public boolean inscribirCarrera(HttpServletRequest request, @RequestParam(name = "carrera", required = true) String carreraNombre) {
 		System.out.println("entre al inscripcion carrera");
-		Optional<Carrera> carrera = carreraRepository.findByNombre(carreraNombre);
+		Optional<Carrera> carrera = carreraService.obtenerCarreraNombre(carreraNombre);
 		String username = token.getUsername(request);
-		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
+		Optional<Usuario> usuario = usuarioService.findUsuarioByUsername(username);
 		if (inscripcionService.inscripcionCarrera(usuario.get(), carrera.get())) {
 			return true;
 		}
@@ -97,9 +85,9 @@ public class InscripcionController {
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public boolean inscribirCurso(HttpServletRequest request, @RequestParam(name = "curso", required = true) String cursoIdStr) throws ParseException {
 		long cursoId = Long.parseLong(cursoIdStr);
-		Optional<Curso> curso = cursoRepository.findById(cursoId);
+		Optional<Curso> curso = cursoService.obtenerCurso(cursoId);
 		String username = token.getUsername(request);
-		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
+		Optional<Usuario> usuario = usuarioService.findUsuarioByUsername(username);
 		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(curso.get().getFechaInicio());
@@ -119,7 +107,7 @@ public class InscripcionController {
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public List<Curso> consultaCursos(HttpServletRequest request) {		
 		String username = token.getUsername(request);
-		Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
+		Optional<Usuario> usuarioOpt = usuarioService.findUsuarioByUsername(username);
 		return inscripcionService.consultaCursos(usuarioOpt.get());
 	}
 	
@@ -127,9 +115,9 @@ public class InscripcionController {
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public boolean inscribirExamen(HttpServletRequest request,	@RequestParam(name = "examen", required = true) String examenIdStr) throws ParseException {
 		long examenId = Long.parseLong(examenIdStr);
-		Optional<Examen> examen = examenRepository.findById(examenId);
+		Optional<Examen> examen = examenService.obtenerExamen(examenId);
 		String username = token.getUsername(request);
-		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
+		Optional<Usuario> usuario = usuarioService.findUsuarioByUsername(username);
 		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(examen.get().getFecha());
@@ -149,7 +137,7 @@ public class InscripcionController {
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
 	public List<Examen> consultaExamenes(HttpServletRequest request) {		
 		String username = token.getUsername(request);
-		Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
+		Optional<Usuario> usuarioOpt = usuarioService.findUsuarioByUsername(username);
 		return inscripcionService.consultaExamenes(usuarioOpt.get());
 	}
 	
@@ -172,9 +160,9 @@ public class InscripcionController {
 	public boolean desistirCurso(HttpServletRequest request,
 			@RequestParam(name = "curso", required = true) String cursoIdStr) throws ParseException {
 		long cursoId = Long.parseLong(cursoIdStr);
-		Optional<Curso> curso = cursoRepository.findById(cursoId);
+		Optional<Curso> curso = cursoService.obtenerCurso(cursoId);
 		String username = token.getUsername(request);
-		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
+		Optional<Usuario> usuario = usuarioService.findUsuarioByUsername(username);
 		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(curso.get().getFechaInicio());
@@ -195,9 +183,9 @@ public class InscripcionController {
 	public boolean desistirExamen(HttpServletRequest request,
 			@RequestParam(name = "examen", required = true) String examenIdStr) throws ParseException {
 		long examenId = Long.parseLong(examenIdStr);
-		Optional<Examen> examen = examenRepository.findById(examenId);
+		Optional<Examen> examen = examenService.obtenerExamen(examenId);
 		String username = token.getUsername(request);
-		Optional<Usuario> usuario = usuarioRepository.findByUsername(username);
+		Optional<Usuario> usuario = usuarioService.findUsuarioByUsername(username);
 		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(examen.get().getFecha());

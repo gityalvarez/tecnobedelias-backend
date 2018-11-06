@@ -18,13 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
-import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Link;
 import com.proyecto.tecnobedelias.persistence.model.Nodo;
-import com.proyecto.tecnobedelias.persistence.model.Usuario;
-import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Asignatura_CarreraRepository;
-import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
 import com.proyecto.tecnobedelias.service.AsignaturaService;
 import com.proyecto.tecnobedelias.service.CarreraService;
 

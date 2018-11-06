@@ -336,48 +336,95 @@ public class InscripcionServiceImpl implements InscripcionService {
 				System.out.println("El estudiante ya tiene aprobada la asignatura");
 				puedeAnotarse = false;	
 			}
+			//Curso ultimocurso = obtenerUltimoCursoAsignaturaEstudiante(examen.getAsignatura(), usuario);
 			if (puedeAnotarse) {			
 				// si la asignatura del examen al cual se quiere anotar pertenece a una carrera en que esté matriculado	
 				if (isAsignaturaEnCarreraEstudiante(examen.getAsignatura(), usuario)) {
-					System.out.println("La asignatura del examen pertenece a una carrera del estudiante");
-					Iterator<Curso_Estudiante> itCursoEst = usuario.getCursoEstudiante().iterator();
-					// reviso todos los cursos donde esta matriculado el estudiante hasta que no haya mas o quede anotado al examen 
-					while (itCursoEst.hasNext() && !anotado) {
-						// si la asignatura del curso coincide con la del examen
-						Curso_Estudiante curso_est = itCursoEst.next();
-						if (curso_est.getCurso().getAsignatura().equals(examen.getAsignatura())) {
-							System.out.println("estado estudiante en curso "+curso_est.getEstado());
-							// si el estudiante tiene ganado el curso para el que se encuentra matriculado en la asignatura del examen
-							if (curso_est.getEstado().equals("EXAMEN")) {
-								System.out.println("El estudiante tiene ganado el curso");
-								// anoto al estudiante en el examen
-								Estudiante_Examen estudianteExamen = new Estudiante_Examen();
-								estudianteExamen.setEstudiante(usuario);
-								usuario.getEstudianteExamen().add(estudianteExamen);
-								estudianteExamen.setExamen(examen);
-								examen.getEstudianteExamen().add(estudianteExamen);
-								estudianteExamen.setNombre(usuario.getNombre());
-								estudianteExamen.setApellido(usuario.getApellido());
-								estudianteExamen.setCedula(usuario.getCedula());
-								estudianteExamen.setEstado("ANOTADO");
-								estudianteExamen.setNota(-1);
-								estudianteExamenRepository.save(estudianteExamen);
-								anotado = true;						 	
+					try {
+						System.out.println("La asignatura del examen pertenece a una carrera del estudiante");
+						Iterator<Curso_Estudiante> itCursoEst = usuario.getCursoEstudiante().iterator();
+						// reviso todos los cursos donde esta matriculado el estudiante hasta que no haya mas o quede anotado al examen 
+						Date fechaActualDate = new Date();
+						SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd");
+						String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(fechaActualDate);
+						Date fechaActual = formateadorfecha.parse(fechaActualString);
+						Calendar calendar;
+						String fechaFinMas2AniosString;
+						Date fechaFinMas2Anios;
+						String fechaFinString;
+						Date fechaFin;
+						String fechaExamenString;
+						Date fechaExamen;
+						int examenes_rendidos;
+						while (itCursoEst.hasNext() && !anotado) {
+							// si la asignatura del curso coincide con la del examen
+							Curso_Estudiante curso_est = itCursoEst.next();
+							if (curso_est.getCurso().getAsignatura().equals(examen.getAsignatura())) {
+								System.out.println("estado estudiante en curso "+curso_est.getEstado());
+								// si el estudiante tiene ganado el curso para el que se encuentra matriculado en la asignatura del examen
+								if (curso_est.getEstado().equals("EXAMEN")) {
+									calendar = Calendar.getInstance();
+									calendar.setTime(curso_est.getCurso().getFechaFin());
+									calendar.add(Calendar.YEAR, 2);		
+									fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.getFecha());
+									fechaExamen = formateadorfecha.parse(fechaExamenString);
+									fechaFinMas2AniosString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+									fechaFinMas2Anios = formateadorfecha.parse(fechaFinMas2AniosString);
+									fechaFinString = new SimpleDateFormat("yyyy-MM-dd").format(curso_est.getCurso().getFechaFin());
+									fechaFin = formateadorfecha.parse(fechaFinString);
+									/*System.out.println("El estudiante tiene ganado el curso");
+									System.out.println("fecha fin "+fechaFin);
+									System.out.println("fecha fin + 2 anios "+fechaFinMas2Anios);
+									System.out.println("fecha examen "+fechaExamen);*/
+									if (fechaActual.before(fechaFinMas2Anios) && fechaExamen.before(fechaFinMas2Anios)) {
+										System.out.println("fecha actual < fecha fin curso + 2 anios");
+										examenes_rendidos = 0;										
+										Iterator<Estudiante_Examen> itEstExamen = usuario.getEstudianteExamen().iterator();
+										while (itEstExamen.hasNext()) {
+											Estudiante_Examen est_examen = itEstExamen.next();
+											if (est_examen.getExamen().getAsignatura().equals(examen.getAsignatura())) {												
+												System.out.println("asignatura "+examen.getAsignatura().getNombre());					
+												if (fechaExamen.after(fechaFin)) {
+													examenes_rendidos = examenes_rendidos + 1;													
+												}								
+											}
+										}
+										if (examenes_rendidos < 3) {
+											System.out.println("examenes rendidios "+examenes_rendidos);
+											Estudiante_Examen estudianteExamen = new Estudiante_Examen();
+											estudianteExamen.setEstudiante(usuario);
+											usuario.getEstudianteExamen().add(estudianteExamen);
+											estudianteExamen.setExamen(examen);
+											examen.getEstudianteExamen().add(estudianteExamen);
+											estudianteExamen.setNombre(usuario.getNombre());
+											estudianteExamen.setApellido(usuario.getApellido());
+											estudianteExamen.setCedula(usuario.getCedula());
+											estudianteExamen.setEstado("ANOTADO");
+											estudianteExamen.setNota(-1);
+											estudianteExamenRepository.save(estudianteExamen);
+											anotado = true;	
+										}
+									}
+								}
 							}
 						}
-					}
+					} 
+					catch (Exception e) {
+						System.out.println("Excepcion en las fechas");
+					} 
 				}
 			}
 		}		
 		return anotado;			
 	}
+
 	
 
 	@Override
 	public boolean desistirCurso(Usuario usuario, Curso curso) {
 		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso,	usuario);
 		if (cursoEstudianteExistente.isPresent()) {	
-			System.out.println("existe el estudiante en el curso");
+			//System.out.println("existe el estudiante en el curso");
 			if (cursoEstudianteExistente.get().getEstado().equals("MATRICULADO")) {
 				usuario.getCursoEstudiante().remove(cursoEstudianteExistente.get());
 				curso.getCursoEstudiante().remove(cursoEstudianteExistente.get());
@@ -393,7 +440,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 	public boolean desistirExamen(Usuario usuario, Examen examen) {		
 		Optional<Estudiante_Examen> estudianteExamenExistente = estudianteExamenRepository.findByExamenAndEstudiante(examen, usuario);
 		if (estudianteExamenExistente.isPresent()) {
-			System.out.println("existe el estudiante en el examen");
+			//System.out.println("existe el estudiante en el examen");
 			if (estudianteExamenExistente.get().getEstado().equals("ANOTADO")) {
 				usuario.getEstudianteExamen().remove(estudianteExamenExistente.get());
 				examen.getEstudianteExamen().remove(estudianteExamenExistente.get());

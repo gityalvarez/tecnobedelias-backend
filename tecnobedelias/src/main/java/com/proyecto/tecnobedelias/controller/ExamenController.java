@@ -21,8 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
-import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
-import com.proyecto.tecnobedelias.persistence.repository.ExamenRepository;
 import com.proyecto.tecnobedelias.service.AsignaturaService;
 import com.proyecto.tecnobedelias.service.ExamenService;
 
