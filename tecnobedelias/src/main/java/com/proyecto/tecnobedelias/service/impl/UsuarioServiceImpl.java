@@ -211,6 +211,8 @@ public class UsuarioServiceImpl implements UsuarioService{
 				actividad.setNota(cursoEstudiante.getNota());
 				actividad.setEstado(cursoEstudiante.getEstado());
 				actividad.setTipo("CURSO");
+				actividad.setNombre(usuario.getNombre());
+				actividad.setApellido(usuario.getApellido());
 				listaActividades.add(actividad);
 			}
 			
@@ -225,6 +227,8 @@ public class UsuarioServiceImpl implements UsuarioService{
 				actividad.setNota(estudianteExamen.getNota());
 				actividad.setEstado(estudianteExamen.getEstado());
 				actividad.setTipo("EXAMEN");
+				actividad.setNombre(usuario.getNombre());
+				actividad.setApellido(usuario.getApellido());
 				listaActividades.add(actividad);
 			}
 		}
