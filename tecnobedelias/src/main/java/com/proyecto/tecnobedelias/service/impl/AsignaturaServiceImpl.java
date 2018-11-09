@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
+import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.service.AsignaturaService;
 
@@ -60,6 +61,14 @@ public class AsignaturaServiceImpl implements AsignaturaService {
 	@Override
 	public void modificacionAsignatura(Asignatura asignatura) {
 		asignaturaRepository.save(asignatura);
+	}
+	
+	@Override
+	public Asignatura_Carrera obtenerAsignaturaCarrera(long asignaturaId) {
+		Optional<Asignatura> asignaturaOpt = asignaturaRepository.findById(asignaturaId);
+		if(asignaturaOpt.isPresent()) {
+			return asignaturaOpt.get().getAsignaturaCarrera().get(0);
+		}else return null;
 	}
 
 

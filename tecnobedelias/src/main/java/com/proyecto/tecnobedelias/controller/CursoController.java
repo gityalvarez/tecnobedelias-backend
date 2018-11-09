@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.proyecto.tecnobedelias.Util.Response;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Horario;
@@ -47,7 +48,7 @@ public class CursoController {
 
 	@PostMapping("/crear")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean crearCurso(HttpServletRequest request, @RequestBody(required = true) Curso curso, 
+	public Response crearCurso(HttpServletRequest request, @RequestBody(required = true) Curso curso, 
 			@RequestParam(name = "nombre", required = true) String nombreAsignatura) throws ParseException {
 		System.out.println("entre a crearCurso");
 		Optional<Asignatura> asignaturaOpt = asignaturaService.obtenerAsignaturaNombre(nombreAsignatura);
@@ -79,12 +80,12 @@ public class CursoController {
 			 	Date fechaFin = formateadorfecha.parse(fechaFinString);	
 			 	//System.out.println("fecha fin: " + fechaFin);	
 			 	if (fechaInicio.before(fechaActual)) {
-			 		fechasOk = false;
-			 		System.out.println("fecha inicio < fecha actual");				
+			 		return new Response(false, "El curso no pudo ser creado, la fecha de inicio es anterior a la fecha actual");
+			 		//System.out.println("fecha inicio < fecha actual");				
 			 	}
 			 	if (fechaFin.before(fechaInicio)) {
-			 		fechasOk = false;
-			 		System.out.println("fecha fin < fecha inicio");				
+			 		return new Response(false, "El curso no pudo ser creado, la fecha de finalizacion es anterior a la fecha de inicio");
+			 		//System.out.println("fecha fin < fecha inicio");				
 			 	}
 			 	if (fechasOk) {
 			 		boolean horariosOk = true;
@@ -105,7 +106,8 @@ public class CursoController {
 			 			horaFin = horaFinDate.getTime();
 			 			if (horaFin <= horaInicio) {
 			 				horariosOk = false;
-			 				System.out.println("hora fin <= hora inicio");	
+			 				return new Response(false, "El curso no pudo ser creado, los horarios no son correctos");
+			 				//System.out.println("hora fin <= hora inicio");	
 			 			}
 			 		}
 			 		if (horariosOk) {
@@ -117,21 +119,21 @@ public class CursoController {
 			 			Asignatura asignatura = cursoOpt.get().getAsignatura();
 			 			asignatura.getCursos().add(cursoOpt.get());
 			 			asignaturaService.modificacionAsignatura(asignatura);
-			 			return true;
+		 				return new Response(true, "El curso fue creado con exito");
 			 		}
-			 		else return false;
+	 				return new Response(false, "El curso no pudo ser creado, los horarios no son correctos");
 			 	}
-			 	else return false;
+ 				return new Response(false, "El curso no pudo ser creado, las fechas no son correctas");
 			}
-			else return false;
+			else return new Response(false, "El curso no pudo ser creado, el anio es anterior al actual");
 		}
-		else return false;
+		else return new Response(false, "El curso no pudo ser creado, ya existe un curso para esta asignatura en el mismo semestre del mismo anio");
 	}
 	
 	
 	@PostMapping("/modificar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean modificarCurso(HttpServletRequest request,  
+	public Response modificarCurso(HttpServletRequest request,  
 			@RequestBody(required = true) Curso curso, 
 			@RequestParam(name = "cursoId", required = true) String cursoIdStr) throws ParseException {
 		long cursoId = Long.parseLong(cursoIdStr);		
@@ -203,9 +205,9 @@ public class CursoController {
 		 						System.out.println("dia "+diayhoras.getDia());	
 		 						horarioService.bajaHorario(diayhoras);
 		 					}
-		 					return true;
+		 					return new Response(true, "El curso fue modificado con exito");
 		 				}
-		 				else return false;
+						else return new Response(false, "El curso no pudo ser modificado, ya hay un curso para esa asignatura, ese semestre de ese anio");
 		 			}
 		 			else {
 		 				cursoExistente.setFechaInicio(curso.getFechaInicio());
@@ -217,30 +219,30 @@ public class CursoController {
 	 						System.out.println("dia "+diayhoras.getDia());	
 	 						horarioService.bajaHorario(diayhoras);
 	 					}
-	 					return true;
+	 					return new Response(true, "El curso fue modificado con exito");
 		 			}
 		 		}
-		 		else return false;
+				else return new Response(false, "El curso no pudo ser modificado, los horarios no son correctos");
 			}
-		 	else return false;
+			else return new Response(false, "El curso no pudo ser modificado, las fechas no son correctas");
 		}
-		else return false;
+		else return new Response(false, "El curso no pudo ser modificado, el curso no existe");
 	}
 	
 
 	@GetMapping("/borrar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean borrarCurso(HttpServletRequest request,@RequestParam(name = "cursoId", required = true) String cursoIdStr) {
+	public Response borrarCurso(HttpServletRequest request,@RequestParam(name = "cursoId", required = true) String cursoIdStr) {
 		long cursoId = Long.parseLong(cursoIdStr);
 		if (cursoService.existeCurso(cursoId)) {
 			Curso curso = cursoService.obtenerCurso(cursoId).get();
 			if (curso.getCursoEstudiante().isEmpty()) {
 				cursoService.bajaCurso(curso);
-				return true;
+				return new Response(true, "El curso fue borrado con exito");
 			}
-			else return false;
+			else return new Response(false, "El curso no pudo ser borrado, tiene algun estudiante inscripto");
 		}
-		else return false;
+		else return new Response(false, "El curso no pudo ser borrado, no existe el curso");
 	}
 
 	/*@PostMapping("/asignarAsignatura")

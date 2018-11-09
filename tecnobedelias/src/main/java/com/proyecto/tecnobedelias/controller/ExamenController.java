@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.proyecto.tecnobedelias.Util.Response;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
@@ -42,7 +43,7 @@ public class ExamenController {
 	
 	@PostMapping("/crear")
     @PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-    public boolean crearExamen(HttpServletRequest request, 
+    public Response crearExamen(HttpServletRequest request, 
     		@RequestBody(required = true) Examen examen, 
     		@RequestParam(name = "nombre", required = true) String nombreAsignatura) throws ParseException{
 		System.out.println("entre a crearExamen");
@@ -92,7 +93,9 @@ public class ExamenController {
 							Date fechaExamenDate = formateadorfecha.parse(fechaExamenString);
 							if (fechaExamenDate.before(fechaFinCursoDate)) {
 								System.out.println("fecha examen < fecha fin curso");
-								fechaOk = false;
+								//fechaOk = false;
+								return new Response(false, "El examen no pudo ser creado, la fecha es anterior al fin de curso");
+
 							}
 						/*}
 						//else fechaOk = false;*/
@@ -105,24 +108,24 @@ public class ExamenController {
 						Asignatura asignatura = examenOpt.get().getAsignatura();
 						asignatura.getExamenes().add(examenOpt.get());
 						asignaturaService.modificacionAsignatura(asignatura);
-						return true;
+						return new Response(true, "El examen fue creado con exito");
 					}
-					else return false;
+					else return new Response(false, "El examen no pudo ser creado, la fecha no es correcta");
 				}
 				else {
 					System.out.println("La asignatura no tiene cursos");
-					return false;			
+					return new Response(false, "El examen no pudo ser creado, la asignatura no tiene ningun curso");
 				}
 			}
-			else return false; 
+			else return new Response(false, "El examen no pudo ser creado, ya existe un examen de esta asignatura para esa fecha");
 		}
-		else return false;
+		else return new Response(false, "El examen no pudo ser creado, la asignatura es taller");
     }
 	
 	
 	@PostMapping("/modificar")
     @PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-    public boolean modificarExamen(HttpServletRequest request, 
+    public Response modificarExamen(HttpServletRequest request, 
     		@RequestBody(required = true) Examen examen, 
     		@RequestParam(name = "examenId", required = true) String examenIdStr) throws ParseException {
 		System.out.println("entre a modificarExamen");
@@ -189,44 +192,44 @@ public class ExamenController {
 								examenExistente.setFecha(examen.getFecha());
 								examenExistente.setHora(examen.getHora());
 								examenService.modificacionExamen(examenExistente);
-								return true;
+								return new Response(true, "El examen fue modificado correctamente");
 							}
-							else return false;
+							else return new Response(false, "El examen no pudo ser modificado, ya hay un examen para esa fecha");
 						}
 						else {
 							System.out.println("fecha examen: "+examen.getFecha());
 							examenExistente.setFecha(examen.getFecha());
 							examenExistente.setHora(examen.getHora());
 							examenService.modificacionExamen(examenExistente);
-							return true;
+							return new Response(true, "El examen fue modificado correctamente");
 						}
 					}
-					else return false;
+					else return new Response(false, "El examen no pudo ser modificado, las fechas no son correctas");
 				}
 				else {
 					System.out.println("La asignatura no tiene cursos");
-					return false;			
+					return new Response(false, "El examen no pudo ser modificado, la asignatura no tiene ningun curso");
 				}
 			}
-			else return false;
+			else return new Response(false, "El examen no pudo ser modificado, las fechas no son correctas");
 		}
-		else return false;
+		else return new Response(false, "El examen no pudo ser modificado, el examen no existe");
     }
 	
 	
 	@GetMapping("/borrar")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean borrarExamen(HttpServletRequest request, @RequestParam(name = "examenId", required = true) String examenIdStr) {
+	public Response borrarExamen(HttpServletRequest request, @RequestParam(name = "examenId", required = true) String examenIdStr) {
 		long examenId = Long.parseLong(examenIdStr);
 		if (examenService.existeExamen(examenId)) {
 			Examen examen = examenService.obtenerExamen(examenId).get();
 			if (examen.getEstudianteExamen().isEmpty()) {
 				examenService.bajaExamen(examen);
-				return true;
+				return new Response(true,"El examen fue borrado con exito");
 			}
-			else return false;	
+			else return new Response(false,"El examen no pudo ser borrado, tiene algun estudiante inscripto");
 		}
-		else return false;
+		else return new Response(false,"El examen no pudo ser borrado, el examen no existe");
 	}
 	
 	/*@PostMapping("/asignarAsignatura")

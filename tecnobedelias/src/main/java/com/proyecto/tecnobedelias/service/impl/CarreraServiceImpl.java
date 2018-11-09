@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.proyecto.tecnobedelias.Util.Response;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
@@ -72,10 +73,10 @@ public class CarreraServiceImpl implements CarreraService {
 				
 				
 	@Override
-	public boolean asignarAsignaturaCarrera(Asignatura_Carrera asigncarrera) {
+	public Response asignarAsignaturaCarrera(Asignatura_Carrera asigncarrera) {
 		Optional<Asignatura_Carrera> asignaturaCarreraExistente = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asigncarrera.getAsignatura(), asigncarrera.getCarrera());
 		if (asignaturaCarreraExistente.isPresent()) {
-			return false;
+			return new Response(false, "La asignatura no pudo ser asignada, ya existe la asignatura en la carrera");
 		} 
 		if (asigncarrera.getCreditos() >= 0) {
 			if (asigncarrera.getNotaMinimaExamen() >= 0 && asigncarrera.getNotaMinimaExamen() < asigncarrera.getNotaMinimaExonera() && asigncarrera.getNotaMinimaExonera() <= asigncarrera.getNotaMaxima()) {
@@ -83,13 +84,13 @@ public class CarreraServiceImpl implements CarreraService {
 					asigncarrera.getCarrera().getAsignaturaCarrera().add(asigncarrera);
 					asigncarrera.getAsignatura().getAsignaturaCarrera().add(asigncarrera);
 					asignaturaCarreraRepository.save(asigncarrera);
-					return true;
+					return new Response(true, "La asignatura fue asignada con exito");
 				}
-				else return false;
+				else return new Response(false, "La asignatura no pudo ser asignada, las notas no son correctas");
 			}
-			else return false;
+			else return new Response(false, "La asignatura no pudo ser asignada, las notas no son correctas");
 		}
-		else return false;
+		else return new Response(false, "La asignatura no pudo ser asignada, debe tener algun credito");
 	}
 	
 	@Override
@@ -132,19 +133,17 @@ public class CarreraServiceImpl implements CarreraService {
 	}
 
 	@Override
-	public boolean agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera asignaturaPrevia) {
+	public Response agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera asignaturaPrevia) {
 		if (asignatura.getCarrera() == asignaturaPrevia.getCarrera()) {
 			//se evita la referencia circular
 			if (!esPrevia(asignaturaPrevia,asignatura) && !esPrevia(asignatura,asignaturaPrevia) ) {				
 				asignatura.getPrevias().add(asignaturaPrevia);
 				asignaturaPrevia.getPreviaDe().add(asignatura);
 				asignaturaCarreraRepository.save(asignatura);
-				return true;
-			}else return false;
+				return new Response(true, "La previa fue asignada con exito");
+			}else return new Response(false,"La previa no pudo ser agregada, se genera una referencia circular");
 		}
-		else {
-			return false;
-		}
+		else return new Response(false, "La previa no pudo ser agregada, pertenece a otra carrera");
 	}	
 	
 	private boolean esPrevia(Asignatura_Carrera asignatura, Asignatura_Carrera previaABuscar) {		

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.proyecto.tecnobedelias.Util.Response;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
@@ -49,27 +50,29 @@ public class CarreraController{
 	
     @PostMapping("/verificar")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean verificarCarrera(HttpServletRequest request,
+    public Response verificarCarrera(HttpServletRequest request,
 			@RequestParam(name = "nombre", required = true) String carreraNombre) {
-    	return carreraService.existeCarrera(carreraNombre);
+    	if( carreraService.existeCarrera(carreraNombre)) {
+    		return new Response(true,"La carrera existe");
+    	}else return new Response(false,"La carrera no existe");
     }
 
     @PostMapping("/crear")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean crearCarrera(@RequestBody Carrera carrera){
+    public Response crearCarrera(@RequestBody Carrera carrera){
     	if (!carreraService.existeCarrera(carrera.getNombre())) {
     		if (carrera.getCreditosMinimos() >= 0) {
     			carreraService.altaCarrera(carrera);
-    			return true;
+    			return new Response(true,"Se creo la carrera con exito");
     		}
-    		else return false;
+    		else return new Response(false, "No se pudo crear la carrera, los creditos deben ser mayor a cero ");
     	}
-    	else return false;
+    	else return new Response(false, "No se pudo crear la carrera, ya existe una carrera con ese nombre");
     }
     
     @GetMapping("/borrar")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean borrarCarrera(HttpServletRequest request,
+    public Response borrarCarrera(HttpServletRequest request,
 			@RequestParam(name = "carreraId", required = true) String carreraIdStr) {
     	long carreraId = Long.parseLong(carreraIdStr);
     	Optional<Carrera> carreraOpt = carreraService.obtenerCarrera(carreraId);
@@ -77,18 +80,18 @@ public class CarreraController{
     		if (carreraOpt.get().getAsignaturaCarrera().isEmpty()) {
     			if (carreraOpt.get().getEstudiantes().isEmpty()) {    		
     				carreraService.bajaCarrera(carreraOpt.get());
-    				return true;
+    				return new Response(true, "Se pudo borrar la carrera con exito");
     			}
-    			else return false;
+    			else return new Response(false,"No se pudo borrar la carrera, cuenta con algun estudiante registrado");
     		}
-    		else return false;  
+    		else return new Response(false,"No se pudo borrar la carrera, cuenta con alguna asignatura registrada");  
     	}
-    	else return false;
+    	else return new Response(false,"No se pudo borrar la carrera, no existe esa carrera");
     }
     
     @PostMapping("/modificar")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean modificarCarrera(HttpServletRequest request,
+    public Response modificarCarrera(HttpServletRequest request,
     		@RequestBody(required = true) Carrera carrera,
 			@RequestParam(name = "carreraId", required = true) String carreraIdStr) {
     	long carreraId = Long.parseLong(carreraIdStr);
@@ -97,14 +100,14 @@ public class CarreraController{
     		carreraOpt.get().setDescripcion(carrera.getDescripcion());
     		carreraOpt.get().setCreditosMinimos(carrera.getCreditosMinimos());
     		carreraService.modificacionCarrera(carreraOpt.get());
-    		return true;
+    		return new Response(true, "La carrera fue modificada con exito");
     	}
-    	else return false;
+    	else return new Response(false, "La carrera no fue modificada, la carrera no existe");
     }    
     
     @PostMapping("/asignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean asignarAsignaturaCarrera(HttpServletRequest request, @RequestBody(required = true) Asignatura_Carrera asign_carrera,
+    public Response asignarAsignaturaCarrera(HttpServletRequest request, @RequestBody(required = true) Asignatura_Carrera asign_carrera,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre){
     	System.out.println("asi entro el parametro carreraNombre "+carreraNombre);
@@ -116,12 +119,13 @@ public class CarreraController{
     	System.out.println("entro al carreraService");  
     	asign_carrera.setAsignatura(asignatura.get());
     	asign_carrera.setCarrera(carrera.get());
-    	return carreraService.asignarAsignaturaCarrera(asign_carrera);
+    	return carreraService.asignarAsignaturaCarrera(asign_carrera); 
+    	
     }  
     
     @PostMapping("/modificarasignaturacarrera")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean modificarAsignaturaCarrera(HttpServletRequest request, @RequestBody(required = true) Asignatura_Carrera asign_carrera,
+    public Response modificarAsignaturaCarrera(HttpServletRequest request, @RequestBody(required = true) Asignatura_Carrera asign_carrera,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre){
     	Optional<Carrera> carrera =  carreraService.obtenerCarreraNombre(carreraNombre);
@@ -131,12 +135,14 @@ public class CarreraController{
     	System.out.println("entro al carreraService");  
     	asign_carrera.setAsignatura(asignatura.get());
     	asign_carrera.setCarrera(carrera.get());
-    	return carreraService.modificarAsignaturaCarrera(asign_carrera);
+    	if (carreraService.modificarAsignaturaCarrera(asign_carrera)) {
+    		return new Response(true, "La asignaturaCarrera fue modificada con exito");
+    	}else return new Response(false, "La asignaturaCarrera no fue modificada");
     }
     
     @GetMapping("/desasignarasignatura")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean desasignarAsignaturaCarrera(HttpServletRequest request,
+    public Response desasignarAsignaturaCarrera(HttpServletRequest request,
 			@RequestParam(name = "carrera", required = true) String carreraNombre,
 			@RequestParam(name = "asignatura", required = true) String asignaturaNombre){
     	System.out.println("asi entro el parametro carreraNombre "+carreraNombre);
@@ -147,9 +153,9 @@ public class CarreraController{
     	System.out.println("obtuve la asignatura "+asignatura.get().getNombre());
     	System.out.println("entro al carreraService");
     	if (carreraService.desasignarAsignaturaCarrera(asignatura.get(), carrera.get())) {
-    		return true;
+    		return new Response(true, "La asignatura fue desasignada con exito");
     	}
-    	else return false;
+    	else return new Response(false, "La asignatura no pudo ser desasignada");
     }
     
     @GetMapping("/listarasignaturas/{nombre}")
@@ -169,7 +175,7 @@ public class CarreraController{
     
     @GetMapping("/asignarprevia")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean asignarPrevia(HttpServletRequest request,
+    public Response asignarPrevia(HttpServletRequest request,
     		@RequestParam(name = "carrera", required = true) String carrera,
 			@RequestParam(name = "asignatura", required = true) String asignatura,
 			@RequestParam(name = "asignaturaPrevia", required = true) String asignaturaPrevia) {
@@ -180,18 +186,17 @@ public class CarreraController{
         	Optional<Asignatura_Carrera> asignaturaCarreraOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaOpt.get(), carreraOpt.get());
         	Optional<Asignatura_Carrera> asignaturaCarreraPreviaOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaPreviaOpt.get(), carreraOpt.get());
         	if (asignaturaCarreraOpt.isPresent() && asignaturaCarreraPreviaOpt.isPresent()) {
-        		if(carreraService.agregarPreviaAsignatura(asignaturaCarreraOpt.get(), asignaturaCarreraPreviaOpt.get())) {
-        			return true;
-        		};
-        	}
+        		return carreraService.agregarPreviaAsignatura(asignaturaCarreraOpt.get(), asignaturaCarreraPreviaOpt.get());
+        			//return new Response(true, "La previa fue asignada con exito");
+        	}else return new Response(false, "La previa no pudo ser asignada, la carrera o la asignatura no son correctas");
 
     	}
-    	return false;
+    	return new Response(false, "La previa no pudo ser asignada");
     }
     
     @GetMapping("/desasignarprevia")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean eliminarPrevia(HttpServletRequest request,
+    public Response eliminarPrevia(HttpServletRequest request,
     		@RequestParam(name = "carrera", required = true) String carrera,
 			@RequestParam(name = "asignatura", required = true) String asignatura,
 			@RequestParam(name = "asignaturaPrevia", required = true) String asignaturaPrevia) {    	
@@ -203,11 +208,11 @@ public class CarreraController{
         	Optional<Asignatura_Carrera> asignaturaCarreraPreviaOpt = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignaturaPreviaOpt.get(), carreraOpt.get());
         	if (asignaturaCarreraOpt.isPresent() && asignaturaCarreraPreviaOpt.isPresent()) {
         		if (carreraService.eliminarPreviaAsignatura(asignaturaCarreraOpt.get(), asignaturaCarreraPreviaOpt.get())) {
-        			return true;
+        			return new Response(true, "La previa fue desasignada con exito");
         		}
         	}
     	}
-    	return false;
+    	return new Response(false, "La previa no pudo ser desasignada");
     }
     
     @GetMapping("/listarpreviaturas")

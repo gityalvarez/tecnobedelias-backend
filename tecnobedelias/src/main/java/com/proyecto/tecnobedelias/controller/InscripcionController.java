@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.proyecto.tecnobedelias.Util.Response;
 import  com.proyecto.tecnobedelias.Util.TokenUtil;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
@@ -70,20 +71,20 @@ public class InscripcionController {
 	
 	@GetMapping("/carrera")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public boolean inscribirCarrera(HttpServletRequest request, @RequestParam(name = "carrera", required = true) String carreraNombre) {
+	public Response inscribirCarrera(HttpServletRequest request, @RequestParam(name = "carrera", required = true) String carreraNombre) {
 		System.out.println("entre al inscripcion carrera");
 		Optional<Carrera> carrera = carreraService.obtenerCarreraNombre(carreraNombre);
 		String username = token.getUsername(request);
 		Optional<Usuario> usuario = usuarioService.findUsuarioByUsername(username);
 		if (inscripcionService.inscripcionCarrera(usuario.get(), carrera.get())) {
-			return true;
+			return new Response(true, "Se pudo inscribir con exito");
 		}
-		return false;
+		return new Response(false, "No se pudo inscribir");
 	}
 	
 	@GetMapping("/curso")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public boolean inscribirCurso(HttpServletRequest request, @RequestParam(name = "curso", required = true) String cursoIdStr) throws ParseException {
+	public Response inscribirCurso(HttpServletRequest request, @RequestParam(name = "curso", required = true) String cursoIdStr) throws ParseException {
 		long cursoId = Long.parseLong(cursoIdStr);
 		Optional<Curso> curso = cursoService.obtenerCurso(cursoId);
 		String username = token.getUsername(request);
@@ -98,9 +99,12 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede anotar hasta 10 dias despues del inicio del curso
 	 	if (fechaActual.before(fechaInicioMas10Dias)) {
-	 		return inscripcionService.inscripcionCurso(usuario.get(), curso.get());
+	 		if(inscripcionService.inscripcionCurso(usuario.get(), curso.get())) {
+	 			return new Response(true, "Se realizo la inscripcion con exito");
+	 		}
+	 		else return new Response(false, "No se realizo la inscripcion");
 	 	}
-	 	else return false;
+	 	else return new Response(false, "No se realizo la inscripcion, finalizo la fecha limite para la inscripcion");
 	}
 	
 	@GetMapping("/curso/consulta")
@@ -113,7 +117,7 @@ public class InscripcionController {
 	
 	@GetMapping("/examen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public boolean inscribirExamen(HttpServletRequest request,	@RequestParam(name = "examen", required = true) String examenIdStr) throws ParseException {
+	public Response inscribirExamen(HttpServletRequest request,	@RequestParam(name = "examen", required = true) String examenIdStr) throws ParseException {
 		long examenId = Long.parseLong(examenIdStr);
 		Optional<Examen> examen = examenService.obtenerExamen(examenId);
 		String username = token.getUsername(request);
@@ -128,9 +132,11 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede anotar hasta 5 dias antes del examen
 	 	if (fechaActual.before(fechaExamenMenos5Dias)) {
-	 		return inscripcionService.inscripcionExamen(usuario.get(), examen.get());
+	 		if(inscripcionService.inscripcionExamen(usuario.get(), examen.get())) {
+	 			return new Response(true, "Se realizo la inscripcion con exito");
+	 		}else return new Response(false, "No se realizo la inscripcion");
 	 	}
-	 	else return false;
+	 	else return new Response(false, "No se realizo la inscripcion, finalizo la fecha limite para la inscripcion");
 	}
 	
 	@GetMapping("/examen/consulta")
@@ -157,7 +163,7 @@ public class InscripcionController {
 	
 	@GetMapping("/desistircurso")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public boolean desistirCurso(HttpServletRequest request,
+	public Response desistirCurso(HttpServletRequest request,
 			@RequestParam(name = "curso", required = true) String cursoIdStr) throws ParseException {
 		long cursoId = Long.parseLong(cursoIdStr);
 		Optional<Curso> curso = cursoService.obtenerCurso(cursoId);
@@ -173,14 +179,16 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede desistir hasta 15 dias despues del inicio del curso
 	 	if (fechaActual.before(fechaInicioMas15Dias)) {		
-	 		return inscripcionService.desistirCurso(usuario.get(), curso.get());
+	 		if( inscripcionService.desistirCurso(usuario.get(), curso.get())) {
+	 			return new Response(true, "Pudo desistir al curso con exito");
+	 		}else return new Response(false,"No pudo desistir al curso");
 	 	}
-	 	else return false;
+	 	else return new Response(false,"No pudo desistir al curso, finalizo la fecha limite para desistir");
 	}
 	
 	@GetMapping("/desistirexamen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public boolean desistirExamen(HttpServletRequest request,
+	public Response desistirExamen(HttpServletRequest request,
 			@RequestParam(name = "examen", required = true) String examenIdStr) throws ParseException {
 		long examenId = Long.parseLong(examenIdStr);
 		Optional<Examen> examen = examenService.obtenerExamen(examenId);
@@ -196,14 +204,16 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede desistir hasta 3 dias antes del examen
 	 	if (fechaActual.before(fechaExamenMenos3Dias)) {
-	 		return inscripcionService.desistirExamen(usuario.get(), examen.get());
+	 		if( inscripcionService.desistirExamen(usuario.get(), examen.get())) {
+	 			return new Response(true, "Pudo desistir del examen con exito");
+	 		}else return new Response(false, "No pudo desistir al examen");
 	 	}
-	 	else return false;
+	 	else return new Response(false, "No pudo desistir al examen, finalizo la fecha limite para desistir");
 	}	
 	
 	@PostMapping("/ingresarcalificacionexamen")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean cargarCalificacionExamen(HttpServletRequest request,
+	public Response cargarCalificacionExamen(HttpServletRequest request,
 			@RequestParam(name = "usuarioId", required = true) String usuarioIdStr,
 			@RequestParam(name = "examenId", required = true) String examenIdStr,
 			@RequestParam(name = "nota", required = true) String notaStr) throws ParseException {
@@ -218,26 +228,19 @@ public class InscripcionController {
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar la nota del examen luego de que fue rendido
-	 	//if (fechaActual.after(fechaExamen)) {
-	 		if (inscripcionService.ingresarCalificacionExamen(usuario.get(), examen.get(), nota)) {
-	 			try {
-	 				this.send(usuario.get().getApp_token());
-	 			}catch(Exception e) {
-	 				System.out.println(e);
-	 			}
-	 			
-	 			
-	 			return true;
-	 		}else return false;
+	 	if (fechaActual.after(fechaExamen)) {
+	 		if (inscripcionService.ingresarCalificacionExamen(usuario.get(), examen.get(), nota)) { 			
+	 			return new Response(true, "La calificacion se ingreso con exito");
+	 		}else return new Response(false, "La calificacion no pudo ser ingresada");
 	 		
-	 	/*}
-	 		else return false;*/
+	 	}
+	 		else return new Response(false, "La calificacion no pudo ser ingresada, aun no es la fecha del examen");
 	}
 	
 	
 	@PostMapping("/ingresarcalificacionesexamen")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean cargarCalificacionesExamen(HttpServletRequest request,
+	public Response cargarCalificacionesExamen(HttpServletRequest request,
 			@RequestBody(required = true) List<Estudiante_Examen> estudiantesExamen,
 			@RequestParam(name = "examenId", required = true) String examenIdStr) throws ParseException {
 		long examenId = Long.parseLong(examenIdStr);
@@ -249,7 +252,7 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar las notas del examen luego de que fue rendido
 	 	boolean calificacionCargada = true;
-	 	//if (fechaActual.after(fechaExamen)) {	 		
+	 	if (fechaActual.after(fechaExamen)) {	 		
 	 		Estudiante_Examen estudianteExamen;
 	 		Iterator<Estudiante_Examen> itEstudianteExamen = estudiantesExamen.iterator();
 	 		Usuario estudiante;
@@ -260,14 +263,17 @@ public class InscripcionController {
 	 		}
 	 		String topico = examen.get().getAsignatura().getNombre().replace(" ","_") +"-examen-"+String.valueOf(examen.get().getId());
 	 		this.send(topico);
-	 	/*}
-	 	else calificacionCargada = false;*/
-	 	return calificacionCargada;
+	 	}
+	 	else return new Response(false,"Las calificaciones no pudieron ser ingresadas, aun no es la fecha del examen");
+	 	
+	 	if (calificacionCargada) {
+	 		return new Response(true, "Las calificaciones fueron ingresadas con exito");
+	 	}else return new Response(false, "Las calificaiones no pudieron ser ingresadas");
 	}
 	
 	@PostMapping("/ingresarcalificacioncurso")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean cargarCalificacionCurso(HttpServletRequest request,
+	public Response cargarCalificacionCurso(HttpServletRequest request,
 			@RequestParam(name = "usuarioId", required = true) String usuarioIdStr,
 			@RequestParam(name = "cursoId", required = true) String cursoIdStr,
 			@RequestParam(name = "nota", required = true) String notaStr) throws ParseException {
@@ -282,16 +288,18 @@ public class InscripcionController {
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar la nota del curso luego de que ha finalizado
-	 	//if (fechaActual.after(fechaFinCurso)) {
-	 		return inscripcionService.ingresarCalificacionCurso(usuario.get(), curso.get(), nota);
-	 	/*}
-	 	else return false;*/
+	 	if (fechaActual.after(fechaFinCurso)) {
+	 		if (inscripcionService.ingresarCalificacionCurso(usuario.get(), curso.get(), nota)) {
+	 			return new Response(true, "La calificacion pudo ser ingresada con exito");
+	 		}else return new Response(false, "La calificacion no pudo ser ingresada");
+	 	}
+	 	else return new Response(false, "La calificacion no pudo ser ingresada, el curso aun no ha finalizado");
 	}
 	
 	
 	@PostMapping("/ingresarcalificacionescurso")
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
-	public boolean cargarCalificacionesCurso(HttpServletRequest request,
+	public Response cargarCalificacionesCurso(HttpServletRequest request,
 			@RequestBody(required = true) List<Curso_Estudiante> estudiantesCurso,
 			@RequestParam(name = "cursoId", required = true) String cursoIdStr) throws ParseException {
 		long cursoId = Long.parseLong(cursoIdStr);
@@ -304,7 +312,7 @@ public class InscripcionController {
 	 	// se pueden ingresar las notas del cusro luego de que finalizo
 	 	boolean calificacionCargada = true;
 	 	System.out.println("Entro a cargarCalificacionesCurso");
-	 	//if (fechaActual.after(fechaFinCurso)) {	 		
+	 	if (fechaActual.after(fechaFinCurso)) {	 		
 	 		Curso_Estudiante estudianteCurso;
 	 		Iterator<Curso_Estudiante> itEstudianteCurso = estudiantesCurso.iterator();
 	 		Usuario estudiante;
@@ -316,9 +324,11 @@ public class InscripcionController {
 	 		String topico = curso.get().getAsignatura().getNombre().replace(" ","_") +"-"+String.valueOf(curso.get().getSemestre()+"-"+String.valueOf(curso.get().getAnio()));
 	 		this.send(topico);
 
-	 	/*}
-	 	else calificacionCargada = false;*/
-	 	return calificacionCargada;
+	 	}
+	 	else return new Response(false, "Las calificacionse no pudieron ser ingresadas, el curso aun no ha finalizado");
+	 	if (calificacionCargada) {
+	 		return new Response(true, "Las calificaciones fueron ingresadas con exito");
+	 	}else return new Response(false, "Las calificaciones no pudieron ser ingresadas");
 	}
 	
 	@GetMapping(value = "/send", produces = "application/json")

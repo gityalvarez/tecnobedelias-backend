@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
+import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 
 public interface AsignaturaService {
 
@@ -22,5 +23,7 @@ public interface AsignaturaService {
 	public void bajaAsignatura(Asignatura asignatura);
 	
 	public void modificacionAsignatura(Asignatura asignatura);
+	
+	public Asignatura_Carrera obtenerAsignaturaCarrera(long asignaturaId);
 	
 }

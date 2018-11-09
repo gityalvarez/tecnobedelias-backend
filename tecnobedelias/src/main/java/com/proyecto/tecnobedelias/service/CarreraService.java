@@ -3,6 +3,7 @@ package com.proyecto.tecnobedelias.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.proyecto.tecnobedelias.Util.Response;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
@@ -24,13 +25,13 @@ public interface CarreraService {
 	
 	public void modificacionCarrera(Carrera carrera);
 	
-	public boolean asignarAsignaturaCarrera(Asignatura_Carrera asigncarrera);
+	public Response asignarAsignaturaCarrera(Asignatura_Carrera asigncarrera);
 	
 	public boolean modificarAsignaturaCarrera(Asignatura_Carrera asigncarrera);
 	
 	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera);
 	
-	public boolean agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
+	public Response agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
 	
 	public boolean eliminarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
 	

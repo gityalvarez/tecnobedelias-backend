@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.proyecto.tecnobedelias.Util.Response;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
+import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.service.AsignaturaService;
 
@@ -37,17 +39,17 @@ public class AsignaturaController{
 
     @PostMapping("/crear")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean crearAsignatura(@RequestBody(required = true) Asignatura asignatura){  
+    public Response crearAsignatura(@RequestBody(required = true) Asignatura asignatura){  
     	if (!asignaturaService.existeAsignaturaNombre(asignatura.getNombre())) {    		
     		asignaturaService.altaAsignatura(asignatura);
-    		return true;
+    		return new Response(true,"La asignatura fue creada con exito");
     	}
-    	else return false;
+    	else return new Response(false, "La asignatura no fue creada, ya existe una asignatura con ese nombre");
     }
     
     @GetMapping("/borrar")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean borrarAsignatura(HttpServletRequest request,
+    public Response borrarAsignatura(HttpServletRequest request,
 			@RequestParam(name = "asignaturaId", required = true) String asignaturaIdStr) {
     	long asignaturaId = Long.parseLong(asignaturaIdStr);
     	if (asignaturaService.existeAsignatura(asignaturaId)) { 
@@ -56,21 +58,21 @@ public class AsignaturaController{
     			if (asignaturaExistente.getCursos().isEmpty()) {
     				if (asignaturaExistente.getExamenes().isEmpty()) {
     					asignaturaService.bajaAsignatura(asignaturaExistente);
-    					return true;  
+    					return new Response(true, "La asignatura fue borrada con exito");  
     				}
-    				else return false;
+    				else return new Response(false, "La asignatura no fue borrada, la asignatura tiene algun examen");
     			}
-    			else return false;
+    			else return new Response(false, "La asignatura no fue borrada, la asignatura tiene algun curso");
     		}
-    		else return false;
+    		else return new Response(false, "La asignatura no fue borrada, la asignatura pertenece a alguna carrera");
     	}
-    	else return false;
+    	else return new Response(false, "La asignatura no fue borrada, la asignatura no existe");
     }
     
     
     @PostMapping("/modificar")
     @PreAuthorize("hasRole('ROLE_DIRECTOR')")
-    public boolean modificarAsignatura(HttpServletRequest request,
+    public Response modificarAsignatura(HttpServletRequest request,
     		@RequestBody(required = true) Asignatura asignatura, 
     		@RequestParam(name = "asignaturaId", required = true) String asignaturaIdStr) {
     	long asignaturaId = Long.parseLong(asignaturaIdStr);
@@ -78,9 +80,23 @@ public class AsignaturaController{
     		Optional<Asignatura> asignaturaExistente = asignaturaService.obtenerAsignatura(asignaturaId);
     		asignaturaExistente.get().setDescripcion(asignatura.getDescripcion());
     		asignaturaService.modificacionAsignatura(asignaturaExistente.get());
-    		return true;
+    		return new Response(true, "La asignatura fue modificada con exito");
     	}
-    	else return false;
+    	else return new Response(false, "La asignatura no fue modificada, la asignatura no existe");
+    }
+    
+    @GetMapping("/obtenerasignaturacarrera")
+    @PreAuthorize("hasRole('ROLE_DIRECTOR')")
+    public Asignatura_Carrera obtenerAsignaturaCarrera(HttpServletRequest request,
+    		@RequestParam(name="asignaturaId",required = true) String asignaturaIdStr){
+    	System.out.println("entre al obtener asignaturacarrera con la asignatura "+asignaturaIdStr);
+    	long asignaturaId = Long.parseLong(asignaturaIdStr);
+    	if (asignaturaService.existeAsignatura(asignaturaId)) {
+    		
+    		return asignaturaService.obtenerAsignaturaCarrera(asignaturaId);
+    	}else return null;
+    	
+    	
     }
     
 

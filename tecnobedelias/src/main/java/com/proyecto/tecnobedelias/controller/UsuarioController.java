@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.proyecto.tecnobedelias.Util.Response;
 import com.proyecto.tecnobedelias.persistence.model.Actividad;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.service.EmailService;
@@ -69,7 +70,7 @@ public class UsuarioController {
     
     @PostMapping("/crear/{rol}")
    // @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-    public boolean signUp(@RequestBody Usuario usuario,@PathVariable(value = "rol") String rol ) {
+    public Response signUp(@RequestBody Usuario usuario,@PathVariable(value = "rol") String rol ) {
     	System.out.println("entre al crear con el usuario "+usuario.getUsername()+" y el rol "+rol);
     	if (!usuarioService.existeUsuario(usuario.getUsername())) {
     		if (!usuarioService.existeCedula(usuario.getCedula())) {
@@ -79,20 +80,20 @@ public class UsuarioController {
     	    		if (usuarioService.existeUsuario(usuario.getUsername())) {
     	    			Usuario usuarioExistente = usuarioService.findUsuarioByUsername(usuario.getUsername()).get();
     	    		 	usuarioService.asignarRolUsuario(rol, usuarioExistente);
-    	    			return true;
+    	    			return new Response(true, "Se creo el usuario "+usuario.getUsername()+" con exito");
     	    		}
-    	    		else return false;
+    	    		else return new Response(false,"no se pudo crear el usuario");
     			}
-    			else return false;
+    			else return new Response(false,"No se pudo crear el usuario, ya existe un usuario con ese email");
     		}
-    		else return false;
+    		else return new Response(false,"No se pudo crear el usuario, ya existe un usuario con esa cedula");
     	}
-    	else return false;
+    	else return new Response(false,"No se pudo crear el usuario, ya existe un usuario con ese username");
     }
     
     @PostMapping("/crearbien/{rol}")
     // @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-     public boolean crear(@RequestBody Usuario usuario,@PathVariable(value = "rol") String rol ) throws ParseException {
+     public Response crear(@RequestBody Usuario usuario,@PathVariable(value = "rol") String rol ) throws ParseException {
      	System.out.println("entre al crear con el usuario "+usuario.getUsername()+" y el rol "+rol);
      	if (!usuarioService.existeUsuario(usuario.getUsername())) {
     		if (!usuarioService.existeCedula(usuario.getCedula())) {
@@ -116,15 +117,15 @@ public class UsuarioController {
      		 				System.out.println("voy a mandar el mail");
      		 				emailService.sendEmailToken(usuarioExistente.getResetToken(),usuarioExistente.getEmail());
      		 			}
-     		 			return true;
+     		 			return new Response(true,"Se creo el usuario "+usuario.getUsername()+" con exito");
      		 		}
-     		 		else return false;
+     		 		else return new Response(false,"No se pudo crear el usuario");
     			}
-    			else return false;
+    			else return new Response(false,"No se pudo crear el usuario, ya existe un usuario con ese email");
      	   	}
-    		else return false;
+    		else return new Response(false,"No se pudo crear el usuario, ya existe un usuario con esa cedula");
      	}
-     	else return false;
+     	else return new Response(false,"No se pudo crear el usuario, ya existe un usuario con ese username");
      }
     
     @GetMapping("/{id}")
@@ -180,7 +181,7 @@ public class UsuarioController {
     
     @PostMapping("/modificar")
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-    public boolean modificarUsuario(HttpServletRequest request, 
+    public Response modificarUsuario(HttpServletRequest request, 
     		@RequestBody(required = true) Usuario usuario, 
     		@RequestParam(name = "usuarioId", required = true) String usuarioIdStr) throws ParseException {
     	long usuarioId = Long.parseLong(usuarioIdStr);
@@ -207,9 +208,9 @@ public class UsuarioController {
     						usuarioExistente.get().setFechaNacimiento(usuario.getFechaNacimiento());
     						usuarioExistente.get().setFoto(usuario.getFoto());
     						usuarioService.modificacionUsuario(usuarioExistente.get());
-    						return true;
+    						return new Response(true,"El usuario se modifico con exito");
     					}
-    					else return false;
+    					else return new Response(false,"No se pudo modificar el usuario");
     				}
     				else {
     					usuarioExistente = usuarioService.obtenerUsuario(usuarioId);
@@ -219,10 +220,10 @@ public class UsuarioController {
 						usuarioExistente.get().setEmail(usuario.getEmail());
 						usuarioExistente.get().setFoto(usuario.getFoto());
 						usuarioService.modificacionUsuario(usuarioExistente.get());
-						return true;
+						return new Response(true,"El usuario se modifico con exito");
     				}
     			}
-    	    	else return false;
+    			else return new Response(false,"No se pudo modificar el usuario");
     		}
     		else {
     			if (usuarioService.existeEmail(usuario.getEmail())) {
@@ -235,9 +236,9 @@ public class UsuarioController {
 						usuarioExistente.get().setCedula(usuario.getCedula());
 						usuarioExistente.get().setFoto(usuario.getFoto());
     					usuarioService.modificacionUsuario(usuarioExistente.get());
-    					return true;
+    					return new Response(true,"El usuario se modifico con exito");
     				}
-    				else return false;
+    				else return new Response(false,"No se pudo modificar el usuario");
     			}
     			else {
     				usuarioExistente = usuarioService.obtenerUsuario(usuarioId);
@@ -249,11 +250,11 @@ public class UsuarioController {
 					usuarioExistente.get().setEmail(usuario.getEmail());
 					usuarioExistente.get().setFoto(usuario.getFoto());
     				usuarioService.modificacionUsuario(usuarioExistente.get());
-    				return true;
+    				return new Response(true,"El usuario se modifico con exito");
     			}
     		}
     	}
-    	else return false;
+    	else return new Response(false,"No se pudo modificar el usuario, el usuario no existe");
     }
     
     @GetMapping("/escolaridad")
