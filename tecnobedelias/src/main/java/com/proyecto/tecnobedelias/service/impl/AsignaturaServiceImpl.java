@@ -67,7 +67,9 @@ public class AsignaturaServiceImpl implements AsignaturaService {
 	public Asignatura_Carrera obtenerAsignaturaCarrera(long asignaturaId) {
 		Optional<Asignatura> asignaturaOpt = asignaturaRepository.findById(asignaturaId);
 		if(asignaturaOpt.isPresent()) {
-			return asignaturaOpt.get().getAsignaturaCarrera().get(0);
+			if (!asignaturaOpt.get().getAsignaturaCarrera().isEmpty()) {
+				return asignaturaOpt.get().getAsignaturaCarrera().get(0);				
+			}else return null;
 		}else return null;
 	}
 
