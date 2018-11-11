@@ -76,10 +76,7 @@ public class InscripcionController {
 		Optional<Carrera> carrera = carreraService.obtenerCarreraNombre(carreraNombre);
 		String username = token.getUsername(request);
 		Optional<Usuario> usuario = usuarioService.findUsuarioByUsername(username);
-		if (inscripcionService.inscripcionCarrera(usuario.get(), carrera.get())) {
-			return new Response(true, "Se pudo inscribir con exito");
-		}
-		return new Response(false, "No se pudo inscribir");
+		return inscripcionService.inscripcionCarrera(usuario.get(), carrera.get());
 	}
 	
 	@GetMapping("/curso")
@@ -99,12 +96,9 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede anotar hasta 10 dias despues del inicio del curso
 	 	if (fechaActual.before(fechaInicioMas10Dias)) {
-	 		if(inscripcionService.inscripcionCurso(usuario.get(), curso.get())) {
-	 			return new Response(true, "Se realizo la inscripcion con exito");
-	 		}
-	 		else return new Response(false, "No se realizo la inscripcion");
+	 		return inscripcionService.inscripcionCurso(usuario.get(), curso.get());
 	 	}
-	 	else return new Response(false, "No se realizo la inscripcion, finalizo la fecha limite para la inscripcion");
+	 	else return new Response(false, "No se realizo la inscripcion, finalizo la fecha limite para la matriculacion");
 	}
 	
 	@GetMapping("/curso/consulta")
@@ -132,11 +126,9 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede anotar hasta 5 dias antes del examen
 	 	if (fechaActual.before(fechaExamenMenos5Dias)) {
-	 		if(inscripcionService.inscripcionExamen(usuario.get(), examen.get())) {
-	 			return new Response(true, "Se realizo la inscripcion con exito");
-	 		}else return new Response(false, "No se realizo la inscripcion");
+	 		return inscripcionService.inscripcionExamen(usuario.get(), examen.get());
 	 	}
-	 	else return new Response(false, "No se realizo la inscripcion, finalizo la fecha limite para la inscripcion");
+	 	else return new Response(false, "No se realizo la anotacion, finalizo la fecha limite para la anotacion");
 	}
 	
 	@GetMapping("/examen/consulta")
@@ -179,9 +171,7 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede desistir hasta 15 dias despues del inicio del curso
 	 	if (fechaActual.before(fechaInicioMas15Dias)) {		
-	 		if( inscripcionService.desistirCurso(usuario.get(), curso.get())) {
-	 			return new Response(true, "Pudo desistir al curso con exito");
-	 		}else return new Response(false,"No pudo desistir al curso");
+	 		return inscripcionService.desistirCurso(usuario.get(), curso.get());
 	 	}
 	 	else return new Response(false,"No pudo desistir al curso, finalizo la fecha limite para desistir");
 	}
@@ -204,9 +194,7 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede desistir hasta 3 dias antes del examen
 	 	if (fechaActual.before(fechaExamenMenos3Dias)) {
-	 		if( inscripcionService.desistirExamen(usuario.get(), examen.get())) {
-	 			return new Response(true, "Pudo desistir del examen con exito");
-	 		}else return new Response(false, "No pudo desistir al examen");
+	 		return inscripcionService.desistirExamen(usuario.get(), examen.get());
 	 	}
 	 	else return new Response(false, "No pudo desistir al examen, finalizo la fecha limite para desistir");
 	}	
@@ -229,12 +217,9 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar la nota del examen luego de que fue rendido
 	 	if (fechaActual.after(fechaExamen)) {
-	 		if (inscripcionService.ingresarCalificacionExamen(usuario.get(), examen.get(), nota)) { 			
-	 			return new Response(true, "La calificacion se ingreso con exito");
-	 		}else return new Response(false, "La calificacion no pudo ser ingresada");
-	 		
+	 		return inscripcionService.ingresarCalificacionExamen(usuario.get(), examen.get(), nota); 	 		
 	 	}
-	 		else return new Response(false, "La calificacion no pudo ser ingresada, aun no es la fecha del examen");
+	 	else return new Response(false, "La calificacion no pudo ser ingresada, aun no ha sido tomado el examen");
 	}
 	
 	
@@ -244,6 +229,7 @@ public class InscripcionController {
 			@RequestBody(required = true) List<Estudiante_Examen> estudiantesExamen,
 			@RequestParam(name = "examenId", required = true) String examenIdStr) throws ParseException {
 		long examenId = Long.parseLong(examenIdStr);
+		Response respuesta;
 		Optional<Examen> examen = examenService.obtenerExamen(examenId);		
 		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 		String fechaExamenString = new SimpleDateFormat("yyyy-MM-dd").format(examen.get().getFecha());
@@ -252,23 +238,26 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar las notas del examen luego de que fue rendido
 	 	boolean calificacionCargada = true;
-	 	if (fechaActual.after(fechaExamen)) {	 		
+	 	String mensaje = null;
+	 	//if (fechaActual.after(fechaExamen)) {	 		
 	 		Estudiante_Examen estudianteExamen;
 	 		Iterator<Estudiante_Examen> itEstudianteExamen = estudiantesExamen.iterator();
 	 		Usuario estudiante;
 	 		while (itEstudianteExamen.hasNext() && calificacionCargada) {	
 	 			estudianteExamen = itEstudianteExamen.next();
 	 			estudiante = inscripcionService.obtenerEstudianteEstudianteExamen(estudianteExamen.getId());
-	 			calificacionCargada = inscripcionService.ingresarCalificacionExamen(estudiante, examen.get(), estudianteExamen.getNota());
+	 			respuesta = inscripcionService.ingresarCalificacionExamen(estudiante, examen.get(), estudianteExamen.getNota());
+	 			calificacionCargada = respuesta.isEstado();
+	 			mensaje = respuesta.getMensaje();
 	 		}
 	 		String topico = examen.get().getAsignatura().getNombre().replace(" ","_") +"-examen-"+String.valueOf(examen.get().getId());
 	 		this.send(topico);
-	 	}
-	 	else return new Response(false,"Las calificaciones no pudieron ser ingresadas, aun no es la fecha del examen");
-	 	
+	 	/*}
+	 	else return new Response(false,"Las calificaciones no pudieron ser ingresadas, aun no ha sido tomado el examen");*/
 	 	if (calificacionCargada) {
 	 		return new Response(true, "Las calificaciones fueron ingresadas con exito");
-	 	}else return new Response(false, "Las calificaiones no pudieron ser ingresadas");
+	 	}
+	 	else return new Response(false, mensaje);
 	}
 	
 	@PostMapping("/ingresarcalificacioncurso")
@@ -288,12 +277,10 @@ public class InscripcionController {
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar la nota del curso luego de que ha finalizado
-	 	if (fechaActual.after(fechaFinCurso)) {
-	 		if (inscripcionService.ingresarCalificacionCurso(usuario.get(), curso.get(), nota)) {
-	 			return new Response(true, "La calificacion pudo ser ingresada con exito");
-	 		}else return new Response(false, "La calificacion no pudo ser ingresada");
-	 	}
-	 	else return new Response(false, "La calificacion no pudo ser ingresada, el curso aun no ha finalizado");
+	 	//if (fechaActual.after(fechaFinCurso)) {
+	 		return inscripcionService.ingresarCalificacionCurso(usuario.get(), curso.get(), nota);
+	 	/*}
+	 	else return new Response(false, "La calificacion no pudo ser ingresada, el curso aun no ha finalizado");*/
 	}
 	
 	
@@ -302,6 +289,7 @@ public class InscripcionController {
 	public Response cargarCalificacionesCurso(HttpServletRequest request,
 			@RequestBody(required = true) List<Curso_Estudiante> estudiantesCurso,
 			@RequestParam(name = "cursoId", required = true) String cursoIdStr) throws ParseException {
+		Response respuesta;
 		long cursoId = Long.parseLong(cursoIdStr);
 		Optional<Curso> curso = cursoService.obtenerCurso(cursoId);		
 		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
@@ -311,24 +299,27 @@ public class InscripcionController {
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se pueden ingresar las notas del cusro luego de que finalizo
 	 	boolean calificacionCargada = true;
+	 	String mensaje = null;
 	 	System.out.println("Entro a cargarCalificacionesCurso");
-	 	if (fechaActual.after(fechaFinCurso)) {	 		
+	 	//if (fechaActual.after(fechaFinCurso)) {	 		
 	 		Curso_Estudiante estudianteCurso;
 	 		Iterator<Curso_Estudiante> itEstudianteCurso = estudiantesCurso.iterator();
 	 		Usuario estudiante;
 	 		while (itEstudianteCurso.hasNext() && calificacionCargada) {
 	 			estudianteCurso = itEstudianteCurso.next();
 	 			estudiante = inscripcionService.obtenerEstudianteCursoEstudiante(estudianteCurso.getId());
-	 			calificacionCargada = inscripcionService.ingresarCalificacionCurso(estudiante, curso.get(), estudianteCurso.getNota());
+	 			respuesta = inscripcionService.ingresarCalificacionCurso(estudiante, curso.get(), estudianteCurso.getNota());
+	 			calificacionCargada = respuesta.isEstado();
+	 			mensaje = respuesta.getMensaje();
 	 		}
 	 		String topico = curso.get().getAsignatura().getNombre().replace(" ","_") +"-"+String.valueOf(curso.get().getSemestre()+"-"+String.valueOf(curso.get().getAnio()));
 	 		this.send(topico);
-
-	 	}
-	 	else return new Response(false, "Las calificacionse no pudieron ser ingresadas, el curso aun no ha finalizado");
+	 	/*}
+	 	else return new Response(false, "Las calificaciones no pudieron ser ingresadas, el curso aun no ha finalizado");*/
 	 	if (calificacionCargada) {
 	 		return new Response(true, "Las calificaciones fueron ingresadas con exito");
-	 	}else return new Response(false, "Las calificaciones no pudieron ser ingresadas");
+	 	}
+	 	else return new Response(false, mensaje);
 	}
 	
 	@GetMapping(value = "/send", produces = "application/json")

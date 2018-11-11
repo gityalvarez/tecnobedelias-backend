@@ -154,8 +154,7 @@ public class UsuarioController {
     @PostMapping("/borrar")
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
     public void borrarUsuario(@RequestBody Usuario usuario) {
-    	System.out.println("entre al borrar usuario con el usuario "+usuario.getUsername()+" y el apellido "+usuario.getApellido());
-    	usuarioService.bajaUsuario(usuario);
+    	 usuarioService.bajaUsuario(usuario);
     }
     
     @GetMapping("/reset")
@@ -210,7 +209,7 @@ public class UsuarioController {
     						usuarioService.modificacionUsuario(usuarioExistente.get());
     						return new Response(true,"El usuario se modifico con exito");
     					}
-    					else return new Response(false,"No se pudo modificar el usuario");
+    					else return new Response(false,"No se pudo modificar el usuario, ya existe un usuario con el email ingresado");
     				}
     				else {
     					usuarioExistente = usuarioService.obtenerUsuario(usuarioId);
@@ -223,7 +222,7 @@ public class UsuarioController {
 						return new Response(true,"El usuario se modifico con exito");
     				}
     			}
-    			else return new Response(false,"No se pudo modificar el usuario");
+    			else return new Response(false,"No se pudo modificar el usuario, ya existe un usuario con la cedula ingresada");
     		}
     		else {
     			if (usuarioService.existeEmail(usuario.getEmail())) {
@@ -238,7 +237,7 @@ public class UsuarioController {
     					usuarioService.modificacionUsuario(usuarioExistente.get());
     					return new Response(true,"El usuario se modifico con exito");
     				}
-    				else return new Response(false,"No se pudo modificar el usuario");
+    				else return new Response(false,"No se pudo modificar el usuario, ya existe un usuario con el email ingresado");
     			}
     			else {
     				usuarioExistente = usuarioService.obtenerUsuario(usuarioId);

@@ -29,11 +29,11 @@ public interface CarreraService {
 	
 	public boolean modificarAsignaturaCarrera(Asignatura_Carrera asigncarrera);
 	
-	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera);
+	public Response desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera);
 	
 	public Response agregarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
 	
-	public boolean eliminarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
+	public Response eliminarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera previa);
 	
 	public List<Asignatura> listarAsingaturas(String carrera);
 	

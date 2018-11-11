@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proyecto.tecnobedelias.Util.Response;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
@@ -58,16 +59,18 @@ public class InscripcionServiceImpl implements InscripcionService {
 	EmailService emailService;
 	
 	@Override
-	public boolean inscripcionCarrera(Usuario usuario, Carrera carrera) {
+	public Response inscripcionCarrera(Usuario usuario, Carrera carrera) {
+		Response respuesta;
 		if (usuario.getCarreras().contains(carrera)) {
-			return false;
-		} else {
+			respuesta = new Response(false,"No se pudo inscribir a la carrera, ya se encuentra inscripto");
+		} 
+		else {
 			usuario.getCarreras().add(carrera);
-			//usuarioRepository.save(usuario);
 			carrera.getEstudiantes().add(usuario);
 			carreraRepository.save(carrera);						
-			return true;
+			respuesta = new Response(true,"Se ha inscripto a la carrera con exito");
 		}
+		return respuesta;
 	}
 	
 	/*private boolean isElectivaAsignaturaCarrera(Asignatura asignatura, Carrera carrera) {
@@ -159,30 +162,26 @@ public class InscripcionServiceImpl implements InscripcionService {
 	}
 	
 	@Override
-	public boolean inscripcionCurso(Usuario usuario, Curso curso) {
+	public Response inscripcionCurso(Usuario usuario, Curso curso) {
 		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso,	usuario);
-		boolean matriculado = false;
-		boolean puedeMatricularse = true; 
+		boolean estudianteMatriculado = false;
+		boolean asignaturaAprobada = false; 
+		Response respuesta;
 		// si ya está matriculado o salvo la asignatura correspondiente al curso no puede matricularse 
 		if (cursoEstudianteExistente.isPresent()) {
 			//if (cursoEstudianteExistente.get().getEstado().equals("MATRICULADO") || cursoEstudianteExistente.get().getEstado().equals("SALVADO")) {	
-				puedeMatricularse = false;
+				estudianteMatriculado = true;
 				System.out.println("El estudiante ya esta matriculado");
 			//}
 		}
 		if (isAprobadaAsignaturaEstudiante(curso.getAsignatura(), usuario)) {
 			System.out.println("El estudiante ya tiene aprobada la asignatura");
-			puedeMatricularse = false;	
+			asignaturaAprobada = true;	
 		}
 		// si no recorro las carreras en las que el usuario esta inscripto y me fijo si la asignatura del curso pertenece a una de estas carreras
-		if (puedeMatricularse) {
+		if (!estudianteMatriculado) {
 			System.out.println("El estudiante no esta matriculado");
-			/*for (Carrera carrera : usuario.getCarreras()) {
-				for (Asignatura_Carrera asign_carrera : carrera.getAsignaturaCarrera()) {
-					if (asign_carrera.getAsignatura().equals(curso.getAsignatura()))
-						encontrada = true;
-				}				
-			}*/			
+		if (!asignaturaAprobada) {
 			if (isAsignaturaEnCarreraEstudiante(curso.getAsignatura(), usuario)) {
 				System.out.println("La asignatura pertenece a una carrera en la que esta inscripto el usuario");
 				boolean cumplePreviaturas = true;
@@ -283,11 +282,16 @@ public class InscripcionServiceImpl implements InscripcionService {
 					usuario.getCursoEstudiante().add(cursoEstudiante);
 					curso.getCursoEstudiante().add(cursoEstudiante);					
 					cursoEstudianteRepository.save(cursoEstudiante);
-					matriculado = true;				 				
+					respuesta = new Response(true,"Se ha matriculado al curso con exito");
 				}
+				else respuesta = new Response(false,"No se pudo matricular al curso, no fueron salvadas todas las asignaturas previas");
 			}
-		}		
-		return matriculado;
+			else respuesta = new Response(false,"No se pudo matricular al curso, la asignatura no fue asignada a una carrera donde el estudiante este inscripto");
+		}
+		else respuesta = new Response(false,"No se pudo matricular al curso, ya tiene la asignatura salvada");
+		}
+		else respuesta = new Response(false,"No se pudo matricular al curso, ya se encuentra matriculado");		
+		return respuesta;
 	}	
 	
 	
@@ -320,26 +324,28 @@ public class InscripcionServiceImpl implements InscripcionService {
 
 	
 	@Override
-	public boolean inscripcionExamen(Usuario usuario, Examen examen) {		
+	public Response inscripcionExamen(Usuario usuario, Examen examen) {		
 		Optional<Estudiante_Examen> estudianteExamenExistente = estudianteExamenRepository.findByExamenAndEstudiante(examen, usuario);
-		boolean anotado = false;
-		boolean puedeAnotarse = true;
+		Response respuesta;
+		boolean estudianteAnotado = false;
+		boolean asignaturaAprobada = false;
 		// si ya esta inscripto al examen no puede volver a anotarse
 		if (!examen.getAsignatura().isTaller()) {
 			if (estudianteExamenExistente.isPresent()) {// si ya está matriculado o salvo la asignatura correspondiente al curso no puede matricularse 
 				//if (estudianteExamenExistente.get().getEstado().equals("ANOTADO") || estudianteExamenExistente.get().getEstado().equals("APROBADO")) {
-					System.out.println("El estudiante ya esta anotado");
-					puedeAnotarse = false;	
+				System.out.println("El estudiante ya esta anotado");
+				estudianteAnotado = true;	
 				//}
 			}
 			if (isAprobadaAsignaturaEstudiante(examen.getAsignatura(), usuario)) {
 				System.out.println("El estudiante ya tiene aprobada la asignatura");
-				puedeAnotarse = false;	
+				asignaturaAprobada = true;	
 			}
-			//Curso ultimocurso = obtenerUltimoCursoAsignaturaEstudiante(examen.getAsignatura(), usuario);
-			if (puedeAnotarse) {			
+			if (!estudianteAnotado) {
+			if (!asignaturaAprobada) {
 				// si la asignatura del examen al cual se quiere anotar pertenece a una carrera en que esté matriculado	
 				if (isAsignaturaEnCarreraEstudiante(examen.getAsignatura(), usuario)) {
+					respuesta = new Response(false,"No se puedo anotar al examen, hubo un problema con las fechas");
 					try {
 						System.out.println("La asignatura del examen pertenece a una carrera del estudiante");
 						Iterator<Curso_Estudiante> itCursoEst = usuario.getCursoEstudiante().iterator();
@@ -348,6 +354,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 						SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd");
 						String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(fechaActualDate);
 						Date fechaActual = formateadorfecha.parse(fechaActualString);
+						boolean anotado = false;
 						Calendar calendar;
 						String fechaFinMas2AniosString;
 						Date fechaFinMas2Anios;
@@ -355,10 +362,11 @@ public class InscripcionServiceImpl implements InscripcionService {
 						Date fechaFin;
 						String fechaExamenString;
 						Date fechaExamen;
-						int examenes_rendidos;
+						int examenes_rendidos;						
 						while (itCursoEst.hasNext() && !anotado) {
 							// si la asignatura del curso coincide con la del examen
 							Curso_Estudiante curso_est = itCursoEst.next();
+							System.out.println("asignatura "+curso_est.getCurso().getAsignatura().getNombre());
 							if (curso_est.getCurso().getAsignatura().equals(examen.getAsignatura())) {
 								System.out.println("estado estudiante en curso "+curso_est.getEstado());
 								// si el estudiante tiene ganado el curso para el que se encuentra matriculado en la asignatura del examen
@@ -401,43 +409,55 @@ public class InscripcionServiceImpl implements InscripcionService {
 											estudianteExamen.setCedula(usuario.getCedula());
 											estudianteExamen.setEstado("ANOTADO");
 											estudianteExamen.setNota(-1);
-											estudianteExamenRepository.save(estudianteExamen);
+											estudianteExamenRepository.save(estudianteExamen);											
 											anotado = true;	
-										}
-									}
-								}
-							}
+										}										
+									}									
+								}								
+							}							
 						}
+						if (!anotado) {
+							respuesta = new Response(false,"No se pudo anotar al examen, no cumple con los requisitos de habilitacion necesarios para hacerlo");
+						}
+						else respuesta = new Response(true,"Se ha anotado al examen con exito");
 					} 
 					catch (Exception e) {
-						System.out.println("Excepcion en las fechas");
+						System.out.println("Excepcion en las fechas");						
 					} 
 				}
+				else respuesta = new Response(false,"No se pudo anotar al examen, la asignatura no fue asignada a una carrera donde el estudiante este inscripto");
 			}
-		}		
-		return anotado;			
+			else respuesta = new Response(false,"No se pudo anotar al examen, ya tiene la asignatura salvada");	
+			}
+			else respuesta = new Response(false,"No se pudo anotar al examen, ya se encuentra anotado");	
+		}	
+		else respuesta = new Response(false,"No se pudo anotar al examen, la asignatura es de tipo taller");
+		return respuesta;			
 	}
 
 	
 
 	@Override
-	public boolean desistirCurso(Usuario usuario, Curso curso) {
+	public Response desistirCurso(Usuario usuario, Curso curso) {
 		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso,	usuario);
+		Response respuesta;
 		if (cursoEstudianteExistente.isPresent()) {	
 			//System.out.println("existe el estudiante en el curso");
 			if (cursoEstudianteExistente.get().getEstado().equals("MATRICULADO")) {
 				usuario.getCursoEstudiante().remove(cursoEstudianteExistente.get());
 				curso.getCursoEstudiante().remove(cursoEstudianteExistente.get());
 				cursoEstudianteRepository.delete(cursoEstudianteExistente.get());
-				return true;
+				respuesta = new Response(true,"Ha desistido al curso con exito");
 			}
-			else return false;
+			else respuesta = new Response(false,"No pudo desistir al curso, ya ha finalizado y tiene calificacion ingresada");
 		} 
-		else return false;		
+		else respuesta = new Response(false,"No pudo desistir al curso, no estaba matriculado en el mismo");	
+		return respuesta;
 	}
 
 	@Override
-	public boolean desistirExamen(Usuario usuario, Examen examen) {		
+	public Response desistirExamen(Usuario usuario, Examen examen) {	
+		Response respuesta;
 		Optional<Estudiante_Examen> estudianteExamenExistente = estudianteExamenRepository.findByExamenAndEstudiante(examen, usuario);
 		if (estudianteExamenExistente.isPresent()) {
 			//System.out.println("existe el estudiante en el examen");
@@ -445,11 +465,12 @@ public class InscripcionServiceImpl implements InscripcionService {
 				usuario.getEstudianteExamen().remove(estudianteExamenExistente.get());
 				examen.getEstudianteExamen().remove(estudianteExamenExistente.get());
 				estudianteExamenRepository.delete(estudianteExamenExistente.get());
-				return true;
+				respuesta = new Response(true,"Ha desistido al examen con exito");
 			}
-			else return false;
+			else respuesta = new Response(false,"No pudo desistir al examen, ya fue tomado y tiene calificacion ingresada");
 		}
-		else return false;
+		else respuesta = new Response(false,"No pudo desistir al examen, no estaba anotado en el mismo");
+		return respuesta;
 	}
 
 	/*@Override
@@ -492,7 +513,8 @@ public class InscripcionServiceImpl implements InscripcionService {
 	}
 
 	@Override
-	public boolean ingresarCalificacionExamen(Usuario usuario, Examen examen, int nota) {
+	public Response ingresarCalificacionExamen(Usuario usuario, Examen examen, int nota) {
+		Response respuesta;
 		Optional<Estudiante_Examen> estudianteExamenExistente = estudianteExamenRepository.findByExamenAndEstudiante(examen, usuario);
 		if (!usuario.getCarreras().isEmpty()) {
 			boolean asignaturaEncontrada = false;			
@@ -517,23 +539,25 @@ public class InscripcionServiceImpl implements InscripcionService {
 							else estudianteExamenExistente.get().setEstado("REPROBADO");
 							estudianteExamenRepository.save(estudianteExamenExistente.get());
 							emailService.sendEmailCalifiacion("examen", usuario.getEmail(), examen.getAsignatura().getNombre());
-							return true;
+							respuesta = new Response(true,"Se ha ingresado la calificacion al examen");
 						}
-						else return false;						
+						else respuesta = new Response(false,"No se pudo ingresar la calificacion al examen para el estudiante " + usuario.getCedula() + ", la calificacion ingresada es menor a cero o mayor a la nota maxima");						
 					}
-					else return false;
+					else respuesta = new Response(false,"No se pudo ingresar la calificacion al examen, el estudiante " + usuario.getCedula() + " ya tiene una calificacion ingresada");
 				}
-				else return false;
+				else respuesta = new Response(false,"No se pudo ingresar la calificacion al examen, el estudiante " + usuario.getCedula() + " no esta anotado en el mismo");
 			}
-			else return false;
+			else respuesta = new Response(false,"No se pudo ingresar la calificacion al examen, la asignatura del mismo no esta asignada en ninguna carrera a la que este inscripto el estudiante " + usuario.getCedula());
 		}
-		else return false;
+		else respuesta = new Response(false,"No se pudo ingresar la calificacion al examen, el estudiante " + usuario.getCedula() + " no esta inscripto en ninguna carrera");
+		return respuesta;
 	}
 	
 	
 	@Override
-	public boolean ingresarCalificacionCurso(Usuario usuario, Curso curso, int nota) {
+	public Response ingresarCalificacionCurso(Usuario usuario, Curso curso, int nota) {
 		Optional<Curso_Estudiante> cursoEstudianteExistente = cursoEstudianteRepository.findByCursoAndEstudiante(curso, usuario);
+		Response respuesta;
 		if (cursoEstudianteExistente.isPresent()) {
 			System.out.println("existe el estudiante en el curso");
 			if (!usuario.getCarreras().isEmpty()) {
@@ -563,17 +587,18 @@ public class InscripcionServiceImpl implements InscripcionService {
 							else cursoEstudianteExistente.get().setEstado("RECURSA");
 							cursoEstudianteRepository.save(cursoEstudianteExistente.get());
 							emailService.sendEmailCalifiacion("curso", usuario.getEmail(), curso.getAsignatura().getNombre());
-							return true;							
+							respuesta = new Response(true,"Se ha ingresado la calificacion al curso");							
 						}
-						else return false;						
+						else respuesta = new Response(false,"No se pudo ingresar la calificacion al curso para el estudiante " + usuario.getCedula() + ", la calificacion ingresada es menor a cero o mayor a la nota maxima");						
 					}
-					else return false;
+					else respuesta = new Response(false,"No se pudo ingresar la calificacion al curso, el estudiante " + usuario.getCedula() + " ya tiene una calificacion ingresada");
 				}
-				else return false;
+				else respuesta = new Response(false,"No se pudo ingresar la calificacion al curso, la asignatura del mismo no esta asignada en ninguna carrera a la que este inscripto el estudiante " + usuario.getCedula());
 			}
-			else return false;
+			else respuesta = new Response(false,"No se pudo ingresar la calificacion al curso, el estudiante " + usuario.getCedula() + " no esta inscripto en ninguna carrera");
 		}
-		else return false;
+		else respuesta = new Response(false,"No se pudo ingresar la calificacion al curso, el estudiante " + usuario.getCedula() + " no esta matriculado en el mismo");
+		return respuesta;
 	}
 	
 	

@@ -29,7 +29,7 @@ public class Examen implements Serializable {
 	@Column(name="id")
 	private long id;
 	
-	@Column(name="fecha", nullable=true)	
+	@Column(name="fecha", nullable=false)	
 	private Date fecha;
 	
 	@Column(name="hora", nullable=true)	

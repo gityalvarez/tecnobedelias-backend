@@ -47,6 +47,7 @@ public class ExamenController {
     		@RequestBody(required = true) Examen examen, 
     		@RequestParam(name = "nombre", required = true) String nombreAsignatura) throws ParseException{
 		System.out.println("entre a crearExamen");
+		Response respuesta;
 		Optional<Asignatura> asignaturaOpt = asignaturaService.obtenerAsignaturaNombre(nombreAsignatura);
 		if (!asignaturaOpt.get().isTaller()) {
 			examen.setAsignatura(asignaturaOpt.get());
@@ -93,9 +94,7 @@ public class ExamenController {
 							Date fechaExamenDate = formateadorfecha.parse(fechaExamenString);
 							if (fechaExamenDate.before(fechaFinCursoDate)) {
 								System.out.println("fecha examen < fecha fin curso");
-								//fechaOk = false;
-								return new Response(false, "El examen no pudo ser creado, la fecha es anterior al fin de curso");
-
+								fechaOk = false;								
 							}
 						/*}
 						//else fechaOk = false;*/
@@ -108,18 +107,16 @@ public class ExamenController {
 						Asignatura asignatura = examenOpt.get().getAsignatura();
 						asignatura.getExamenes().add(examenOpt.get());
 						asignaturaService.modificacionAsignatura(asignatura);
-						return new Response(true, "El examen fue creado con exito");
+						respuesta = new Response(true, "El examen fue creado con exito");
 					}
-					else return new Response(false, "El examen no pudo ser creado, la fecha no es correcta");
+					else respuesta = new Response(false, "El examen no pudo ser creado, la fecha es anterior al fin de curso");
 				}
-				else {
-					System.out.println("La asignatura no tiene cursos");
-					return new Response(false, "El examen no pudo ser creado, la asignatura no tiene ningun curso");
-				}
+				else respuesta = new Response(false, "El examen no pudo ser creado, la asignatura no tiene ningun curso");
 			}
-			else return new Response(false, "El examen no pudo ser creado, ya existe un examen de esta asignatura para esa fecha");
+			else respuesta = new Response(false, "El examen no pudo ser creado, ya existe un examen de esta asignatura para esa fecha");
 		}
-		else return new Response(false, "El examen no pudo ser creado, la asignatura es taller");
+		else respuesta = new Response(false, "El examen no pudo ser creado, la asignatura es taller");
+		return respuesta;
     }
 	
 	
@@ -129,6 +126,7 @@ public class ExamenController {
     		@RequestBody(required = true) Examen examen, 
     		@RequestParam(name = "examenId", required = true) String examenIdStr) throws ParseException {
 		System.out.println("entre a modificarExamen");
+		Response respuesta;
 		long examenId = Long.parseLong(examenIdStr);
 		if (examenService.existeExamen(examenId)) {			
 			boolean fechaOk = true;
@@ -147,73 +145,74 @@ public class ExamenController {
 			Date fechaNuevaExamenDate = formateadorfecha.parse(fechaNuevaExamenString);
 			examen.setFecha(fechaNuevaExamenDate);
 			//System.out.println("fecha nueva examen "+examen.getFecha());
-			if (fechaNuevaExamenDate.after(fechaActualDate) && fechaActualDate.before(fechaActualExamenDate)) {
-				List<Curso> cursosAsignatura = examenExistente.getAsignatura().getCursos();
-				if (!cursosAsignatura.isEmpty()) {
-					String fechaFinCursoString;				
-					long fechaActual = fechaActualDate.getTime();
-					Date fechaFinCursoDate;
-					long fechaFinCurso;
-					long diferencia = Long.MAX_VALUE;
-					Curso ultimocurso = null;
-					// obtengo el ultimo curso de la asignatura para la que se quiere modificar el examen
-					for (Curso curso : cursosAsignatura) {
-						fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
-						fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
-						fechaFinCurso = fechaFinCursoDate.getTime();
-						if (fechaActual - fechaFinCurso < diferencia) {
-							diferencia = fechaActual - fechaFinCurso;
-							ultimocurso = curso;
-						}
-					}	
-					// si existe el ultimo curso
-					if (ultimocurso != null) {
-						//System.out.println("encuentro ultimo curso");
-						fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(ultimocurso.getFechaFin());
-						fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
-						//System.out.println("fecha fin ultimo curso " + fechaFinCursoString);
-						//if (fechaActualDate.after(fechaFinCursoDate)) {
-							if (fechaNuevaExamenDate.before(fechaFinCursoDate)) {
-								System.out.println("fecha examen < fecha fin curso");
-								fechaOk = false;
+			if (fechaNuevaExamenDate.after(fechaActualDate)) { 
+				if (fechaActualDate.before(fechaActualExamenDate)) {
+					List<Curso> cursosAsignatura = examenExistente.getAsignatura().getCursos();
+					if (!cursosAsignatura.isEmpty()) {
+						String fechaFinCursoString;				
+						long fechaActual = fechaActualDate.getTime();
+						Date fechaFinCursoDate;
+						long fechaFinCurso;
+						long diferencia = Long.MAX_VALUE;
+						Curso ultimocurso = null;
+						// obtengo el ultimo curso de la asignatura para la que se quiere modificar el examen
+						for (Curso curso : cursosAsignatura) {
+							fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(curso.getFechaFin());
+							fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
+							fechaFinCurso = fechaFinCursoDate.getTime();
+							if (fechaActual - fechaFinCurso < diferencia) {
+								diferencia = fechaActual - fechaFinCurso;
+								ultimocurso = curso;
 							}
-						/*}
-						//else fechaOk = false;*/
-					}
-					else fechaOk = false;
-					if (fechaOk) {
-						//System.out.println("fechaOk");
-						//System.out.println("asignatura "+examenExistente.getAsignatura().getNombre());
-						//System.out.println("nueva fecha "+examen.getFecha());
-						if (examenService.existeExamen(examenExistente.getAsignatura(), examen.getFecha())) {
-							Examen examenExistenteAsignFecha = examenService.obtenerExamen(examenExistente.getAsignatura(), examen.getFecha()).get();
-							if (examenExistenteAsignFecha.getId() == examenExistente.getId()) {
-								System.out.println("fecha examen: "+ examen.getFecha());
+						}	
+						// si existe el ultimo curso
+						if (ultimocurso != null) {
+							//System.out.println("encuentro ultimo curso");
+							fechaFinCursoString = new SimpleDateFormat("yyyy-MM-dd").format(ultimocurso.getFechaFin());
+							fechaFinCursoDate = formateadorfecha.parse(fechaFinCursoString);
+							//System.out.println("fecha fin ultimo curso " + fechaFinCursoString);
+							//if (fechaActualDate.after(fechaFinCursoDate)) {
+								if (fechaNuevaExamenDate.before(fechaFinCursoDate)) {
+									System.out.println("fecha examen < fecha fin curso");
+									fechaOk = false;
+								}
+							/*}
+							//else fechaOk = false;*/
+						}
+						else fechaOk = false;
+						if (fechaOk) {
+							//System.out.println("fechaOk");
+							//System.out.println("asignatura "+examenExistente.getAsignatura().getNombre());
+							//System.out.println("nueva fecha "+examen.getFecha());
+							if (examenService.existeExamen(examenExistente.getAsignatura(), examen.getFecha())) {
+								Examen examenExistenteAsignFecha = examenService.obtenerExamen(examenExistente.getAsignatura(), examen.getFecha()).get();
+								if (examenExistenteAsignFecha.getId() == examenExistente.getId()) {
+									System.out.println("fecha examen: "+ examen.getFecha());
+									examenExistente.setFecha(examen.getFecha());
+									examenExistente.setHora(examen.getHora());
+									examenService.modificacionExamen(examenExistente);
+									respuesta = new Response(true, "El examen fue modificado con exito");
+								}
+								else respuesta = new Response(false, "El examen no pudo ser modificado, ya hay un examen para la asignatura en la fecha ingresada");
+							}
+							else {
+								//System.out.println("fecha examen: "+examen.getFecha());
 								examenExistente.setFecha(examen.getFecha());
 								examenExistente.setHora(examen.getHora());
 								examenService.modificacionExamen(examenExistente);
-								return new Response(true, "El examen fue modificado correctamente");
+								respuesta = new Response(true, "El examen fue modificado con exito");
 							}
-							else return new Response(false, "El examen no pudo ser modificado, ya hay un examen para esa fecha");
 						}
-						else {
-							System.out.println("fecha examen: "+examen.getFecha());
-							examenExistente.setFecha(examen.getFecha());
-							examenExistente.setHora(examen.getHora());
-							examenService.modificacionExamen(examenExistente);
-							return new Response(true, "El examen fue modificado correctamente");
-						}
+						else respuesta = new Response(false, "El examen no pudo ser modificado, la nueva fecha es anterior a la fecha de finalizacion del ultimo curso");
 					}
-					else return new Response(false, "El examen no pudo ser modificado, las fechas no son correctas");
+					else respuesta = new Response(false, "El examen no pudo ser modificado, la asignatura no tiene ningun curso");					
 				}
-				else {
-					System.out.println("La asignatura no tiene cursos");
-					return new Response(false, "El examen no pudo ser modificado, la asignatura no tiene ningun curso");
-				}
+				else respuesta = new Response(false, "El examen no pudo ser modificado, el examen ya fue tomado");
 			}
-			else return new Response(false, "El examen no pudo ser modificado, las fechas no son correctas");
+			else respuesta = new Response(false, "El examen no pudo ser modificado, la nueva fecha es anterior a la fecha actual");
 		}
-		else return new Response(false, "El examen no pudo ser modificado, el examen no existe");
+		else respuesta = new Response(false, "El examen no pudo ser modificado, el examen no existe");
+		return respuesta;
     }
 	
 	
@@ -221,15 +220,17 @@ public class ExamenController {
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public Response borrarExamen(HttpServletRequest request, @RequestParam(name = "examenId", required = true) String examenIdStr) {
 		long examenId = Long.parseLong(examenIdStr);
+		Response respuesta;
 		if (examenService.existeExamen(examenId)) {
 			Examen examen = examenService.obtenerExamen(examenId).get();
 			if (examen.getEstudianteExamen().isEmpty()) {
 				examenService.bajaExamen(examen);
-				return new Response(true,"El examen fue borrado con exito");
+				respuesta = new Response(true,"El examen fue borrado con exito");
 			}
-			else return new Response(false,"El examen no pudo ser borrado, tiene algun estudiante inscripto");
+			else respuesta = new Response(false,"El examen no pudo ser borrado, tiene algun estudiante registrado");
 		}
-		else return new Response(false,"El examen no pudo ser borrado, el examen no existe");
+		else respuesta = new Response(false,"El examen no pudo ser borrado, el examen no existe");
+		return respuesta;
 	}
 	
 	/*@PostMapping("/asignarAsignatura")

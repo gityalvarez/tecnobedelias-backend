@@ -4,15 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
-import java.util.Random;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.proyecto.tecnobedelias.Util.Response;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
@@ -24,8 +18,6 @@ import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Asignatura_CarreraRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
 import com.proyecto.tecnobedelias.service.CarreraService;
-
-import ch.qos.logback.core.net.SyslogOutputStream;
 
 @Service
 public class CarreraServiceImpl implements CarreraService {
@@ -76,21 +68,21 @@ public class CarreraServiceImpl implements CarreraService {
 	public Response asignarAsignaturaCarrera(Asignatura_Carrera asigncarrera) {
 		Optional<Asignatura_Carrera> asignaturaCarreraExistente = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asigncarrera.getAsignatura(), asigncarrera.getCarrera());
 		if (asignaturaCarreraExistente.isPresent()) {
-			return new Response(false, "La asignatura no pudo ser asignada, ya existe la asignatura en la carrera");
+			return new Response(false, "La asignatura no pudo ser asignada , ya existe la asignatura en la carrera");
 		} 
 		if (asigncarrera.getCreditos() >= 0) {
-			if (asigncarrera.getNotaMinimaExamen() >= 0 && asigncarrera.getNotaMinimaExamen() < asigncarrera.getNotaMinimaExonera() && asigncarrera.getNotaMinimaExonera() <= asigncarrera.getNotaMaxima()) {
+			if (asigncarrera.getNotaMinimaExamen() >= 0 && asigncarrera.getNotaMinimaExamen() < asigncarrera.getNotaMinimaExonera() && asigncarrera.getNotaMinimaExonera() <= asigncarrera.getNotaMaxima()) {				
 				if (asigncarrera.getNotaSalvaExamen() >= 0 && asigncarrera.getNotaSalvaExamen() <= asigncarrera.getNotaMaxima()) {
 					asigncarrera.getCarrera().getAsignaturaCarrera().add(asigncarrera);
 					asigncarrera.getAsignatura().getAsignaturaCarrera().add(asigncarrera);
 					asignaturaCarreraRepository.save(asigncarrera);
-					return new Response(true, "La asignatura fue asignada con exito");
+					return new Response(true, "La asignatura " + asigncarrera.getAsignatura().getNombre() + " fue asignada con exito a la carrera " + asigncarrera.getCarrera().getNombre());
 				}
-				else return new Response(false, "La asignatura no pudo ser asignada, las notas no son correctas");
+				else return new Response(false, "La asignatura no pudo ser asignada, la nota minima con que salva el examen debe ser menor o igual que la nota maxima y mayor o igual a cero");
 			}
-			else return new Response(false, "La asignatura no pudo ser asignada, las notas no son correctas");
+			else return new Response(false, "La asignatura no pudo ser asignada, la nota minima para ganar el derecho a examen debe ser menor que la nota minima de exoneracion y ambas deben ser menores o iguales a la nota maxima y mayores o iguales a cero");
 		}
-		else return new Response(false, "La asignatura no pudo ser asignada, debe tener algun credito");
+		else return new Response(false, "La asignatura no pudo ser asignada, el valor de creditos debe ser mayor o igual a cero");
 	}
 	
 	@Override
@@ -119,17 +111,15 @@ public class CarreraServiceImpl implements CarreraService {
 	
 
 	@Override
-	public boolean desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera) {
+	public Response desasignarAsignaturaCarrera(Asignatura asignatura, Carrera carrera) {
 		Optional<Asignatura_Carrera> asignaturaCarrera = asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura, carrera);
 		if (asignaturaCarrera.isPresent() && asignaturaCarrera.get().getPreviaDe().isEmpty()) {
 			asignatura.getAsignaturaCarrera().remove(asignaturaCarrera.get());
 			carrera.getAsignaturaCarrera().remove(asignaturaCarrera.get());
 			asignaturaCarreraRepository.delete(asignaturaCarrera.get());
-			return true;
-		} else {
-			return false;
-		}
-
+			return new Response(true, "La asignatura " + asignatura.getNombre() + " fue desasignada con exito de la carrera " + carrera.getNombre());			
+		} 
+		else return new Response(false, "La asignatura no pudo ser desasignada dado que es previa de otra asignatura en la carrera");
 	}
 
 	@Override
@@ -140,10 +130,11 @@ public class CarreraServiceImpl implements CarreraService {
 				asignatura.getPrevias().add(asignaturaPrevia);
 				asignaturaPrevia.getPreviaDe().add(asignatura);
 				asignaturaCarreraRepository.save(asignatura);
-				return new Response(true, "La previa fue asignada con exito");
-			}else return new Response(false,"La previa no pudo ser agregada, se genera una referencia circular");
+				return new Response(true, "La asignatura " + asignaturaPrevia.getAsignatura().getNombre() + " fue asignada con exito como previa de la asignatura " + asignatura.getAsignatura().getNombre() + " en la carrera " + asignatura.getCarrera().getNombre());
+			}
+			else return new Response(false,"La previa no pudo ser asignada, se genera una referencia circular");
 		}
-		else return new Response(false, "La previa no pudo ser agregada, pertenece a otra carrera");
+		else return new Response(false, "La previa no pudo ser asignada, pertenece a otra carrera");
 	}	
 	
 	private boolean esPrevia(Asignatura_Carrera asignatura, Asignatura_Carrera previaABuscar) {		
@@ -161,16 +152,14 @@ public class CarreraServiceImpl implements CarreraService {
 	}
 
 	@Override
-	public boolean eliminarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera asignaturaPrevia) {
-		if(asignatura.getPrevias().contains(asignaturaPrevia)) {
+	public Response eliminarPreviaAsignatura(Asignatura_Carrera asignatura, Asignatura_Carrera asignaturaPrevia) {
+		if (asignatura.getPrevias().contains(asignaturaPrevia)) {
 			asignatura.getPrevias().remove(asignaturaPrevia);
 			asignaturaPrevia.getPreviaDe().remove(asignatura);
 			asignaturaCarreraRepository.save(asignatura);
-			return true;
-		}else {
-			return false;
+			return new Response(true, "La asignatura " + asignaturaPrevia.getAsignatura().getNombre() + " fue desasignada con exito como previa de la asignatura " + asignatura.getAsignatura().getNombre() + " en la carrera " + asignatura.getCarrera().getNombre());
 		}
-			
+		else return new Response(false, "La previa no pudo ser desasignada, pertenece a otra carrera"); 			
 	}
 
 	@Override

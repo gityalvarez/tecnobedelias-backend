@@ -51,6 +51,7 @@ public class CursoController {
 	public Response crearCurso(HttpServletRequest request, @RequestBody(required = true) Curso curso, 
 			@RequestParam(name = "nombre", required = true) String nombreAsignatura) throws ParseException {
 		System.out.println("entre a crearCurso");
+		Response respuesta;
 		Optional<Asignatura> asignaturaOpt = asignaturaService.obtenerAsignaturaNombre(nombreAsignatura);
 		curso.setAsignatura(asignaturaOpt.get());
 		curso.setNombreAsignatura(asignaturaOpt.get().getNombre());
@@ -61,7 +62,8 @@ public class CursoController {
 			int anioActual = Integer.parseInt(anioActualString);
 			System.out.println("anio actual: " + anioActual);	
 			if (curso.getAnio() >= anioActual) {				
-				boolean fechasOk = true;
+				boolean fechaInicioOk = true;
+				boolean fechaFinOk = true;
 				SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd");
 				String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(fechaActualDate);
 				Date fechaActual = formateadorfecha.parse(fechaActualString);
@@ -80,54 +82,55 @@ public class CursoController {
 			 	Date fechaFin = formateadorfecha.parse(fechaFinString);	
 			 	//System.out.println("fecha fin: " + fechaFin);	
 			 	if (fechaInicio.before(fechaActual)) {
-			 		return new Response(false, "El curso no pudo ser creado, la fecha de inicio es anterior a la fecha actual");
-			 		//System.out.println("fecha inicio < fecha actual");				
+			 		fechaInicioOk = false;			 					
 			 	}
 			 	if (fechaFin.before(fechaInicio)) {
-			 		return new Response(false, "El curso no pudo ser creado, la fecha de finalizacion es anterior a la fecha de inicio");
-			 		//System.out.println("fecha fin < fecha inicio");				
+			 		fechaFinOk = false;			 					
 			 	}
-			 	if (fechasOk) {
-			 		boolean horariosOk = true;
-			 		Date horaInicioDate;
-			 		Date horaFinDate;
-			 		long horaInicio;
-			 		long horaFin;
-			 		SimpleDateFormat formateadorhora = new SimpleDateFormat("HH:mm");
-			 		Iterator<Horario> itHorarios = curso.getHorarios().iterator();
-			 		Horario horario;
-			 		while (itHorarios.hasNext() && horariosOk) {
-			 			horario = itHorarios.next();
-			 			horaInicioDate = formateadorhora.parse(horario.getHoraInicio());
-			 			//System.out.println("horaInicioDate: "+ horaInicioDate);	
-			 			horaInicio = horaInicioDate.getTime();
-			 			horaFinDate = formateadorhora.parse(horario.getHoraFin());
-			 			//System.out.println("horaFinDate: "+ horaFinDate);	
-			 			horaFin = horaFinDate.getTime();
-			 			if (horaFin <= horaInicio) {
-			 				horariosOk = false;
-			 				return new Response(false, "El curso no pudo ser creado, los horarios no son correctos");
-			 				//System.out.println("hora fin <= hora inicio");	
+			 	if (fechaInicioOk) {
+			 		if (fechaFinOk) {
+			 			boolean horariosOk = true;
+			 			Date horaInicioDate;
+			 			Date horaFinDate;
+			 			long horaInicio;
+			 			long horaFin;
+			 			SimpleDateFormat formateadorhora = new SimpleDateFormat("HH:mm");
+			 			Iterator<Horario> itHorarios = curso.getHorarios().iterator();
+			 			Horario horario;
+			 			while (itHorarios.hasNext() && horariosOk) {
+			 				horario = itHorarios.next();
+			 				horaInicioDate = formateadorhora.parse(horario.getHoraInicio());
+			 				//System.out.println("horaInicioDate: "+ horaInicioDate);	
+			 				horaInicio = horaInicioDate.getTime();
+			 				horaFinDate = formateadorhora.parse(horario.getHoraFin());
+			 				//System.out.println("horaFinDate: "+ horaFinDate);	
+			 				horaFin = horaFinDate.getTime();
+			 				if (horaFin <= horaInicio) {
+			 					horariosOk = false;
+			 					//return new Response(false, "El curso no pudo ser creado, algun horario tiene hora de fin anterior a la hora de inicio");	
+			 				}
 			 			}
+			 			if (horariosOk) {
+			 				curso.setNombreAsignatura(nombreAsignatura);
+			 				curso.setFechaInicio(fechaInicio);
+			 				curso.setFechaFin(fechaFin);
+			 				cursoService.altaCurso(curso/*, horarios*/);
+			 				Optional<Curso> cursoOpt = cursoService.obtenerCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio());
+			 				Asignatura asignatura = cursoOpt.get().getAsignatura();
+			 				asignatura.getCursos().add(cursoOpt.get());
+			 				asignaturaService.modificacionAsignatura(asignatura);
+			 				respuesta = new Response(true, "El curso fue creado con exito para la asignatura " + nombreAsignatura);
+			 			}
+			 			else respuesta = new Response(false, "El curso no pudo ser creado, algun horario tiene hora de fin anterior a la hora de inicio");
 			 		}
-			 		if (horariosOk) {
-			 			curso.setNombreAsignatura(nombreAsignatura);
-			 			curso.setFechaInicio(fechaInicio);
-			 			curso.setFechaFin(fechaFin);
-			 			cursoService.altaCurso(curso/*, horarios*/);
-			 			Optional<Curso> cursoOpt = cursoService.obtenerCurso(curso.getAsignatura(), curso.getSemestre(), curso.getAnio());
-			 			Asignatura asignatura = cursoOpt.get().getAsignatura();
-			 			asignatura.getCursos().add(cursoOpt.get());
-			 			asignaturaService.modificacionAsignatura(asignatura);
-		 				return new Response(true, "El curso fue creado con exito");
-			 		}
-	 				return new Response(false, "El curso no pudo ser creado, los horarios no son correctos");
+			 		else respuesta = new Response(false, "El curso no pudo ser creado, la fecha de finalizacion es anterior a la fecha de inicio");
 			 	}
- 				return new Response(false, "El curso no pudo ser creado, las fechas no son correctas");
+			 	else respuesta = new Response(false, "El curso no pudo ser creado, la fecha de inicio es anterior a la fecha actual");
 			}
-			else return new Response(false, "El curso no pudo ser creado, el anio es anterior al actual");
+			else respuesta = new Response(false, "El curso no pudo ser creado, el anio es anterior al actual");
 		}
-		else return new Response(false, "El curso no pudo ser creado, ya existe un curso para esta asignatura en el mismo semestre del mismo anio");
+		else respuesta = new Response(false, "El curso no pudo ser creado, ya existe un curso para esta asignatura en el mismo semestre del mismo anio");
+		return respuesta;
 	}
 	
 	
@@ -136,9 +139,12 @@ public class CursoController {
 	public Response modificarCurso(HttpServletRequest request,  
 			@RequestBody(required = true) Curso curso, 
 			@RequestParam(name = "cursoId", required = true) String cursoIdStr) throws ParseException {
+		Response respuesta;
 		long cursoId = Long.parseLong(cursoIdStr);		
 		if (cursoService.existeCurso(cursoId)) {
-			boolean fechasOk = true;
+			boolean fechaInicioOk = true;
+			boolean fechaFinOk = true;
+			boolean fechaFinExistenteOk = true;
 			SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
 			String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 			Date fechaActual = formateadorfecha.parse(fechaActualString);
@@ -159,74 +165,81 @@ public class CursoController {
 		 	curso.setFechaFin(fechaFin);
 		 	System.out.println("fecha fin: " + fechaFin);	
 		 	if (fechaInicio.before(fechaActual)) {
-		 		fechasOk = false;
+		 		fechaInicioOk = false;		 		
 		 		System.out.println("fecha inicio < fecha actual");				
 		 	}
 		 	if (fechaFin.before(fechaInicio)) {
-		 		fechasOk = false;
+		 		fechaFinOk = false;
 		 		System.out.println("fecha fin < fecha inicio");				
 		 	}
 		 	Curso cursoExistente = cursoService.obtenerCurso(cursoId).get();
 		 	if (cursoExistente.getFechaFin().before(fechaActual)) {
-		 		fechasOk = false;
+		 		fechaFinExistenteOk = false;
 		 		System.out.println("fecha fin curso existente < fecha actual");				
 		 	}
-		 	if (fechasOk) {
-		 		boolean horariosOk = true;
-		 		Date horaInicioDate;
-		 		Date horaFinDate;
-		 		long horaInicio;
-		 		long horaFin;
-		 		SimpleDateFormat formateadorhora = new SimpleDateFormat("HH:mm");
-		 		Iterator<Horario> itHorarios = curso.getHorarios().iterator();
-		 		Horario horario;
-		 		while (itHorarios.hasNext() && horariosOk) {
-		 			horario = itHorarios.next();
-		 			horaInicioDate = formateadorhora.parse(horario.getHoraInicio());
-		 			//System.out.println("horaInicioDate: "+ horaInicioDate);	
-		 			horaInicio = horaInicioDate.getTime();
-		 			horaFinDate = formateadorhora.parse(horario.getHoraFin());
-		 			//System.out.println("horaFinDate: "+ horaFinDate);	
-		 			horaFin = horaFinDate.getTime();
-		 			if (horaFin <= horaInicio) {
-		 				horariosOk = false;
-		 				System.out.println("hora fin <= hora inicio");	
-		 			}
-		 		}
-		 		if (horariosOk) {		 			
-		 			if (cursoExistente.getSemestre() != curso.getSemestre()) {
-		 				if (!cursoService.existeCurso(cursoExistente.getAsignatura(), curso.getSemestre(), cursoExistente.getAnio())) {
-		 					cursoExistente.setFechaInicio(curso.getFechaInicio());
-		 					cursoExistente.setFechaFin(curso.getFechaFin());
-		 					List<Horario> horarios = cursoExistente.getHorarios();
-		 					cursoExistente.setHorarios(curso.getHorarios());
-		 					cursoService.modificacionCurso(cursoExistente);	
-		 					for (Horario diayhoras : horarios) {
-		 						System.out.println("dia "+diayhoras.getDia());	
-		 						horarioService.bajaHorario(diayhoras);
+		 	if (fechaInicioOk) {
+		 		if (fechaFinOk) {
+		 			if (fechaFinExistenteOk) {			 		
+		 				boolean horariosOk = true;
+		 				Date horaInicioDate;
+		 				Date horaFinDate;
+		 				long horaInicio;
+		 				long horaFin;
+		 				SimpleDateFormat formateadorhora = new SimpleDateFormat("HH:mm");
+		 				Iterator<Horario> itHorarios = curso.getHorarios().iterator();
+		 				Horario horario;
+		 				while (itHorarios.hasNext() && horariosOk) {
+		 					horario = itHorarios.next();
+		 					horaInicioDate = formateadorhora.parse(horario.getHoraInicio());
+		 					//System.out.println("horaInicioDate: "+ horaInicioDate);	
+		 					horaInicio = horaInicioDate.getTime();
+		 					horaFinDate = formateadorhora.parse(horario.getHoraFin());
+		 					//System.out.println("horaFinDate: "+ horaFinDate);	
+		 					horaFin = horaFinDate.getTime();
+		 					if (horaFin <= horaInicio) {
+		 						horariosOk = false;
+		 						System.out.println("hora fin <= hora inicio");	
 		 					}
-		 					return new Response(true, "El curso fue modificado con exito");
 		 				}
-						else return new Response(false, "El curso no pudo ser modificado, ya hay un curso para esa asignatura, ese semestre de ese anio");
+		 				if (horariosOk) {		 			
+		 					if (cursoExistente.getSemestre() != curso.getSemestre()) {
+		 						if (!cursoService.existeCurso(cursoExistente.getAsignatura(), curso.getSemestre(), cursoExistente.getAnio())) {
+		 							cursoExistente.setFechaInicio(curso.getFechaInicio());
+		 							cursoExistente.setFechaFin(curso.getFechaFin());
+		 							List<Horario> horarios = cursoExistente.getHorarios();
+		 							cursoExistente.setHorarios(curso.getHorarios());
+		 							cursoService.modificacionCurso(cursoExistente);	
+		 							for (Horario diayhoras : horarios) {
+		 								//System.out.println("dia "+diayhoras.getDia());	
+		 								horarioService.bajaHorario(diayhoras);
+		 							}
+		 							respuesta = new Response(true, "El curso fue modificado con exito");
+		 						}
+		 						else respuesta = new Response(false, "El curso no pudo ser modificado, ya hay un curso para esa asignatura ese semestre de ese anio");
+		 					}
+		 					else {
+		 						cursoExistente.setFechaInicio(curso.getFechaInicio());
+		 						cursoExistente.setFechaFin(curso.getFechaFin());
+		 						List<Horario> horarios = cursoExistente.getHorarios();
+		 						cursoExistente.setHorarios(curso.getHorarios());
+		 						cursoService.modificacionCurso(cursoExistente);	
+		 						for (Horario diayhoras : horarios) {
+		 							//System.out.println("dia "+diayhoras.getDia());	
+		 							horarioService.bajaHorario(diayhoras);
+		 						}
+		 						respuesta = new Response(true, "El curso fue modificado con exito");
+		 					}
+		 				}
+		 				else respuesta = new Response(false, "El curso no pudo ser modificado, algun horario tiene hora de fin anterior a la hora de inicio");
 		 			}
-		 			else {
-		 				cursoExistente.setFechaInicio(curso.getFechaInicio());
-	 					cursoExistente.setFechaFin(curso.getFechaFin());
-	 					List<Horario> horarios = cursoExistente.getHorarios();
-	 					cursoExistente.setHorarios(curso.getHorarios());
-	 					cursoService.modificacionCurso(cursoExistente);	
-	 					for (Horario diayhoras : horarios) {
-	 						System.out.println("dia "+diayhoras.getDia());	
-	 						horarioService.bajaHorario(diayhoras);
-	 					}
-	 					return new Response(true, "El curso fue modificado con exito");
-		 			}
+		 			else respuesta = new Response(false, "El curso no pudo ser modificado, el curso ya ha finalizado");
 		 		}
-				else return new Response(false, "El curso no pudo ser modificado, los horarios no son correctos");
+		 		else respuesta = new Response(false, "El curso no pudo ser modificado, la fecha de finalizacion es anterior a la fecha de inicio");
 			}
-			else return new Response(false, "El curso no pudo ser modificado, las fechas no son correctas");
+			else respuesta = new Response(false, "El curso no pudo ser modificado, la fecha de inicio es anterior a la fecha actual");
 		}
-		else return new Response(false, "El curso no pudo ser modificado, el curso no existe");
+		else respuesta = new Response(false, "El curso no pudo ser modificado, el curso no existe");
+		return respuesta;
 	}
 	
 
@@ -234,15 +247,17 @@ public class CursoController {
 	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
 	public Response borrarCurso(HttpServletRequest request,@RequestParam(name = "cursoId", required = true) String cursoIdStr) {
 		long cursoId = Long.parseLong(cursoIdStr);
+		Response respuesta;
 		if (cursoService.existeCurso(cursoId)) {
 			Curso curso = cursoService.obtenerCurso(cursoId).get();
 			if (curso.getCursoEstudiante().isEmpty()) {
 				cursoService.bajaCurso(curso);
-				return new Response(true, "El curso fue borrado con exito");
+				respuesta = new Response(true, "El curso fue borrado con exito");
 			}
-			else return new Response(false, "El curso no pudo ser borrado, tiene algun estudiante inscripto");
+			else respuesta = new Response(false, "El curso no pudo ser borrado, tiene algun estudiante registrado");
 		}
-		else return new Response(false, "El curso no pudo ser borrado, no existe el curso");
+		else respuesta = new Response(false, "El curso no pudo ser borrado, no existe el curso");
+		return respuesta;
 	}
 
 	/*@PostMapping("/asignarAsignatura")

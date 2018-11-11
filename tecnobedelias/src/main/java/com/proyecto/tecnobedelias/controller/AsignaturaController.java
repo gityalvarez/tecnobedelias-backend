@@ -42,9 +42,9 @@ public class AsignaturaController{
     public Response crearAsignatura(@RequestBody(required = true) Asignatura asignatura){  
     	if (!asignaturaService.existeAsignaturaNombre(asignatura.getNombre())) {    		
     		asignaturaService.altaAsignatura(asignatura);
-    		return new Response(true,"La asignatura fue creada con exito");
+    		return new Response(true,"La asignatura " + asignatura.getNombre() + " fue creada con exito");
     	}
-    	else return new Response(false, "La asignatura no fue creada, ya existe una asignatura con ese nombre");
+    	else return new Response(false, "No se pudo crear la asignatura, ya existe una asignatura con ese nombre");
     }
     
     @GetMapping("/borrar")
@@ -60,13 +60,13 @@ public class AsignaturaController{
     					asignaturaService.bajaAsignatura(asignaturaExistente);
     					return new Response(true, "La asignatura fue borrada con exito");  
     				}
-    				else return new Response(false, "La asignatura no fue borrada, la asignatura tiene algun examen");
+    				else return new Response(false, "No se pudo borrar la asignatura, cuenta con algun examen");
     			}
-    			else return new Response(false, "La asignatura no fue borrada, la asignatura tiene algun curso");
+    			else return new Response(false, "No se pudo borrar la asignatura, cuenta con algun curso");
     		}
-    		else return new Response(false, "La asignatura no fue borrada, la asignatura pertenece a alguna carrera");
+    		else return new Response(false, "No se pudo borrar la asignatura, esta asignada a alguna carrera");
     	}
-    	else return new Response(false, "La asignatura no fue borrada, la asignatura no existe");
+    	else return new Response(false, "No se pudo borrar la asignatura, no existe esa asignatura");
     }
     
     
@@ -80,7 +80,7 @@ public class AsignaturaController{
     		Optional<Asignatura> asignaturaExistente = asignaturaService.obtenerAsignatura(asignaturaId);
     		asignaturaExistente.get().setDescripcion(asignatura.getDescripcion());
     		asignaturaService.modificacionAsignatura(asignaturaExistente.get());
-    		return new Response(true, "La asignatura fue modificada con exito");
+    		return new Response(true, "La asignatura " + asignaturaExistente.get().getNombre() + " fue modificada con exito");
     	}
     	else return new Response(false, "La asignatura no fue modificada, la asignatura no existe");
     }
@@ -91,12 +91,10 @@ public class AsignaturaController{
     		@RequestParam(name="asignaturaId",required = true) String asignaturaIdStr){
     	System.out.println("entre al obtener asignaturacarrera con la asignatura "+asignaturaIdStr);
     	long asignaturaId = Long.parseLong(asignaturaIdStr);
-    	if (asignaturaService.existeAsignatura(asignaturaId)) {
-    		
+    	if (asignaturaService.existeAsignatura(asignaturaId)) {    		
     		return asignaturaService.obtenerAsignaturaCarrera(asignaturaId);
-    	}else return null;
-    	
-    	
+    	}
+    	else return null;	   	
     }
     
 
