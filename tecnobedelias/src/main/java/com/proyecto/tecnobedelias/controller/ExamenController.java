@@ -36,7 +36,7 @@ public class ExamenController {
 	AsignaturaService asignaturaService;
 	
 	@GetMapping("/listar")
-	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
+	@PreAuthorize("hasRole('ROLE_FUNCIONARIO') or hasRole('ROLE_ESTUDIANTE')")
 	public List<Examen> listarExamenes() {
 		return examenService.listarExamenes();
 	}
