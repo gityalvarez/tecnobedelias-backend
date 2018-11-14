@@ -117,46 +117,10 @@ public class InscripcionController {
 	
 	@GetMapping("/curso/disponibles")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public List<Curso> consultaCursosDisponibles(HttpServletRequest request) {	
-		List<Curso> disponibles = new ArrayList<Curso>();
-		Curso cursoExistente;
-		Asignatura asignaturaCurso;
-		Calendar calendar;
-		String fechaInicioMas10DiasString;
-		Date fechaInicioMas10Dias;
-		String fechaActualString;
-		Date fechaActual;
-		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+	public List<Curso> consultaCursosDisponibles(HttpServletRequest request) {			
 		String username = token.getUsername(request);
 		Optional<Usuario> usuarioOpt = usuarioService.findUsuarioByUsername(username);
-		List<Curso> cursosEstudiante = inscripcionService.consultaCursos(usuarioOpt.get());
-		Iterator<Curso> itCursoExistente = cursoService.listarCursos().iterator();
-		try {
-		while (itCursoExistente.hasNext()) {
-			cursoExistente = itCursoExistente.next();
-			asignaturaCurso = asignaturaService.obtenerAsignaturaNombre(cursoExistente.getNombreAsignatura()).get();
-			if (inscripcionService.isAsignaturaEnCarreraEstudiante(asignaturaCurso, usuarioOpt.get())) {
-				if (!cursosEstudiante.contains(cursoExistente)) {
-					calendar = Calendar.getInstance();
-					calendar.setTime(cursoExistente.getFechaInicio());
-					calendar.add(Calendar.DAY_OF_YEAR, 11);
-					fechaInicioMas10DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
-					fechaInicioMas10Dias = formateadorfecha.parse(fechaInicioMas10DiasString);
-					fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-				 	fechaActual = formateadorfecha.parse(fechaActualString);
-				 	// se puede anotar hasta 10 dias despues del inicio del curso
-				 	if (!fechaActual.after(fechaInicioMas10Dias)) {
-				 		disponibles.add(cursoExistente);
-				 	}
-				}
-			}
-			
-		}
-		}	
-		catch (Exception e) {
-			System.out.println("Exception en las fechas.");
-		}
-		return disponibles;
+		return inscripcionService.consultaCursosDisponibles(usuarioOpt.get());		
 	}
 	
 	
@@ -192,46 +156,10 @@ public class InscripcionController {
 	
 	@GetMapping("/examen/disponibles")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
-	public List<Examen> consultaExamenesDisponibles(HttpServletRequest request) {	
-		List<Examen> disponibles = new ArrayList<Examen>();
-		Examen examenExistente;
-		Asignatura asignaturaExamen;
-		Calendar calendar;
-		String fechaExamenMenos5DiasString;
-		Date fechaExamenMenos5Dias;
-		String fechaActualString;
-		Date fechaActual;
-		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+	public List<Examen> consultaExamenesDisponibles(HttpServletRequest request) {		
 		String username = token.getUsername(request);		
 		Optional<Usuario> usuarioOpt = usuarioService.findUsuarioByUsername(username);
-		List<Examen> examenesEstudiante = inscripcionService.consultaExamenes(usuarioOpt.get());
-		Iterator<Examen> itExamenExistente = examenService.listarExamenes().iterator();
-		try {
-		while (itExamenExistente.hasNext()) {
-			examenExistente = itExamenExistente.next();
-			asignaturaExamen = asignaturaService.obtenerAsignaturaNombre(examenExistente.getNombreAsignatura()).get();
-			if (inscripcionService.isAsignaturaEnCarreraEstudiante(asignaturaExamen, usuarioOpt.get())) {
-				if (!examenesEstudiante.contains(examenExistente)) {
-					calendar = Calendar.getInstance();
-					calendar.setTime(examenExistente.getFecha());
-					calendar.add(Calendar.DAY_OF_YEAR, -5);
-					fechaExamenMenos5DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
-					fechaExamenMenos5Dias = formateadorfecha.parse(fechaExamenMenos5DiasString);
-					fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-				 	fechaActual = formateadorfecha.parse(fechaActualString);
-				 	// se puede anotar hasta 5 dias antes del examen
-				 	if (!fechaActual.after(fechaExamenMenos5Dias)) {
-				 		disponibles.add(examenExistente);
-				 	}
-				}
-			}
-			
-		}
-		}
-		catch (Exception e) {
-			System.out.println("Exception en las fechas.");
-		}
-		return disponibles;
+		return inscripcionService.consultaExamenesDisponibles(usuarioOpt.get());
 	}
 	
 	/*@GetMapping("/desistircarrera")

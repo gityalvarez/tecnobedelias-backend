@@ -21,6 +21,7 @@ import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
 import com.proyecto.tecnobedelias.persistence.model.Estudiante_Examen;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
+import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Asignatura_CarreraRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CarreraRepository;
 import com.proyecto.tecnobedelias.persistence.repository.CursoRepository;
@@ -36,6 +37,9 @@ public class InscripcionServiceImpl implements InscripcionService {
 
 	@Autowired
 	CarreraRepository carreraRepository;
+	
+	@Autowired
+	AsignaturaRepository asignaturaRepository;
 	
 	@Autowired
 	UsuarioRepository usuarioRepository;
@@ -58,6 +62,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 	@Autowired
 	EmailService emailService;
 	
+		
 	@Override
 	public Response inscripcionCarrera(Usuario usuario, Carrera carrera) {
 		Response respuesta;
@@ -82,8 +87,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 		else return false;			
 	}*/
 	
-	@Override
-	public boolean isAsignaturaEnCarreraEstudiante(Asignatura asignatura, Usuario estudiante) {
+	private boolean isAsignaturaEnCarreraEstudiante(Asignatura asignatura, Usuario estudiante) {
 		boolean asignaturaEnCarrera = false;			
 		Iterator<Carrera> itCarreras = estudiante.getCarreras().iterator();
 		while (itCarreras.hasNext() && !asignaturaEnCarrera) {
@@ -296,7 +300,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 	}	
 	
 	
-	public boolean isAprobadaAsignaturaEstudiante(Asignatura asignatura, Usuario usuario) {
+	private boolean isAprobadaAsignaturaEstudiante(Asignatura asignatura, Usuario usuario) {
 		boolean aprobada = false;
 		Iterator<Curso_Estudiante> itCursoEst = usuario.getCursoEstudiante().iterator();
 		// reviso todos los cursos del el estudiante hasta que no haya mas o lo tenga salvado 
@@ -495,12 +499,96 @@ public class InscripcionServiceImpl implements InscripcionService {
 	}	
 	
 	@Override
+	public List<Curso> consultaCursosDisponibles(Usuario usuario) {
+		List<Curso> disponibles = new ArrayList<Curso>();
+		Curso cursoExistente;
+		Asignatura asignaturaCurso;
+		Calendar calendar;
+		String fechaInicioMas10DiasString;
+		Date fechaInicioMas10Dias;
+		String fechaActualString;
+		Date fechaActual;
+		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+		List<Curso> cursosEstudiante = consultaCursos(usuario);
+		Iterator<Curso> itCursoExistente = cursoRepository.findAll().iterator();
+		try {
+			while (itCursoExistente.hasNext()) {
+				cursoExistente = itCursoExistente.next();
+				asignaturaCurso = asignaturaRepository.findByNombre(cursoExistente.getNombreAsignatura()).get();
+				if (isAsignaturaEnCarreraEstudiante(asignaturaCurso, usuario)) {
+					if (!isAprobadaAsignaturaEstudiante(asignaturaCurso, usuario)) {
+						if (!cursosEstudiante.contains(cursoExistente)) {
+							calendar = Calendar.getInstance();
+							calendar.setTime(cursoExistente.getFechaInicio());
+							calendar.add(Calendar.DAY_OF_YEAR, 11);
+							fechaInicioMas10DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+							fechaInicioMas10Dias = formateadorfecha.parse(fechaInicioMas10DiasString);
+							fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+							fechaActual = formateadorfecha.parse(fechaActualString);
+							// se puede anotar hasta 10 dias despues del inicio del curso
+							if (!fechaActual.after(fechaInicioMas10Dias)) {
+								disponibles.add(cursoExistente);
+							}
+						}
+					}
+				}
+			}
+		}	
+		catch (Exception e) {
+			System.out.println("Exception en las fechas.");
+		}
+		return disponibles;
+	}
+	
+	@Override
 	public List<Examen> consultaExamenes(Usuario usuario) {
 		List<Examen> listaExamenes = new ArrayList<>();
 		for(Estudiante_Examen examenEstudiante : usuario.getEstudianteExamen()) {
 			listaExamenes.add(examenEstudiante.getExamen());
 		}
 		return listaExamenes;
+	}
+	
+	@Override
+	public List<Examen> consultaExamenesDisponibles(Usuario usuario) {
+		List<Examen> disponibles = new ArrayList<Examen>();
+		Examen examenExistente;
+		Asignatura asignaturaExamen;
+		Calendar calendar;
+		String fechaExamenMenos5DiasString;
+		Date fechaExamenMenos5Dias;
+		String fechaActualString;
+		Date fechaActual;
+		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+		List<Examen> examenesEstudiante = consultaExamenes(usuario);
+		Iterator<Examen> itExamenExistente = examenRepository.findAll().iterator();
+		try {
+			while (itExamenExistente.hasNext()) {
+				examenExistente = itExamenExistente.next();
+				asignaturaExamen = asignaturaRepository.findByNombre(examenExistente.getNombreAsignatura()).get();
+				if (isAsignaturaEnCarreraEstudiante(asignaturaExamen, usuario)) {
+					if (!isAprobadaAsignaturaEstudiante(asignaturaExamen, usuario)) {
+						if (!examenesEstudiante.contains(examenExistente)) {
+							calendar = Calendar.getInstance();
+							calendar.setTime(examenExistente.getFecha());
+							calendar.add(Calendar.DAY_OF_YEAR, -5);
+							fechaExamenMenos5DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+							fechaExamenMenos5Dias = formateadorfecha.parse(fechaExamenMenos5DiasString);
+							fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+							fechaActual = formateadorfecha.parse(fechaActualString);
+							// se puede anotar hasta 5 dias antes del examen
+							if (!fechaActual.after(fechaExamenMenos5Dias)) {
+								disponibles.add(examenExistente);
+							}
+						}
+					}
+				}			
+			}
+		}
+		catch (Exception e) {
+			System.out.println("Exception en las fechas.");
+		}
+		return disponibles;
 	}
 	
 	@Override

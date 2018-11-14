@@ -23,11 +23,13 @@ public interface InscripcionService {
 	
 	//public boolean desistirCarrera(Usuario usuario, Carrera carrera);
 	
-	public boolean isAsignaturaEnCarreraEstudiante(Asignatura asignatura, Usuario estudiante);
-	
 	public List<Curso> consultaCursos(Usuario usuario);
 	
+	public List<Curso> consultaCursosDisponibles(Usuario usuario);
+	
 	public List<Examen> consultaExamenes(Usuario usuario);
+	
+	public List<Examen> consultaExamenesDisponibles(Usuario usuario);
 	
 	public Usuario obtenerEstudianteCursoEstudiante(long id_curso_est);
 	
