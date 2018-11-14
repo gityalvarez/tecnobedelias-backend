@@ -82,7 +82,8 @@ public class InscripcionServiceImpl implements InscripcionService {
 		else return false;			
 	}*/
 	
-	private boolean isAsignaturaEnCarreraEstudiante(Asignatura asignatura, Usuario estudiante) {
+	@Override
+	public boolean isAsignaturaEnCarreraEstudiante(Asignatura asignatura, Usuario estudiante) {
 		boolean asignaturaEnCarrera = false;			
 		Iterator<Carrera> itCarreras = estudiante.getCarreras().iterator();
 		while (itCarreras.hasNext() && !asignaturaEnCarrera) {

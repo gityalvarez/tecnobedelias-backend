@@ -3,6 +3,7 @@ package com.proyecto.tecnobedelias.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.proyecto.tecnobedelias.Util.Response;
 import  com.proyecto.tecnobedelias.Util.TokenUtil;
+import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Curso_Estudiante;
@@ -36,6 +38,7 @@ import com.proyecto.tecnobedelias.persistence.model.Estudiante_Examen;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.service.AndroidPushNotificationsService;
+import com.proyecto.tecnobedelias.service.AsignaturaService;
 import com.proyecto.tecnobedelias.service.CarreraService;
 import com.proyecto.tecnobedelias.service.CursoService;
 import com.proyecto.tecnobedelias.service.ExamenService;
@@ -61,6 +64,9 @@ public class InscripcionController {
 	
 	@Autowired
 	CarreraService carreraService;
+	
+	@Autowired
+	AsignaturaService asignaturaService;
 	
 	@Autowired
 	TokenUtil token;
@@ -95,7 +101,7 @@ public class InscripcionController {
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede anotar hasta 10 dias despues del inicio del curso
-	 	if (fechaActual.before(fechaInicioMas10Dias)) {
+	 	if (!fechaActual.after(fechaInicioMas10Dias)) {
 	 		return inscripcionService.inscripcionCurso(usuario.get(), curso.get());
 	 	}
 	 	else return new Response(false, "No se realizo la inscripcion, finalizo la fecha limite para la matriculacion");
@@ -108,6 +114,51 @@ public class InscripcionController {
 		Optional<Usuario> usuarioOpt = usuarioService.findUsuarioByUsername(username);
 		return inscripcionService.consultaCursos(usuarioOpt.get());
 	}
+	
+	@GetMapping("/curso/disponibles")
+	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
+	public List<Curso> consultaCursosDisponibles(HttpServletRequest request) {	
+		List<Curso> disponibles = new ArrayList<Curso>();
+		Curso cursoExistente;
+		Asignatura asignaturaCurso;
+		Calendar calendar;
+		String fechaInicioMas10DiasString;
+		Date fechaInicioMas10Dias;
+		String fechaActualString;
+		Date fechaActual;
+		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+		String username = token.getUsername(request);
+		Optional<Usuario> usuarioOpt = usuarioService.findUsuarioByUsername(username);
+		List<Curso> cursosEstudiante = inscripcionService.consultaCursos(usuarioOpt.get());
+		Iterator<Curso> itCursoExistente = cursoService.listarCursos().iterator();
+		try {
+		while (itCursoExistente.hasNext()) {
+			cursoExistente = itCursoExistente.next();
+			asignaturaCurso = asignaturaService.obtenerAsignaturaNombre(cursoExistente.getNombreAsignatura()).get();
+			if (inscripcionService.isAsignaturaEnCarreraEstudiante(asignaturaCurso, usuarioOpt.get())) {
+				if (!cursosEstudiante.contains(cursoExistente)) {
+					calendar = Calendar.getInstance();
+					calendar.setTime(cursoExistente.getFechaInicio());
+					calendar.add(Calendar.DAY_OF_YEAR, 11);
+					fechaInicioMas10DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+					fechaInicioMas10Dias = formateadorfecha.parse(fechaInicioMas10DiasString);
+					fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+				 	fechaActual = formateadorfecha.parse(fechaActualString);
+				 	// se puede anotar hasta 10 dias despues del inicio del curso
+				 	if (!fechaActual.after(fechaInicioMas10Dias)) {
+				 		disponibles.add(cursoExistente);
+				 	}
+				}
+			}
+			
+		}
+		}	
+		catch (Exception e) {
+			System.out.println("Exception en las fechas.");
+		}
+		return disponibles;
+	}
+	
 	
 	@GetMapping("/examen")
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
@@ -125,7 +176,7 @@ public class InscripcionController {
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede anotar hasta 5 dias antes del examen
-	 	if (fechaActual.before(fechaExamenMenos5Dias)) {
+	 	if (!fechaActual.after(fechaExamenMenos5Dias)) {
 	 		return inscripcionService.inscripcionExamen(usuario.get(), examen.get());
 	 	}
 	 	else return new Response(false, "No se realizo la anotacion, finalizo la fecha limite para la anotacion");
@@ -137,6 +188,50 @@ public class InscripcionController {
 		String username = token.getUsername(request);
 		Optional<Usuario> usuarioOpt = usuarioService.findUsuarioByUsername(username);
 		return inscripcionService.consultaExamenes(usuarioOpt.get());
+	}
+	
+	@GetMapping("/examen/disponibles")
+	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")
+	public List<Examen> consultaExamenesDisponibles(HttpServletRequest request) {	
+		List<Examen> disponibles = new ArrayList<Examen>();
+		Examen examenExistente;
+		Asignatura asignaturaExamen;
+		Calendar calendar;
+		String fechaExamenMenos5DiasString;
+		Date fechaExamenMenos5Dias;
+		String fechaActualString;
+		Date fechaActual;
+		SimpleDateFormat formateadorfecha = new SimpleDateFormat("yyyy-MM-dd"); 
+		String username = token.getUsername(request);		
+		Optional<Usuario> usuarioOpt = usuarioService.findUsuarioByUsername(username);
+		List<Examen> examenesEstudiante = inscripcionService.consultaExamenes(usuarioOpt.get());
+		Iterator<Examen> itExamenExistente = examenService.listarExamenes().iterator();
+		try {
+		while (itExamenExistente.hasNext()) {
+			examenExistente = itExamenExistente.next();
+			asignaturaExamen = asignaturaService.obtenerAsignaturaNombre(examenExistente.getNombreAsignatura()).get();
+			if (inscripcionService.isAsignaturaEnCarreraEstudiante(asignaturaExamen, usuarioOpt.get())) {
+				if (!examenesEstudiante.contains(examenExistente)) {
+					calendar = Calendar.getInstance();
+					calendar.setTime(examenExistente.getFecha());
+					calendar.add(Calendar.DAY_OF_YEAR, -5);
+					fechaExamenMenos5DiasString = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+					fechaExamenMenos5Dias = formateadorfecha.parse(fechaExamenMenos5DiasString);
+					fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+				 	fechaActual = formateadorfecha.parse(fechaActualString);
+				 	// se puede anotar hasta 5 dias antes del examen
+				 	if (!fechaActual.after(fechaExamenMenos5Dias)) {
+				 		disponibles.add(examenExistente);
+				 	}
+				}
+			}
+			
+		}
+		}
+		catch (Exception e) {
+			System.out.println("Exception en las fechas.");
+		}
+		return disponibles;
 	}
 	
 	/*@GetMapping("/desistircarrera")
@@ -170,7 +265,7 @@ public class InscripcionController {
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede desistir hasta 15 dias despues del inicio del curso
-	 	if (fechaActual.before(fechaInicioMas15Dias)) {		
+	 	if (!fechaActual.after(fechaInicioMas15Dias)) {		
 	 		return inscripcionService.desistirCurso(usuario.get(), curso.get());
 	 	}
 	 	else return new Response(false,"No pudo desistir al curso, finalizo la fecha limite para desistir");
@@ -193,7 +288,7 @@ public class InscripcionController {
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede desistir hasta 3 dias antes del examen
-	 	if (fechaActual.before(fechaExamenMenos3Dias)) {
+	 	if (!fechaActual.after(fechaExamenMenos3Dias)) {
 	 		return inscripcionService.desistirExamen(usuario.get(), examen.get());
 	 	}
 	 	else return new Response(false, "No pudo desistir al examen, finalizo la fecha limite para desistir");
@@ -216,10 +311,10 @@ public class InscripcionController {
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar la nota del examen luego de que fue rendido
-	 	if (fechaActual.after(fechaExamen)) {
+	 	//if (!fechaActual.before(fechaExamen)) {
 	 		return inscripcionService.ingresarCalificacionExamen(usuario.get(), examen.get(), nota); 	 		
-	 	}
-	 	else return new Response(false, "La calificacion no pudo ser ingresada, aun no ha sido tomado el examen");
+	 	/*}
+	 	else return new Response(false, "La calificacion no pudo ser ingresada, aun no ha sido tomado el examen");*/
 	}
 	
 	
@@ -239,7 +334,7 @@ public class InscripcionController {
 	 	// se puede ingresar las notas del examen luego de que fue rendido
 	 	boolean calificacionCargada = true;
 	 	String mensaje = null;
-	 	//if (fechaActual.after(fechaExamen)) {	 		
+	 	//if (!fechaActual.before(fechaExamen)) {	 		
 	 		Estudiante_Examen estudianteExamen;
 	 		Iterator<Estudiante_Examen> itEstudianteExamen = estudiantesExamen.iterator();
 	 		Usuario estudiante;
@@ -277,7 +372,7 @@ public class InscripcionController {
 		String fechaActualString = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	 	Date fechaActual = formateadorfecha.parse(fechaActualString);
 	 	// se puede ingresar la nota del curso luego de que ha finalizado
-	 	//if (fechaActual.after(fechaFinCurso)) {
+	 	//if (!fechaActual.before(fechaFinCurso)) {
 	 		return inscripcionService.ingresarCalificacionCurso(usuario.get(), curso.get(), nota);
 	 	/*}
 	 	else return new Response(false, "La calificacion no pudo ser ingresada, el curso aun no ha finalizado");*/
@@ -301,7 +396,7 @@ public class InscripcionController {
 	 	boolean calificacionCargada = true;
 	 	String mensaje = null;
 	 	System.out.println("Entro a cargarCalificacionesCurso");
-	 	//if (fechaActual.after(fechaFinCurso)) {	 		
+	 	//if (!fechaActual.before(fechaFinCurso)) {	 		
 	 		Curso_Estudiante estudianteCurso;
 	 		Iterator<Curso_Estudiante> itEstudianteCurso = estudiantesCurso.iterator();
 	 		Usuario estudiante;

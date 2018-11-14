@@ -3,6 +3,7 @@ package com.proyecto.tecnobedelias.service;
 import java.util.List;
 
 import com.proyecto.tecnobedelias.Util.Response;
+import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
@@ -21,6 +22,8 @@ public interface InscripcionService {
 	public Response desistirExamen(Usuario usuario, Examen examen);
 	
 	//public boolean desistirCarrera(Usuario usuario, Carrera carrera);
+	
+	public boolean isAsignaturaEnCarreraEstudiante(Asignatura asignatura, Usuario estudiante);
 	
 	public List<Curso> consultaCursos(Usuario usuario);
 	
