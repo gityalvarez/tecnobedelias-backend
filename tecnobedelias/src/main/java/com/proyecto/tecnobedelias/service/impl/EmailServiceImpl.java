@@ -25,7 +25,7 @@ import com.proyecto.tecnobedelias.service.EmailService;
 @Service
 public class EmailServiceImpl implements EmailService {
 	
-	private static final Logger logger = LoggerFactory.getLogger(MailService.class);
+	//private static final Logger logger = LoggerFactory.getLogger();
 	
 	public static int noOfQuickServiceThreads = 20;
 	
@@ -41,7 +41,7 @@ public class EmailServiceImpl implements EmailService {
 	
 	@Async
 	public boolean sendEmailPrueba()  throws RuntimeException {
-		logger.debug("inside sendASynchronousMail method");
+		//logger.debug("inside sendASynchronousMail method");
 		try {
 			Properties pro = new Properties();
 
@@ -75,7 +75,9 @@ public class EmailServiceImpl implements EmailService {
 						t.close();
 					
 					}catch(Exception e){
-						logger.error("Exception occur while send a mail : ",e);
+						//logger.error("Exception occur while send a mail : ",e);
+						System.out.println("Error----" + e);
+
 					}
 				}
 			});
@@ -169,7 +171,9 @@ public class EmailServiceImpl implements EmailService {
 							t.close();
 							System.out.println("mande el mail!!!!!");
 						}catch(Exception e){
-							logger.error("Problemas al mandar el mail : ",e);
+							//logger.error("Problemas al mandar el mail : ",e);
+							System.out.println("Error----" + e);
+
 						}
 					}
 				});
