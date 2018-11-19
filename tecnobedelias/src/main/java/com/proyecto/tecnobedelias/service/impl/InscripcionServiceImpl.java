@@ -690,5 +690,76 @@ public class InscripcionServiceImpl implements InscripcionService {
 		return respuesta;
 	}
 	
+	@Override
+	public List<Usuario> consultaAnotadosExamen(Examen examen/*, Carrera carrera*/) {
+		List<Usuario> anotados = new ArrayList<Usuario>();
+		Iterator<Estudiante_Examen> itEstExamen = examen.getEstudianteExamen().iterator();
+		Asignatura asignatura = asignaturaRepository.findByNombre(examen.getNombreAsignatura()).get();
+		Estudiante_Examen est_examen;
+		Usuario estudiante;
+		Carrera carreraEst;
+		boolean encontrada;
+		boolean asignaturaEnCarrera;
+		while (itEstExamen.hasNext()) {
+			est_examen = itEstExamen.next();
+			if (est_examen.getEstado().equals("ANOTADO")) {
+				estudiante = usuarioRepository.findByCedula(est_examen.getCedula()).get();
+				if (isAsignaturaEnCarreraEstudiante(asignatura, estudiante)) {
+					/*Iterator<Carrera> itCarrera = estudiante.getCarreras().iterator();
+					encontrada = false;
+					asignaturaEnCarrera = false;
+					while (itCarrera.hasNext() && !encontrada) {
+						carreraEst = itCarrera.next(); 
+						if (carreraEst.getNombre().equals(carrera.getNombre())) {
+							encontrada = true;
+							if (asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura, carrera).isPresent()) {
+								asignaturaEnCarrera = true;
+							}
+						}
+					}
+					if (asignaturaEnCarrera) {*/
+						anotados.add(estudiante);
+					//}						
+				}
+			}
+		}		
+		return anotados;
+	}
 	
+	
+	@Override
+	public List<Usuario> consultaMatriculadosCurso(Curso curso/*, Carrera carrera*/) {
+		List<Usuario> matriculados = new ArrayList<Usuario>();
+		Iterator<Curso_Estudiante> itCursoEst = curso.getCursoEstudiante().iterator();
+		Asignatura asignatura = asignaturaRepository.findByNombre(curso.getNombreAsignatura()).get();
+		Curso_Estudiante curso_est;
+		Usuario estudiante;
+		Carrera carreraEst;
+		boolean encontrada;
+		boolean asignaturaEnCarrera;
+		while (itCursoEst.hasNext()) {
+			curso_est = itCursoEst.next();
+			if (curso_est.getEstado().equals("MATRICULADO")) {
+				estudiante = usuarioRepository.findByCedula(curso_est.getCedula()).get();
+				if (isAsignaturaEnCarreraEstudiante(asignatura, estudiante)) {
+					/*Iterator<Carrera> itCarrera = estudiante.getCarreras().iterator();
+					encontrada = false;
+					asignaturaEnCarrera = false;
+					while (itCarrera.hasNext() && !encontrada) {
+						carreraEst = itCarrera.next(); 
+						if (carreraEst.getNombre().equals(carrera.getNombre())) {
+							encontrada = true;
+							if (asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura, carrera).isPresent()) {
+								asignaturaEnCarrera = true;
+							}
+						}
+					}
+					if (asignaturaEnCarrera) {*/
+						matriculados.add(estudiante);
+					//}						
+				}
+			}
+		}		
+		return matriculados;
+	}
 }

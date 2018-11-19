@@ -381,4 +381,28 @@ public class InscripcionController {
 		return new ResponseEntity<>("Push Notification ERROR!", HttpStatus.BAD_REQUEST);
 	}
 	
+	@GetMapping("/examen/estudiantesinscriptos")
+	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
+	public List<Usuario> consultaAnotadosExamen(HttpServletRequest request, 
+			@RequestParam(name = "examenId", required = true) String examenIdStr/*, 
+			@RequestParam(name = "carreraId", required = true) String carreraIdStr*/) {		
+		long examenId = Long.parseLong(examenIdStr);		
+		Optional<Examen> examenOpt = examenService.obtenerExamen(examenId);
+		//long carreraId = Long.parseLong(carreraIdStr);	
+		//Optional<Carrera> carreraOpt = carreraService.obtenerCarrera(carreraId);
+		return inscripcionService.consultaAnotadosExamen(examenOpt.get()/*, carreraOpt.get()*/);
+	}
+	
+	@GetMapping("/curso/estudiantesinscriptos")
+	@PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
+	public List<Usuario> consultaMatriculadosCurso(HttpServletRequest request, 
+			@RequestParam(name = "cursoId", required = true) String cursoIdStr/*, 
+			@RequestParam(name = "carreraId", required = true) String carreraIdStr*/) {		
+		long cursoId = Long.parseLong(cursoIdStr);		
+		Optional<Curso> cursoOpt = cursoService.obtenerCurso(cursoId);
+		//long carreraId = Long.parseLong(carreraIdStr);	
+		//Optional<Carrera> carreraOpt = carreraService.obtenerCarrera(carreraId);
+		return inscripcionService.consultaMatriculadosCurso(cursoOpt.get()/*, carreraOpt.get()*/);
+	}
+	
 }
