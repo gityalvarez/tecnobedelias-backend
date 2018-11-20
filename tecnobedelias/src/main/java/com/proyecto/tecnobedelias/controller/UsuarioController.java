@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.proyecto.tecnobedelias.Util.Response;
+import com.proyecto.tecnobedelias.Util.TokenUtil;
 import com.proyecto.tecnobedelias.persistence.model.Actividad;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.service.EmailService;
@@ -43,6 +44,9 @@ public class UsuarioController {
 	
 	@Autowired
 	EmailService emailService;
+	
+	@Autowired
+	TokenUtil token;
 
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     public UsuarioController(BCryptPasswordEncoder bCryptPasswordEncoder) {
@@ -144,11 +148,7 @@ public class UsuarioController {
     	Usuario usuario = usuarioOpt.get();
     	System.out.println("el usuario es "+usuario.getUsername());
     	System.out.println("entro al usuario service");
-    	//Optional<Role> roleOpt = roleRepository.findById(rolId);
-    	//Role role = roleOpt.get();
     	usuarioService.asignarRolUsuario(rol, usuario);
-    	//usuario.getRoles().add(role);
-    	//usuarioRepository.save(usuario);
     }
     
     @PostMapping("/borrar")
@@ -171,7 +171,35 @@ public class UsuarioController {
     		usuario.setResetToken(null);
     		usuarioService.modificacionUsuario(usuario);
     	}
+    }    
+    
+    @GetMapping("/cambiarpassword")
+    @PreAuthorize("hasRole('ROLE_ADMINISTRADOR') or hasRole('ROLE_FUNCIONARIO') or hasRole('ROLE_ESTUDIANTE') or hasRole('ROLE_DIRECTOR')")
+    public Response modificarPassword(HttpServletRequest request,
+    		@RequestParam(name = "actualpassword", required = true) String actualpassword,
+    		@RequestParam(name = "newpassword", required = true) String newpassword,
+    		@RequestParam(name = "newpasswordrepeat", required = true) String newpasswordrepeat) {
+    	String username = token.getUsername(request);
+		Optional<Usuario> usuarioOpt = usuarioService.findUsuarioByUsername(username); 
+    	if (usuarioOpt.isPresent()) {
+    		Usuario usuario = usuarioOpt.get();    		
+    		if (bCryptPasswordEncoder.matches(actualpassword, usuario.getPassword())) {
+    			if (!bCryptPasswordEncoder.matches(newpassword, usuario.getPassword())) {
+    				if (newpassword.equals(newpasswordrepeat)) {
+    					usuario.setPassword(bCryptPasswordEncoder.encode(newpassword));
+    					usuarioService.modificacionUsuario(usuario);
+    					return new Response(true, "La password ha sido cambiada con exito");
+    				}
+    				else return new Response(false, "La nueva password ingresada no coincide con su confirmacion");
+    			}
+    			else return new Response(false, "La nueva password ingresada coincide con la password actual");
+    		}
+    		else return new Response(false, "La password actual ingresada no es correcta");
+    	}
+    	else return new Response(false, "El usuario no existe");
     }
+    
+    
     
     @GetMapping("/inicializar")
     public void inicializar(HttpServletRequest request,
