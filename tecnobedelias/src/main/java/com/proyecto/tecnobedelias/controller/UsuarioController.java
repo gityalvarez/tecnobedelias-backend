@@ -288,7 +288,7 @@ public class UsuarioController {
     }
     
     @GetMapping("/escolaridad")
-    @PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
+    @PreAuthorize("hasRole('ROLE_FUNCIONARIO') or hasRole('ROLE_ESTUDIANTE')")
     public List<Actividad> escolaridad(HttpServletRequest request,
     		@RequestParam(name = "cedula", required = true) String cedula) {
     	Optional<Usuario> usuarioOpt = usuarioService.obtenerUsuarioCedula(cedula);
