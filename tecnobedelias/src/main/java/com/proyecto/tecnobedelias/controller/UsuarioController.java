@@ -272,7 +272,6 @@ public class UsuarioController {
     			}
     			else {
     				usuarioExistente = usuarioService.obtenerUsuario(usuarioId);
-    				usuarioExistente = usuarioService.obtenerUsuario(usuarioId);
 					usuarioExistente.get().setApellido(usuario.getApellido());
 					usuarioExistente.get().setNombre(usuario.getNombre());
 					usuarioExistente.get().setFechaNacimiento(usuario.getFechaNacimiento());
@@ -296,9 +295,7 @@ public class UsuarioController {
     		return usuarioService.escolaridad(usuarioOpt.get());
     	}else return null;    	
 
-    }
-    
-    
+    }   
     
     
 }

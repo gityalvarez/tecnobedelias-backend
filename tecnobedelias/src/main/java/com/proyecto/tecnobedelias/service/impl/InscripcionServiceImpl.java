@@ -265,6 +265,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 												}
 												else cumplePreviaturas = false;
 											}
+											else cumplePreviaturas = false;
 										}							
 									}
 								}
@@ -691,7 +692,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 	}
 	
 	@Override
-	public List<Usuario> consultaAnotadosExamen(Examen examen/*, Carrera carrera*/) {
+	public List<Usuario> consultaAnotadosExamen(Examen examen) {
 		List<Usuario> anotados = new ArrayList<Usuario>();
 		Iterator<Estudiante_Examen> itEstExamen = examen.getEstudianteExamen().iterator();
 		Asignatura asignatura = asignaturaRepository.findByNombre(examen.getNombreAsignatura()).get();
@@ -705,21 +706,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 			if (est_examen.getEstado().equals("ANOTADO")) {
 				estudiante = usuarioRepository.findByCedula(est_examen.getCedula()).get();
 				if (isAsignaturaEnCarreraEstudiante(asignatura, estudiante)) {
-					/*Iterator<Carrera> itCarrera = estudiante.getCarreras().iterator();
-					encontrada = false;
-					asignaturaEnCarrera = false;
-					while (itCarrera.hasNext() && !encontrada) {
-						carreraEst = itCarrera.next(); 
-						if (carreraEst.getNombre().equals(carrera.getNombre())) {
-							encontrada = true;
-							if (asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura, carrera).isPresent()) {
-								asignaturaEnCarrera = true;
-							}
-						}
-					}
-					if (asignaturaEnCarrera) {*/
-						anotados.add(estudiante);
-					//}						
+					anotados.add(estudiante);				
 				}
 			}
 		}		
@@ -728,7 +715,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 	
 	
 	@Override
-	public List<Usuario> consultaMatriculadosCurso(Curso curso/*, Carrera carrera*/) {
+	public List<Usuario> consultaMatriculadosCurso(Curso curso) {
 		List<Usuario> matriculados = new ArrayList<Usuario>();
 		Iterator<Curso_Estudiante> itCursoEst = curso.getCursoEstudiante().iterator();
 		Asignatura asignatura = asignaturaRepository.findByNombre(curso.getNombreAsignatura()).get();
@@ -742,21 +729,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 			if (curso_est.getEstado().equals("MATRICULADO")) {
 				estudiante = usuarioRepository.findByCedula(curso_est.getCedula()).get();
 				if (isAsignaturaEnCarreraEstudiante(asignatura, estudiante)) {
-					/*Iterator<Carrera> itCarrera = estudiante.getCarreras().iterator();
-					encontrada = false;
-					asignaturaEnCarrera = false;
-					while (itCarrera.hasNext() && !encontrada) {
-						carreraEst = itCarrera.next(); 
-						if (carreraEst.getNombre().equals(carrera.getNombre())) {
-							encontrada = true;
-							if (asignaturaCarreraRepository.findByAsignaturaAndCarrera(asignatura, carrera).isPresent()) {
-								asignaturaEnCarrera = true;
-							}
-						}
-					}
-					if (asignaturaEnCarrera) {*/
-						matriculados.add(estudiante);
-					//}						
+					matriculados.add(estudiante);					
 				}
 			}
 		}		

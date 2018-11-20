@@ -16,9 +16,6 @@ public class EmailController {
 
 private Logger logger = LoggerFactory.getLogger(EmailController.class);
 	
-	//@Autowired
-	//private MailService notificationService;
-	
 	@Autowired
 	private EmailService emailService;
 	@PreAuthorize("hasRole('ROLE_ESTUDIANTE')")

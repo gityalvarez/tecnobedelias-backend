@@ -39,7 +39,7 @@ public interface InscripcionService {
 	
 	public Response ingresarCalificacionCurso(Usuario usuario, Curso curso, int nota);
 	
-	public List<Usuario> consultaAnotadosExamen(Examen examen/*, Carrera carrera*/);
+	public List<Usuario> consultaAnotadosExamen(Examen examen);
 	
-	public List<Usuario> consultaMatriculadosCurso(Curso curso/*, Carrera carrera*/);
+	public List<Usuario> consultaMatriculadosCurso(Curso curso);
 }
