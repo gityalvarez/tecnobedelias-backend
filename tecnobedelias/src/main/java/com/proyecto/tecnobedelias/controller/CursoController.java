@@ -207,6 +207,7 @@ public class CursoController {
 		 							cursoExistente.setFechaInicio(curso.getFechaInicio());
 		 							cursoExistente.setFechaFin(curso.getFechaFin());
 		 							List<Horario> horarios = cursoExistente.getHorarios();
+		 							cursoExistente.setSemestre(curso.getSemestre());
 		 							cursoExistente.setHorarios(curso.getHorarios());
 		 							cursoService.modificacionCurso(cursoExistente);	
 		 							for (Horario diayhoras : horarios) {
