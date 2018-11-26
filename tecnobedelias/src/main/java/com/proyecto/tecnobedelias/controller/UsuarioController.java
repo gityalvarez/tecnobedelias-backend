@@ -295,7 +295,18 @@ public class UsuarioController {
     		return usuarioService.escolaridad(usuarioOpt.get());
     	}else return null;    	
 
-    }   
+    }
+    
+    @GetMapping("/estudiante/cedula")
+    @PreAuthorize("hasRole('ROLE_FUNCIONARIO')")
+    public Usuario estudianteCedula(HttpServletRequest request,
+    		@RequestParam(name = "cedula", required = true) String cedula) {
+    	Optional<Usuario> usuarioOpt = usuarioService.obtenerUsuarioCedula(cedula);
+    	if(usuarioOpt.isPresent()) {
+    		return usuarioOpt.get();
+    	}else return null;    	
+
+    }
     
     
 }

@@ -109,7 +109,7 @@ public class EmailServiceImpl implements EmailService {
 				BodyPart texto = new MimeBodyPart();
 				texto.setText("Usuario "+username+", se le ha creado una cuenta correctamente.\n "
 						+ "Ingrese por unica vez al siguiente link para cambiar su password \n"
-						+ "http://localhost:4200/reset?token="+token);
+						+ "http://tecnobedelias-bucket.s3-website.us-east-2.amazonaws.com/reset?token="+token);
 				
 
 				MimeMultipart m = new MimeMultipart();
