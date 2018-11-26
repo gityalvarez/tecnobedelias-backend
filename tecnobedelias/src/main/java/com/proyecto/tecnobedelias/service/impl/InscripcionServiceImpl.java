@@ -1,6 +1,5 @@
 package com.proyecto.tecnobedelias.service.impl;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,12 +13,12 @@ import org.springframework.stereotype.Service;
 
 import com.proyecto.tecnobedelias.Util.Response;
 import com.proyecto.tecnobedelias.persistence.model.Asignatura;
+import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Curso_Estudiante;
-import com.proyecto.tecnobedelias.persistence.model.Asignatura_Carrera;
-import com.proyecto.tecnobedelias.persistence.model.Examen;
 import com.proyecto.tecnobedelias.persistence.model.Estudiante_Examen;
+import com.proyecto.tecnobedelias.persistence.model.Examen;
 import com.proyecto.tecnobedelias.persistence.model.Usuario;
 import com.proyecto.tecnobedelias.persistence.repository.AsignaturaRepository;
 import com.proyecto.tecnobedelias.persistence.repository.Asignatura_CarreraRepository;
@@ -697,10 +696,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 		Iterator<Estudiante_Examen> itEstExamen = examen.getEstudianteExamen().iterator();
 		Asignatura asignatura = asignaturaRepository.findByNombre(examen.getNombreAsignatura()).get();
 		Estudiante_Examen est_examen;
-		Usuario estudiante;
-		Carrera carreraEst;
-		boolean encontrada;
-		boolean asignaturaEnCarrera;
+		Usuario estudiante;		
 		while (itEstExamen.hasNext()) {
 			est_examen = itEstExamen.next();
 			if (est_examen.getEstado().equals("ANOTADO")) {
@@ -720,10 +716,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 		Iterator<Curso_Estudiante> itCursoEst = curso.getCursoEstudiante().iterator();
 		Asignatura asignatura = asignaturaRepository.findByNombre(curso.getNombreAsignatura()).get();
 		Curso_Estudiante curso_est;
-		Usuario estudiante;
-		Carrera carreraEst;
-		boolean encontrada;
-		boolean asignaturaEnCarrera;
+		Usuario estudiante;		
 		while (itCursoEst.hasNext()) {
 			curso_est = itCursoEst.next();
 			if (curso_est.getEstado().equals("MATRICULADO")) {

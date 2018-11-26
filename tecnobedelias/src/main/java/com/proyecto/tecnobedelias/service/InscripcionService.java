@@ -3,7 +3,6 @@ package com.proyecto.tecnobedelias.service;
 import java.util.List;
 
 import com.proyecto.tecnobedelias.Util.Response;
-import com.proyecto.tecnobedelias.persistence.model.Asignatura;
 import com.proyecto.tecnobedelias.persistence.model.Carrera;
 import com.proyecto.tecnobedelias.persistence.model.Curso;
 import com.proyecto.tecnobedelias.persistence.model.Examen;
