@@ -71,7 +71,7 @@ public class EmailServiceImpl implements EmailService {
 		
 		
 		@Async
-		public boolean sendEmailToken(String token, String email) {
+		public boolean sendEmailToken(String token, String email, String username) {
 			System.out.println("entre al sendEmailToken con el token "+token);
 			try {
 				Properties pro = new Properties();
@@ -85,7 +85,8 @@ public class EmailServiceImpl implements EmailService {
 
 				Session session = Session.getDefaultInstance(pro, null);
 				BodyPart texto = new MimeBodyPart();
-				texto.setText("Ingrese por unica vez al siguiente link para cambiar su password \n"
+				texto.setText("Usuario "+username+", se le ha creado una cuenta correctamente.\n "
+						+ "Ingrese por unica vez al siguiente link para cambiar su password \n"
 						+ "http://localhost:4200/reset?token="+token);
 				
 

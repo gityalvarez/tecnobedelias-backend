@@ -115,7 +115,7 @@ public class UsuarioController {
      		 			System.out.println("asigné el rol");
      		 			if (rol.equals("ESTUDIANTE")) {
      		 				System.out.println("voy a mandar el mail");
-     		 				emailService.sendEmailToken(usuarioExistente.getResetToken(),usuarioExistente.getEmail());
+     		 				emailService.sendEmailToken(usuarioExistente.getResetToken(),usuarioExistente.getEmail(),usuarioExistente.getUsername());
      		 			}
      		 			return new Response(true,"Se creo el usuario "+usuario.getUsername()+" con exito");
      		 		}
@@ -153,8 +153,11 @@ public class UsuarioController {
     
     @PostMapping("/borrar")
     @PreAuthorize("hasRole('ROLE_ADMINISTRADOR')")
-    public void borrarUsuario(@RequestBody Usuario usuario) {
-    	 usuarioService.bajaUsuario(usuario);
+    public Response borrarUsuario(@RequestBody Usuario usuario) {
+    	if (usuarioService.existeUsuario(usuario.getUsername())) {
+    		usuarioService.bajaUsuario(usuario);
+    		return new Response(true, "El usuario fue borrado con exito");
+    	}else return new Response(false, "No se pudo borrar al usuario");
     }
     
     @GetMapping("/reset")
