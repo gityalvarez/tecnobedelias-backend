@@ -1,6 +1,8 @@
 package com.proyecto.tecnobedelias.service.impl;
 
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.mail.BodyPart;
 import javax.mail.Session;
@@ -10,6 +12,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -20,6 +24,12 @@ import com.proyecto.tecnobedelias.service.EmailService;
 
 @Service
 public class EmailServiceImpl implements EmailService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(MailService.class);
+	
+	public static int noOfQuickServiceThreads = 20;
+	
+	private ScheduledExecutorService quickService = Executors.newScheduledThreadPool(noOfQuickServiceThreads);
 
 	@Autowired
 	private JavaMailSender mailSender;
@@ -30,8 +40,8 @@ public class EmailServiceImpl implements EmailService {
 	}
 	
 	@Async
-	public boolean sendEmailPrueba() {
-		
+	public boolean sendEmailPrueba()  throws RuntimeException {
+		logger.debug("inside sendASynchronousMail method");
 		try {
 			Properties pro = new Properties();
 
@@ -54,11 +64,21 @@ public class EmailServiceImpl implements EmailService {
 			mensaje.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress("yamandu.alvarez@gmail.com"));
 			mensaje.setSubject("Saludo");
 			mensaje.setContent(m);
-
-			Transport t = session.getTransport("smtp");
-			t.connect("proyecto.tecnobedelias@gmail.com", "HYFLM2018");
-			t.sendMessage(mensaje, mensaje.getAllRecipients());
-			t.close();
+			
+			quickService.submit(new Runnable() {
+				@Override
+				public void run() {
+					try{
+						Transport t = session.getTransport("smtp");
+						t.connect("proyecto.tecnobedelias@gmail.com", "HYFLM2018");
+						t.sendMessage(mensaje, mensaje.getAllRecipients());
+						t.close();
+					
+					}catch(Exception e){
+						logger.error("Exception occur while send a mail : ",e);
+					}
+				}
+			});
 			return true;
 
 		} catch (Exception e) {
@@ -136,12 +156,23 @@ public class EmailServiceImpl implements EmailService {
 				mensaje.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(email));
 				mensaje.setSubject("Aviso de nueva calificacion de " + tipo);
 				mensaje.setContent(m);
-
-				Transport t = session.getTransport("smtp");
-				t.connect("proyecto.tecnobedelias@gmail.com", "HYFLM2018");
-				t.sendMessage(mensaje, mensaje.getAllRecipients());
-				t.close();
-				System.out.println("mande el mail!!!!!");
+				
+				
+				
+				quickService.submit(new Runnable() {
+					@Override
+					public void run() {
+						try{
+							Transport t = session.getTransport("smtp");
+							t.connect("proyecto.tecnobedelias@gmail.com", "HYFLM2018");
+							t.sendMessage(mensaje, mensaje.getAllRecipients());
+							t.close();
+							System.out.println("mande el mail!!!!!");
+						}catch(Exception e){
+							logger.error("Problemas al mandar el mail : ",e);
+						}
+					}
+				});
 				return true;
 
 			} catch (Exception e) {
